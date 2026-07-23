@@ -7798,10 +7798,22 @@ function renderCalendarView() {
 
         // Loans whose installment has already been registered as paid in
         // the current Jalali month no longer count toward what's left to
-        // pay this month.
-        const paidThisMonth = activeLoans
+        // pay this month. Bug fix: this used to (1) only look at
+        // activeLoans, so a loan that got fully paid off *with this
+        // month's payment* vanished from the sum entirely (its last
+        // payment was silently ignored), and (2) always added the
+        // installment amount exactly once per loan, so paying the same
+        // loan more than once in the same month (e.g. catching up on
+        // skipped installments) never increased "paid this month" past
+        // a single installment — the bar/message just kept repeating
+        // whatever the last payment happened to be instead of adding
+        // up. Now we look at every loan (active or freshly completed)
+        // and multiply by how many payments were actually registered
+        // this month (paidCountThisMonth, defaulting to 1 for older
+        // data saved before this counter existed).
+        const paidThisMonth = loans
           .filter(l => l.lastPaidMonth === currentMonthKey)
-          .reduce((sum, l) => sum + Number(l.installmentAmount || 0), 0);
+          .reduce((sum, l) => sum + Number(l.installmentAmount || 0) * Math.max(1, Number(l.paidCountThisMonth || 1)), 0);
         const remainingThisMonth = Math.max(0, monthlyTotal - paidThisMonth);
         const monthPct = monthlyTotal > 0 ? Math.min(100, Math.round((paidThisMonth / monthlyTotal) * 100)) : 0;
 
@@ -8013,6 +8025,26 @@ function renderCalendarView() {
         persistTransactions();
       }
 
+      // Marks that one more installment of this loan was paid in the
+      // current Jalali month. Bug fix: this used to just set
+      // `lastPaidMonth = currentMonthKey`, a flag with no memory of HOW
+      // MANY payments happened this month. renderLoanSummary read that
+      // flag to decide "paid this month" amount, so if you paid the same
+      // loan two or three times in one month (catching up on skipped
+      // installments), the summary card kept showing/adding only a
+      // single installment's worth — effectively just repeating the
+      // last payment instead of accumulating. paidCountThisMonth now
+      // tracks the real count so the summary can multiply correctly.
+      function markLoanPaidThisMonth(loan) {
+        const monthKey = getJalaliMonthKey(new Date());
+        if (loan.lastPaidMonth === monthKey) {
+          loan.paidCountThisMonth = Number(loan.paidCountThisMonth || 1) + 1;
+        } else {
+          loan.lastPaidMonth = monthKey;
+          loan.paidCountThisMonth = 1;
+        }
+      }
+
       function loanAction(type, loanId) {
         const loan = state.loans.find(l => l.id === loanId);
         if (!loan) return;
@@ -8020,7 +8052,7 @@ function renderCalendarView() {
         if (type === 'inc') {
           if (loan.paidInstallments < loan.totalInstallments) {
             loan.paidInstallments++;
-            loan.lastPaidMonth = getJalaliMonthKey(new Date());
+            markLoanPaidThisMonth(loan);
             recordLoanInstallmentTransaction(loan);
             transactionAdded = true;
           }
@@ -8032,8 +8064,14 @@ function renderCalendarView() {
             // If we don't clear it here, undoing a payment with "-" leaves the
             // flag set forever, so the monthly remaining amount never goes
             // back up even though the payment/transaction was reverted.
+            // Now also decrements paidCountThisMonth so undoing one of
+            // several payments made this month doesn't wipe out the others.
             if (loan.lastPaidMonth === getJalaliMonthKey(new Date())) {
-              loan.lastPaidMonth = null;
+              loan.paidCountThisMonth = Number(loan.paidCountThisMonth || 1) - 1;
+              if (loan.paidCountThisMonth <= 0) {
+                loan.lastPaidMonth = null;
+                loan.paidCountThisMonth = 0;
+              }
             }
           }
           // Intentional: previously recorded installment transactions must stay
@@ -8041,7 +8079,7 @@ function renderCalendarView() {
         } else if (type === 'pay') {
           if (loan.paidInstallments < loan.totalInstallments) {
             loan.paidInstallments++;
-            loan.lastPaidMonth = getJalaliMonthKey(new Date());
+            markLoanPaidThisMonth(loan);
             recordLoanInstallmentTransaction(loan);
             transactionAdded = true;
           }
@@ -8101,6 +8139,7 @@ function renderCalendarView() {
         // keep counting an installment that no longer exists.
         if (paidInst < loan.paidInstallments && loan.lastPaidMonth === getJalaliMonthKey(new Date())) {
           loan.lastPaidMonth = null;
+          loan.paidCountThisMonth = 0;
         }
 
         loan.title             = title;
