@@ -1785,6 +1785,244 @@
       font-size:.92rem;
     }
 
+    /* ─── خلاصه وضعیت وام‌ها ─── */
+    .loan-summary-card{
+      position:relative;
+      overflow:hidden;
+    }
+    .loan-summary-card::before{
+      content:'';
+      position:absolute;
+      top:-60px;
+      left:-60px;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,60,172,.20), transparent 65%);
+      pointer-events:none;
+      z-index:0;
+    }
+    .loan-summary-card::after{
+      content:'';
+      position:absolute;
+      bottom:-60px;
+      right:-60px;
+      width:200px;
+      height:200px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(245,158,11,.16), transparent 65%);
+      pointer-events:none;
+      z-index:0;
+    }
+    .loan-summary-card .section-head,
+    .loan-summary-card .loan-hero,
+    .loan-summary-card .loan-chip-row,
+    .loan-summary-card .loan-summary-footer{
+      position:relative;
+      z-index:1;
+    }
+
+    /* Hero: headline number + monthly progress bar, plus a repayment
+       ring. Stacked vertically by default so nothing is ever squeezed
+       side-by-side on a narrow phone; only becomes a row once there's
+       genuinely enough width for it. */
+    .loan-hero{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap:16px;
+      margin-top:14px;
+      padding:18px 16px;
+      border-radius:22px;
+      background:linear-gradient(160deg, rgba(255,60,172,.10), rgba(245,158,11,.05) 60%, transparent);
+      border:1px solid rgba(255,255,255,.07);
+    }
+    @media (min-width:480px){
+      .loan-hero{
+        flex-direction:row-reverse;
+        align-items:center;
+        text-align:right;
+        justify-content:space-between;
+      }
+    }
+
+    .loan-hero-copy{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:0;
+      width:100%;
+    }
+    @media (min-width:480px){
+      .loan-hero-copy{ width:auto; flex:1; }
+    }
+
+    .loan-hero-label{
+      color:var(--muted);
+      font-size:.82rem;
+    }
+    .loan-hero-value{
+      font-size:1.9rem;
+      font-weight:900;
+      line-height:1.2;
+      word-break:break-word;
+      background:linear-gradient(90deg,#ff9a44,#ff3cac);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .loan-hero-note{
+      color:var(--muted);
+      font-size:.8rem;
+      line-height:1.5;
+    }
+
+    .loan-month-bar{
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.05);
+      margin-top:6px;
+    }
+    .loan-month-bar > span{
+      display:block;
+      height:100%;
+      width:0%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,#ff3cac,#ff9a44);
+      transition:width .35s ease-out;
+    }
+    .loan-month-bar-label{
+      color:var(--muted);
+      font-size:.74rem;
+      margin-top:6px;
+    }
+
+    .loan-hero-ring-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .loan-ring{
+      --usage:0%;
+      width:118px;
+      height:118px;
+      border-radius:50%;
+      background:conic-gradient(#18e6a6 0 var(--usage), rgba(255,255,255,.10) var(--usage) 100%);
+      display:grid;
+      place-items:center;
+      position:relative;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 26px rgba(0,0,0,.18);
+      flex:0 0 auto;
+    }
+    .loan-ring::after{
+      content:'';
+      position:absolute;
+      inset:10px;
+      border-radius:50%;
+      background:linear-gradient(180deg,var(--bg2),rgba(255,255,255,.02));
+      border:1px solid var(--border);
+    }
+    .loan-ring-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      gap:2px;
+      padding:6px;
+    }
+    .loan-ring-percent{
+      font-size:1.3rem;
+      font-weight:900;
+      line-height:1;
+    }
+    .loan-ring-caption{
+      color:var(--muted);
+      font-size:.68rem;
+      max-width:80px;
+      line-height:1.3;
+    }
+
+    /* Chips: flex-wrap instead of a fixed grid, so each chip keeps its
+       own natural minimum width and simply wraps to a new line on
+       narrow screens rather than being forced into a cramped column. */
+    .loan-chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+    .loan-chip{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:11px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      flex:1 1 150px;
+      min-width:140px;
+      transition:.2s ease;
+    }
+    .loan-chip:hover{
+      transform:translateY(-1px);
+      border-color:rgba(255,255,255,.18);
+    }
+    .loan-chip i{
+      font-size:.94rem;
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      flex:0 0 auto;
+      box-shadow:0 6px 14px rgba(0,0,0,.18);
+    }
+    .loan-chip .lc-text{
+      display:flex;
+      flex-direction:column;
+      gap:1px;
+      min-width:0;
+    }
+    .loan-chip .lc-text span{
+      font-size:.98rem;
+      font-weight:900;
+      word-break:break-word;
+      line-height:1.3;
+    }
+    .loan-chip .lc-text small{
+      font-size:.72rem;
+      color:var(--muted);
+    }
+
+    .loan-chip.lc-purple{ background:rgba(106,92,255,.10); }
+    .loan-chip.lc-purple i{ background:linear-gradient(135deg,#6a5cff,#a78bfa); }
+
+    .loan-chip.lc-blue{ background:rgba(0,210,255,.10); }
+    .loan-chip.lc-blue i{ background:linear-gradient(135deg,#00d2ff,#38bdf8); }
+
+    .loan-chip.lc-green{ background:rgba(24,230,166,.10); }
+    .loan-chip.lc-green i{ background:linear-gradient(135deg,#18e6a6,#34d399); }
+
+    .loan-chip.lc-orange{ background:rgba(245,158,11,.10); }
+    .loan-chip.lc-orange i{ background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+
+    .loan-summary-footer{
+      margin-top:16px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.6;
+    }
+
     .calendar-legend{
       display:flex;
       gap:12px;
@@ -3939,6 +4177,66 @@
           </div>
         </section>
 
+        <section class="glass card loan-summary-card" id="loanSummaryCard">
+          <div class="section-head">
+            <h3>خلاصه وضعیت وام‌ها</h3>
+            <span>بر اساس وام‌ها و اقساط ثبت‌شده</span>
+          </div>
+
+          <div class="loan-hero">
+            <div class="loan-hero-copy">
+              <span class="loan-hero-label">باقی‌مانده این ماه</span>
+              <strong class="loan-hero-value" id="loanSummaryRemainingMonth">۰</strong>
+              <span class="loan-hero-note" id="loanSummaryRemainingMonthSub">با توجه به پرداخت‌های این ماه</span>
+              <div class="loan-month-bar">
+                <span id="loanMonthProgressFill" style="width:0%"></span>
+              </div>
+              <span class="loan-month-bar-label" id="loanMonthProgressLabel">هنوز اقساطی برای این ماه ثبت نشده</span>
+            </div>
+            <div class="loan-hero-ring-wrap">
+              <div class="loan-ring" id="loanProgressRing" style="--usage:0%">
+                <div class="loan-ring-inner">
+                  <div class="loan-ring-percent" id="loanSummaryProgress">۰٪</div>
+                  <div class="loan-ring-caption">پیشرفت کل بازپرداخت</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="loan-chip-row">
+            <div class="loan-chip lc-purple">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+              <div class="lc-text">
+                <span id="loanSummaryCount">۰</span>
+                <small>تعداد وام‌ها</small>
+              </div>
+            </div>
+            <div class="loan-chip lc-blue">
+              <i class="fa-solid fa-calendar-days"></i>
+              <div class="lc-text">
+                <span id="loanSummaryMonthly">۰</span>
+                <small>مجموع اقساط ماهانه</small>
+              </div>
+            </div>
+            <div class="loan-chip lc-green">
+              <i class="fa-solid fa-circle-check"></i>
+              <div class="lc-text">
+                <span id="loanSummaryTotalPaid">۰</span>
+                <small>پرداخت‌شده تاکنون</small>
+              </div>
+            </div>
+            <div class="loan-chip lc-orange">
+              <i class="fa-solid fa-scale-balanced"></i>
+              <div class="lc-text">
+                <span id="loanSummaryTotalRemaining">۰</span>
+                <small>مانده کل بدهی</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="loan-summary-footer" id="loanSummaryFooter"></div>
+        </section>
+
         <section class="glass card calendar-card">
           <div class="section-head calendar-head">
             <h3>تقویم هزینه‌ها</h3>
@@ -4490,28 +4788,39 @@
         saveMonthlyArchive(archive);
       }
 
-      // Check if we've entered a new Jalali month since last visit; if so archive old month
+      // Check if we've entered a new Jalali month since last visit; if so archive old month.
+      // Returns true if a month boundary was actually crossed (i.e. something changed),
+      // so callers know whether they need to re-render the UI.
       function checkAndAutoArchive() {
         const todayKey = currentJalaliMonthKey();
-        const lastKey  = localStorage.getItem(STORAGE_KEYS.lastSeenMonth) || todayKey;
-        if (lastKey !== todayKey) {
-          // Parse the lastKey to archive that month
-          let [ly, lm] = lastKey.split('_').map(Number);
-          if (ly && lm) {
-            // Archive every month from lastKey up to (but not including) today —
-            // not just the single previous month — so that if the app wasn't
-            // opened for 2+ months, the in-between months get archived instead
-            // of being silently dropped when live transactions are filtered below.
-            let guard = 0;
-            while (jalaliMonthKey(ly, lm) !== todayKey && guard < 600) {
-              archiveCurrentMonth(ly, lm);
-              lm++;
-              if (lm > 12) { lm = 1; ly++; }
-              guard++;
-            }
-          }
-          // Update the live transactions: keep only current-month ones
-          // (older ones already archived; future ones wouldn't exist)
+
+        // Self-healing sweep: figure out which months are actually sitting in the
+        // live transaction list based on their real createdAt dates, instead of
+        // trusting the one-time "last seen month" flag. That flag alone caused
+        // the reported bug: once it got written for the current month (for any
+        // reason — an earlier partial run, a restore, etc.), every later check
+        // saw lastKey === todayKey and skipped archiving entirely, even though
+        // old transactions (e.g. Tir) were still sitting in the live list and
+        // kept showing up in the new month (Mordad).
+        const staleMonthKeys = new Set();
+        state.transactions.forEach(t => {
+          const ts = Number(t.createdAt || 0);
+          if (!ts) return;
+          const { jy, jm } = getJalaliDateParts(new Date(ts));
+          const key = jalaliMonthKey(jy, jm);
+          if (key !== todayKey) staleMonthKeys.add(key);
+        });
+
+        let crossed = false;
+        if (staleMonthKeys.size > 0) {
+          crossed = true;
+          // Archive every stale month found, oldest first.
+          Array.from(staleMonthKeys).sort().forEach(key => {
+            const [ly, lm] = key.split('_').map(Number);
+            if (ly && lm) archiveCurrentMonth(ly, lm);
+          });
+          // Keep only current-month transactions in the live list
+          // (everything else has just been archived above).
           const { jy, jm } = getJalaliDateParts(new Date());
           const [gs_y, gs_m, gs_d] = fromJalali(jy, jm, 1);
           const startTs = new Date(gs_y, gs_m - 1, gs_d, 0, 0, 0, 0).getTime();
@@ -4519,6 +4828,39 @@
           persistTransactions();
         }
         safeStorageSet(STORAGE_KEYS.lastSeenMonth, todayKey);
+        return crossed;
+      }
+
+      // ─── Live month-boundary watcher ───
+      // checkAndAutoArchive() only used to run once, at boot(). If the app/tab is
+      // left open across the midnight month boundary (e.g. a PWA left open, or a
+      // browser tab never refreshed), that boot-time check never ran again and
+      // the old month's transactions kept showing until the page was reloaded.
+      // This watcher re-checks periodically and whenever the app regains focus
+      // or becomes visible again, so the switch to the new month happens
+      // automatically without requiring a manual refresh.
+      let _monthWatcherWired = false;
+      function wireMonthWatcher() {
+        if (_monthWatcherWired) return;
+        _monthWatcherWired = true;
+
+        const recheck = () => {
+          if (checkAndAutoArchive()) {
+            renderAll();
+          }
+        };
+
+        // Periodic safety-net check (covers apps/tabs left open in the background).
+        setInterval(recheck, 60 * 1000);
+
+        // Immediate check whenever the tab/app becomes visible again or regains
+        // focus — this is the case that actually matters most in practice
+        // (device was asleep/backgrounded over the month boundary).
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') recheck();
+        });
+        window.addEventListener('focus', recheck);
+        window.addEventListener('pageshow', recheck);
       }
 
       const defaultCategories = [
@@ -4647,6 +4989,30 @@ const presetAvatars = [
         const entry = archive[state.viewingMonthKey];
         return entry ? migrateTransactions(entry.transactions) : [];
       }
+
+      // ─── Returns EVERY transaction the app has ever recorded: the live
+      // (current month) list PLUS every transaction sitting in the monthly
+      // archive. Month-end archiving moves old transactions out of
+      // state.transactions, so activeTransactions()/state.transactions alone
+      // only ever "see" the current month. Cross-month analytics (monthly
+      // comparison report, 30-day rolling averages/trend chart, financial
+      // health score) need the full history regardless of which month the
+      // person happens to be viewing in the transactions list, so they must
+      // read from this instead. ───
+      function allTransactionsCombined() {
+        const archive = loadMonthlyArchive();
+        const combined = [];
+        const seen = new Set();
+        state.transactions.forEach(t => {
+          if (t && !seen.has(t.id)) { seen.add(t.id); combined.push(t); }
+        });
+        Object.values(archive).forEach(entry => {
+          migrateTransactions((entry && entry.transactions) || []).forEach(t => {
+            if (t && !seen.has(t.id)) { seen.add(t.id); combined.push(t); }
+          });
+        });
+        return combined;
+      }
       function activeInitialBalance() {
         if (!state.viewingMonthKey) return state.initialBalance;
         const archive = loadMonthlyArchive();
@@ -4723,6 +5089,17 @@ const presetAvatars = [
         reportLowestCat: document.getElementById('reportLowestCat'),
         reportComparisonText: document.getElementById('reportComparisonText'),
         reportTopCategoryText: document.getElementById('reportTopCategoryText'),
+        loanSummaryCount: document.getElementById('loanSummaryCount'),
+        loanSummaryMonthly: document.getElementById('loanSummaryMonthly'),
+        loanSummaryRemainingMonth: document.getElementById('loanSummaryRemainingMonth'),
+        loanSummaryRemainingMonthSub: document.getElementById('loanSummaryRemainingMonthSub'),
+        loanSummaryTotalPaid: document.getElementById('loanSummaryTotalPaid'),
+        loanSummaryTotalRemaining: document.getElementById('loanSummaryTotalRemaining'),
+        loanSummaryProgress: document.getElementById('loanSummaryProgress'),
+        loanProgressRing: document.getElementById('loanProgressRing'),
+        loanMonthProgressFill: document.getElementById('loanMonthProgressFill'),
+        loanMonthProgressLabel: document.getElementById('loanMonthProgressLabel'),
+        loanSummaryFooter: document.getElementById('loanSummaryFooter'),
         calendarGrid: document.getElementById('calendarGrid'),
         calendarMonthLabel: document.getElementById('calendarMonthLabel'),
         calendarPrevBtn: document.getElementById('calendarPrevBtn'),
@@ -5638,7 +6015,9 @@ function parseMoneyInput(value) {
       function renderAnalytics() {
         const expenseTotals = new Map();
         state.categories.filter(c => c.type === 'expense').forEach(cat => expenseTotals.set(cat.key, 0));
-        state.transactions.filter(t => t.type === 'expense').forEach(t => {
+        // باید مثل خانه از activeTransactions() استفاده کند تا در حالت مشاهده‌ی آرشیو،
+        // تقسیم هزینه‌ها متعلق به همان ماه آرشیو باشد نه ماه جاری.
+        activeTransactions().filter(t => t.type === 'expense').forEach(t => {
           expenseTotals.set(t.category, (expenseTotals.get(t.category) || 0) + Number(t.amount || 0));
         });
 
@@ -5728,6 +6107,7 @@ function parseMoneyInput(value) {
         startOfWeek.setHours(0, 0, 0, 0);
         startOfWeek.setDate(now.getDate() - ((now.getDay() + 1) % 7)); // Saturday start
 
+        const weeklyAllTxs = allTransactionsCombined();
         const data = [];
         for (let i = 0; i < 7; i++) {
           const day = new Date(startOfWeek);
@@ -5735,7 +6115,7 @@ function parseMoneyInput(value) {
           const next = new Date(day);
           next.setDate(day.getDate() + 1);
 
-          const total = state.transactions
+          const total = weeklyAllTxs
             .filter(t => {
               if (t.type !== 'expense') return false;
               const d = new Date(t.createdAt || t.date || Date.now());
@@ -6065,7 +6445,7 @@ function parseMoneyInput(value) {
 
         const totals = [0,0,0,0,0,0,0]; // indexed by Persian day
         const counts = [0,0,0,0,0,0,0];
-        activeTransactions()
+        allTransactionsCombined()
           .filter(t => t.type === 'expense')
           .forEach(t => {
             const d   = new Date(t.createdAt);
@@ -6207,13 +6587,14 @@ function parseMoneyInput(value) {
         ctx.scale(devicePixelRatio, devicePixelRatio);
 
         const now = new Date();
+        const allTxs = allTransactionsCombined();
         const days = [];
         for (let i = 29; i >= 0; i--) {
           const d = new Date(now);
           d.setHours(0,0,0,0);
           d.setDate(d.getDate() - i);
           const next = new Date(d); next.setDate(d.getDate() + 1);
-          const val = activeTransactions()
+          const val = allTxs
             .filter(t => t.type === 'expense' && t.createdAt >= d.getTime() && t.createdAt < next.getTime())
             .reduce((s, t) => s + Number(t.amount || 0), 0);
           days.push(val);
@@ -6360,8 +6741,11 @@ function parseMoneyInput(value) {
           const isCurrent = jy === cy && jm === cm;
           let expense = 0, income = 0;
           if (isCurrent) {
-            expense = activeTransactions().filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount||0),0);
-            income  = activeTransactions().filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount||0),0);
+            // ماه جاری واقعی همیشه باید از تراکنش‌های زنده (state.transactions) خوانده شود،
+            // نه activeTransactions()، چون وقتی در حال مشاهده‌ی آرشیو هستیم activeTransactions()
+            // داده‌ی همان ماه آرشیو را برمی‌گرداند و باعث می‌شد ماه جاری با ماه آرشیو یکی نمایش داده شود.
+            expense = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount||0),0);
+            income  = state.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount||0),0);
           } else {
             expense = archiveExpenseForMonth(jy, jm);
             income  = archiveIncomeForMonth(jy, jm);
@@ -6465,8 +6849,8 @@ function parseMoneyInput(value) {
         const archive = loadMonthlyArchive();
         const rows = [];
 
-        // current month
-        const curExpense = activeTransactions().filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount||0),0);
+        // current month (همیشه از تراکنش‌های زنده، نه activeTransactions(), تا با حالت مشاهده‌ی آرشیو قاطی نشود)
+        const curExpense = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount||0),0);
         rows.push({ label: jalaliMonthNames[cm-1]+' '+toPersianNumber(cy), expense: curExpense, isCurrent: true });
 
         // archived months
@@ -6516,7 +6900,16 @@ function parseMoneyInput(value) {
         const headEl  = document.getElementById('heatmapDaysHeader');
         if (!gridEl || !headEl) return;
 
-        const { jy, jm } = getJalaliDateParts(new Date());
+        // نقشه‌ی حرارتی باید مطابق ماهی باشد که در حال مشاهده‌ی آن هستیم:
+        // اگر در آرشیو هستیم، بر اساس همان ماه آرشیوشده، وگرنه ماه جاری واقعی.
+        let jy, jm;
+        if (typeof isViewingArchive === 'function' && isViewingArchive()) {
+          const parts = String(state.viewingMonthKey).split('_').map(Number);
+          jy = parts[0]; jm = parts[1];
+        } else {
+          const cur = getJalaliDateParts(new Date());
+          jy = cur.jy; jm = cur.jm;
+        }
         const daysInMonth = jalaliDaysInMonth(jy, jm);
 
         // build daily expense map
@@ -6860,10 +7253,11 @@ function parseMoneyInput(value) {
         const now = new Date();
         const oneMonthAgo = new Date(now);
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 3);
-        const recentIncome = state.transactions
+        const recentTxs = allTransactionsCombined();
+        const recentIncome = recentTxs
           .filter(t => t.type === 'income' && Number(t.createdAt) >= oneMonthAgo.getTime())
           .reduce((s, t) => s + Number(t.amount || 0), 0);
-        const recentExpense = state.transactions
+        const recentExpense = recentTxs
           .filter(t => t.type === 'expense' && Number(t.createdAt) >= oneMonthAgo.getTime())
           .reduce((s, t) => s + Number(t.amount || 0), 0);
         const monthlySurplus = Math.max(0, (recentIncome - recentExpense) / 3);
@@ -6957,7 +7351,7 @@ function parseMoneyInput(value) {
       }
 
       function transactionsInRange(start, end, type = 'all') {
-        return activeTransactions().filter(t => {
+        return allTransactionsCombined().filter(t => {
           const createdAt = Number(t.createdAt || 0);
           if (createdAt < start.getTime() || createdAt >= end.getTime()) return false;
           if (type !== 'all' && t.type !== type) return false;
@@ -7029,6 +7423,15 @@ function getJalaliMonthLabel(date = new Date()) {
         const d = date instanceof Date ? date : new Date(date);
         const [jy, jm] = toJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
         return `${jalaliMonthNames[jm - 1]} ${toPersianNumber(jy)}`;
+      }
+
+      // Returns a stable "jalaliYear-jalaliMonth" key (e.g. "1403-4") used to
+      // detect whether a loan installment has already been paid in the
+      // current Jalali month, for the loans monthly-summary card.
+      function getJalaliMonthKey(date = new Date()) {
+        const d = date instanceof Date ? date : new Date(date);
+        const [jy, jm] = toJalali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+        return `${jy}-${jm}`;
       }
 
       function getWeekWindow(offsetDays = 0, length = 7) {
@@ -7158,11 +7561,13 @@ function renderCalendarView() {
           els.calendarTodayBtn.textContent = Number(state.calendarMonthOffset || 0) === 0 ? 'امروز' : 'بازگشت';
         }
 
-        /* --- جمع هزینه‌ها بر اساس روز شمسی --- */
+        /* --- جمع هزینه‌ها بر اساس روز شمسی ---
+           تقویم همیشه باید به کل تاریخچه‌ی تراکنش‌ها (چه ماه جاری، چه آرشیو)
+           متصل باشد، چون ناوبری ماه‌های تقویم مستقل از حالت مشاهده‌ی آرشیو است. */
         const dayAmounts = Array.from({ length: daysInMonth }, () => 0);
         const dayCounts  = Array.from({ length: daysInMonth }, () => 0);
 
-        activeTransactions()
+        allTransactionsCombined()
           .filter(t => t.type === 'expense')
           .forEach(t => {
             const d = new Date(t.createdAt);
@@ -7374,9 +7779,80 @@ function renderCalendarView() {
         { fill:'linear-gradient(90deg,#f59e0b,#fbbf24)', glow:'rgba(245,158,11,.28)' },
       ];
 
+      // Builds the colorful "loan status summary" card that sits in the
+      // analysis page right after the monthly report. Recomputed from
+      // state.loans every time renderLoans() runs, so it always reflects
+      // the latest add/edit/delete/pay actions automatically.
+      function renderLoanSummary() {
+        if (!els.loanSummaryCount) return;
+        const loans = Array.isArray(state.loans) ? state.loans : [];
+        const currentMonthKey = getJalaliMonthKey(new Date());
+
+        const activeLoans = loans.filter(l => Number(l.paidInstallments || 0) < Number(l.totalInstallments || 0));
+        const doneLoans   = loans.filter(l => Number(l.paidInstallments || 0) >= Number(l.totalInstallments || 0));
+
+        // Fixed but dynamic: sum of the monthly installment for every loan
+        // that is still active. Automatically updates whenever a loan is
+        // added, edited, deleted, or fully paid off.
+        const monthlyTotal = activeLoans.reduce((sum, l) => sum + Number(l.installmentAmount || 0), 0);
+
+        // Loans whose installment has already been registered as paid in
+        // the current Jalali month no longer count toward what's left to
+        // pay this month.
+        const paidThisMonth = activeLoans
+          .filter(l => l.lastPaidMonth === currentMonthKey)
+          .reduce((sum, l) => sum + Number(l.installmentAmount || 0), 0);
+        const remainingThisMonth = Math.max(0, monthlyTotal - paidThisMonth);
+        const monthPct = monthlyTotal > 0 ? Math.min(100, Math.round((paidThisMonth / monthlyTotal) * 100)) : 0;
+
+        const totalPaidSoFar = loans.reduce((sum, l) =>
+          sum + Number(l.installmentAmount || 0) * Number(l.paidInstallments || 0), 0);
+        const totalDebt = loans.reduce((sum, l) =>
+          sum + Number(l.installmentAmount || 0) * Number(l.totalInstallments || 0), 0);
+        const totalRemainingDebt = Math.max(0, totalDebt - totalPaidSoFar);
+        const progressPct = totalDebt > 0 ? Math.min(100, Math.round((totalPaidSoFar / totalDebt) * 100)) : 0;
+
+        els.loanSummaryCount.textContent = toPersianNumber(loans.length);
+
+        if (els.loanSummaryRemainingMonth) els.loanSummaryRemainingMonth.textContent = formatMoney(remainingThisMonth);
+        if (els.loanSummaryRemainingMonthSub) {
+          els.loanSummaryRemainingMonthSub.textContent = !activeLoans.length
+            ? 'همه‌ی وام‌ها تسویه شده‌اند'
+            : paidThisMonth > 0
+              ? `${formatMoney(paidThisMonth)} از این ماه پرداخت شده`
+              : 'هنوز پرداختی برای این ماه ثبت نشده';
+        }
+        if (els.loanMonthProgressFill) els.loanMonthProgressFill.style.width = `${monthPct}%`;
+        if (els.loanMonthProgressLabel) {
+          els.loanMonthProgressLabel.textContent = monthlyTotal > 0
+            ? `${toPersianNumber(monthPct)}٪ از اقساط این ماه ثبت شده`
+            : 'هنوز اقساطی برای این ماه ثبت نشده';
+        }
+
+        if (els.loanSummaryMonthly) els.loanSummaryMonthly.textContent = formatMoney(monthlyTotal);
+        if (els.loanSummaryTotalPaid) els.loanSummaryTotalPaid.textContent = formatMoney(totalPaidSoFar);
+        if (els.loanSummaryTotalRemaining) els.loanSummaryTotalRemaining.textContent = formatMoney(totalRemainingDebt);
+
+        if (els.loanSummaryProgress) els.loanSummaryProgress.textContent = `${toPersianNumber(progressPct)}٪`;
+        if (els.loanProgressRing) els.loanProgressRing.style.setProperty('--usage', `${progressPct}%`);
+
+        if (els.loanSummaryFooter) {
+          if (!loans.length) {
+            els.loanSummaryFooter.innerHTML = 'وقتی اولین وامت رو از بخش «وام‌ها و اقساط» اضافه کنی، خلاصه وضعیتش اینجا نمایش داده می‌شود.';
+          } else if (!activeLoans.length) {
+            els.loanSummaryFooter.innerHTML = '🎉 تبریک! همه‌ی وام‌هات به‌طور کامل تسویه شده‌اند.';
+          } else if (remainingThisMonth <= 0) {
+            els.loanSummaryFooter.innerHTML = '✅ اقساط این ماه رو کامل ثبت کردی، آفرین!';
+          } else {
+            els.loanSummaryFooter.innerHTML = `از ${toPersianNumber(loans.length)} وام ثبت‌شده، <strong>${toPersianNumber(activeLoans.length)}</strong> فعال و <strong>${toPersianNumber(doneLoans.length)}</strong> تسویه‌شده‌اند. این ماه هنوز <strong>${formatMoney(remainingThisMonth)}</strong> از اقساطت باقی مونده.`;
+          }
+        }
+      }
+
       function renderLoans() {
         const container = document.getElementById('loansContainer');
         if (!container) return;
+        renderLoanSummary();
         if (!state.loans.length) {
           container.innerHTML = `
             <div class="empty-state" style="padding:24px 16px">
@@ -7544,16 +8020,28 @@ function renderCalendarView() {
         if (type === 'inc') {
           if (loan.paidInstallments < loan.totalInstallments) {
             loan.paidInstallments++;
+            loan.lastPaidMonth = getJalaliMonthKey(new Date());
             recordLoanInstallmentTransaction(loan);
             transactionAdded = true;
           }
         } else if (type === 'dec') {
-          if (loan.paidInstallments > 0) loan.paidInstallments--;
+          if (loan.paidInstallments > 0) {
+            loan.paidInstallments--;
+            // Bug fix: "lastPaidMonth" is what makes the loan-hero card treat
+            // this loan as "already paid this month" (see renderLoanSummary).
+            // If we don't clear it here, undoing a payment with "-" leaves the
+            // flag set forever, so the monthly remaining amount never goes
+            // back up even though the payment/transaction was reverted.
+            if (loan.lastPaidMonth === getJalaliMonthKey(new Date())) {
+              loan.lastPaidMonth = null;
+            }
+          }
           // Intentional: previously recorded installment transactions must stay
           // untouched when the counter is decremented.
         } else if (type === 'pay') {
           if (loan.paidInstallments < loan.totalInstallments) {
             loan.paidInstallments++;
+            loan.lastPaidMonth = getJalaliMonthKey(new Date());
             recordLoanInstallmentTransaction(loan);
             transactionAdded = true;
           }
@@ -7606,6 +8094,14 @@ function renderCalendarView() {
         if (!installAmt)                  { alert('مبلغ هر قسط را وارد کن.'); return; }
         if (!totalInst || totalInst < 1)  { alert('تعداد اقساط را وارد کن.'); return; }
         if (paidInst > totalInst)         { alert('تعداد پرداخت‌شده از کل بیشتر است.'); return; }
+
+        // Same fix as the "-" button: if the paid-installments count is being
+        // lowered and this loan was flagged as paid in the current Jalali
+        // month, clear that flag so the loan-hero monthly summary doesn't
+        // keep counting an installment that no longer exists.
+        if (paidInst < loan.paidInstallments && loan.lastPaidMonth === getJalaliMonthKey(new Date())) {
+          loan.lastPaidMonth = null;
+        }
 
         loan.title             = title;
         loan.installmentAmount = installAmt;
@@ -8630,6 +9126,7 @@ function renderCalendarView() {
           setupArchiveEvents();
           wireLoanEvents();
           wireAddEntityModals();
+          wireMonthWatcher();
         }
 
         ensurePageConsistency();
