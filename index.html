@@ -4869,6 +4869,7 @@
         { key: 'shopping', name: 'خرید', emoji: '🛍', color: '#ff3cac', type: 'expense', budgetLimit: 7000000, builtin: true },
         { key: 'fun', name: 'سرگرمی', emoji: '🎮', color: '#9b7bff', type: 'expense', budgetLimit: 4000000, builtin: true },
         { key: 'salary', name: 'حقوق', emoji: '💼', color: '#18e6a6', type: 'income', budgetLimit: 0, builtin: true },
+        { key: 'loanes', name: 'ااقساط وام', emoji: '💵', color: '#87ff9d', type: 'expense', budgetLimit: 0, builtin: true },
         { key: 'other', name: 'سایر', emoji: '✨', color: '#7dd3fc', type: 'expense', budgetLimit: 0, builtin: true }
       ];
 
@@ -8054,7 +8055,7 @@ function renderCalendarView() {
       function recordLoanInstallmentTransaction(loan) {
         const amount = Math.max(0, Number(loan.installmentAmount || 0));
         if (!amount) return;
-        const category = categoryByKey('other') ? 'other' : fallbackCategoryKey('expense');
+        const category = categoryByKey('loanes') ? 'loanes' : fallbackCategoryKey('expense');
         state.transactions.unshift({
           id: uid(),
           amount,
