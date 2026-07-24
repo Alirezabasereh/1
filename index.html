@@ -49,7 +49,7 @@
       min-height:100vh;
       overflow-x:hidden;
       -webkit-tap-highlight-color: transparent;
-      user-select:none;
+      user-select: none;
     }
 
     body.light-mode{
@@ -4870,7 +4870,8 @@
         { key: 'shopping', name: 'خرید', emoji: '🛍', color: '#ff3cac', type: 'expense', budgetLimit: 7000000, builtin: true },
         { key: 'fun', name: 'سرگرمی', emoji: '🎮', color: '#9b7bff', type: 'expense', budgetLimit: 4000000, builtin: true },
         { key: 'salary', name: 'حقوق', emoji: '💼', color: '#18e6a6', type: 'income', budgetLimit: 0, builtin: true },
-        { key: 'other', name: 'سایر', emoji: '✨', color: '#7dd3fc', type: 'expense', budgetLimit: 0, builtin: true }
+        { key: 'loanes', name: 'اقساط وام', emoji: '💵', color: '#87ff9d', type: 'expense', budgetLimit: 0, builtin: true },
+        { key: 'other', name: 'سایر', emoji: '✨', color: '#7dd3fc', type: 'expense', budgetLimit: 0, builtin: true },
       ];
 
       const defaultProfileAvatar = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27256%27%20height%3D%27256%27%20viewBox%3D%270%200%20256%20256%27%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%270%25%27%20stop-color%3D%27%236a5cff%27/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%27100%25%27%20stop-color%3D%27%2300d2ff%27/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%27256%27%20height%3D%27256%27%20rx%3D%27128%27%20fill%3D%27url%28%23g%29%27/%3E%0A%20%20%3Ccircle%20cx%3D%27128%27%20cy%3D%2798%27%20r%3D%2740%27%20fill%3D%27rgba%28255%2C255%2C255%2C.92%29%27/%3E%0A%20%20%3Cpath%20d%3D%27M58%20220c14-38%2043-58%2070-58s56%2020%2070%2058%27%20fill%3D%27rgba%28255%2C255%2C255%2C.92%29%27/%3E%0A%3C/svg%3E';
@@ -8014,7 +8015,7 @@ function renderCalendarView() {
       function recordLoanInstallmentTransaction(loan) {
         const amount = Math.max(0, Number(loan.installmentAmount || 0));
         if (!amount) return;
-        const category = categoryByKey('other') ? 'other' : fallbackCategoryKey('expense');
+        const category = categoryByKey('loanes') ? 'loanes' : fallbackCategoryKey('expense');
         state.transactions.unshift({
           id: uid(),
           amount,
