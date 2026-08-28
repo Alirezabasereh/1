@@ -2262,6 +2262,12 @@
       font-size:.82rem;
       color:var(--muted);
     }
+    .week-label-short{display:none}
+
+    @media screen and (max-width:419px){
+      .week-label-full{display:none}
+      .week-label-short{display:inline}
+    }
 
     .week-value{
       position:absolute;
@@ -4068,9 +4074,14 @@
     </section>
 
     <section class="page" id="analyticsPage" data-page="analytics">
-      <div class="page-title-wrap">
-        <h2 class="page-title">تحلیل مالی</h2>
-        <p>بر اساس تراکنش‌های ثبت شده</p>
+      <div class="page-title-wrap profile-page-head">
+        <div>
+          <h2 class="page-title">تحلیل مالی</h2>
+          <p>بر اساس تراکنش‌های ثبت شده</p>
+        </div>
+        <button class="glass icon-btn" type="button" id="analyticsProfileBtn" aria-label="open profile">
+          <i class="fa-solid fa-user"></i>
+        </button>
       </div>
 
       <div class="analytics-grid">
@@ -4373,9 +4384,14 @@
     </section>
 
     <section class="page" id="budgetPage" data-page="budget">
-      <div class="page-title-wrap">
-        <h2 class="page-title">بودجه و هدف‌ها</h2>
-        <p>دسته‌های جدید بساز، سقف تعیین کن و هدف مالی اضافه کن</p>
+      <div class="page-title-wrap profile-page-head">
+        <div>
+          <h2 class="page-title">بودجه و هدف‌ها</h2>
+          <p>دسته‌های جدید بساز، سقف تعیین کن و هدف مالی اضافه کن</p>
+        </div>
+        <button class="glass icon-btn" type="button" id="budgetProfileBtn" aria-label="open profile">
+          <i class="fa-solid fa-user"></i>
+        </button>
       </div>
 
       <div class="budget-page-grid">
@@ -4436,8 +4452,8 @@
         <div class="modal-drag-handle"></div>
         <div class="modal-head">
           <div>
-            <div class="modal-title">دسته‌بندی جدید</div>
-            <div class="modal-subtitle">برای تراکنش، بودجه و نمودار</div>
+            <div class="modal-title" id="categoryModalTitle">دسته‌بندی جدید</div>
+            <div class="modal-subtitle" id="categoryModalSubtitle">برای تراکنش، بودجه و نمودار</div>
           </div>
           <button class="close-btn" type="button" id="closeAddCategoryBtn"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -4535,9 +4551,14 @@
     </div>
 
     <section class="page" id="aiPage" data-page="ai">
-      <div class="page-title-wrap">
-        <h2 class="page-title">دستیار مالی AI</h2>
-        <p>نتیجه‌های تحلیلی و پیشنهادهای هوشمند</p>
+      <div class="page-title-wrap profile-page-head">
+        <div>
+          <h2 class="page-title">دستیار مالی AI</h2>
+          <p>نتیجه‌های تحلیلی و پیشنهادهای هوشمند</p>
+        </div>
+        <button class="glass icon-btn" type="button" id="aiProfileBtn" aria-label="open profile">
+          <i class="fa-solid fa-user"></i>
+        </button>
       </div>
       <section class="glass ai-card ai-placeholder">
         <div class="section-head">
@@ -5038,6 +5059,9 @@ const presetAvatars = [
         navItems: document.querySelectorAll('.nav-item:not(.nav-action)'),
         themeToggle: document.getElementById('themeToggle'),
         homeProfileBtn: document.getElementById('homeProfileBtn'),
+        analyticsProfileBtn: document.getElementById('analyticsProfileBtn'),
+        budgetProfileBtn: document.getElementById('budgetProfileBtn'),
+        aiProfileBtn: document.getElementById('aiProfileBtn'),
         profileThemeToggle: document.getElementById('profileThemeToggle'),
         openModalBtn: document.getElementById('openModalBtn'),
         closeModalBtn: document.getElementById('closeModalBtn'),
@@ -5142,6 +5166,7 @@ const presetAvatars = [
       };
 
       let profileSaveResetTimer = null;
+      let editingCategoryKey = null;
 
       function uid() {
         return (window.crypto && crypto.randomUUID)
@@ -6105,6 +6130,7 @@ function parseMoneyInput(value) {
         // JS getDay(): 0=Sunday ... 6=Saturday
         // Bar order stays Saturday -> Friday; only labels are corrected.
         const weekdayLabelsByJsDay = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
+        const weekdayShortLabelsByJsDay = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'];
 
         const startOfWeek = new Date(now);
         startOfWeek.setHours(0, 0, 0, 0);
@@ -6129,6 +6155,7 @@ function parseMoneyInput(value) {
           data.push({
             weekdayIndex: day.getDay(),
             label: weekdayLabelsByJsDay[day.getDay()],
+            shortLabel: weekdayShortLabelsByJsDay[day.getDay()],
             value: total
           });
         }
@@ -6147,7 +6174,7 @@ function parseMoneyInput(value) {
               <div class="week-bar-wrap">
                 <div class="week-bar" style="height:${barPx}px"></div>
               </div>
-              <div class="week-label">${day.label}</div>
+              <div class="week-label"><span class="week-label-full">${day.label}</span><span class="week-label-short">${day.shortLabel}</span></div>
             </div>
           `;
         }).join('');
@@ -7236,7 +7263,10 @@ function parseMoneyInput(value) {
             <span class="dot" style="background:${cat.color}"></span>
             <span>${cat.emoji} ${cat.name}</span>
             <small>${cat.type === 'income' ? 'درآمد' : 'هزینه'}</small>
-            ${cat.builtin ? '' : `<button type="button" data-remove-category="${cat.key}" aria-label="remove category"><i class="fa-solid fa-xmark"></i></button>`}
+            ${cat.builtin ? '' : `
+              <button type="button" data-edit-category="${cat.key}" aria-label="edit category"><i class="fa-solid fa-pen"></i></button>
+              <button type="button" data-remove-category="${cat.key}" aria-label="remove category"><i class="fa-solid fa-xmark"></i></button>
+            `}
           </span>
         `).join('');
       }
@@ -8214,7 +8244,12 @@ function renderCalendarView() {
         const openCategoryBtn  = document.getElementById('openAddCategoryBtn');
         const closeCategoryBtn = document.getElementById('closeAddCategoryBtn');
         const categoryModal    = document.getElementById('addCategoryModal');
-        if (openCategoryBtn)  openCategoryBtn.addEventListener('click', openAddCategoryModal);
+        if (openCategoryBtn)  openCategoryBtn.addEventListener('click', () => {
+          editingCategoryKey = null;
+          resetCategoryForm();
+          setCategoryModalMode('add');
+          openAddCategoryModal();
+        });
         if (closeCategoryBtn) closeCategoryBtn.addEventListener('click', closeAddCategoryModal);
         if (categoryModal) categoryModal.addEventListener('click', e => { if (e.target === categoryModal) closeAddCategoryModal(); });
 
@@ -8384,6 +8419,41 @@ function renderCalendarView() {
         renderAll();
       }
 
+      function resetCategoryForm() {
+        els.newCategoryName.value = '';
+        els.newCategoryEmoji.value = '';
+        els.newCategoryType.value = 'expense';
+        els.newCategoryLimit.value = '';
+        els.newCategoryColor.value = '#6a5cff';
+      }
+
+      function setCategoryModalMode(mode) {
+        const titleEl = document.getElementById('categoryModalTitle');
+        const subtitleEl = document.getElementById('categoryModalSubtitle');
+        if (mode === 'edit') {
+          if (titleEl) titleEl.textContent = 'ویرایش دسته‌بندی';
+          if (subtitleEl) subtitleEl.textContent = 'نام، رنگ و نوع دسته را تغییر بده';
+          if (els.addCategoryBtn) els.addCategoryBtn.textContent = 'ذخیره تغییرات';
+        } else {
+          if (titleEl) titleEl.textContent = 'دسته‌بندی جدید';
+          if (subtitleEl) subtitleEl.textContent = 'برای تراکنش، بودجه و نمودار';
+          if (els.addCategoryBtn) els.addCategoryBtn.textContent = 'افزودن دسته';
+        }
+      }
+
+      function openEditCategoryModal(key) {
+        const cat = categoryByKey(key);
+        if (!cat || cat.builtin) return;
+        editingCategoryKey = key;
+        els.newCategoryName.value = cat.name || '';
+        els.newCategoryEmoji.value = cat.emoji || '';
+        els.newCategoryType.value = cat.type === 'income' ? 'income' : 'expense';
+        els.newCategoryLimit.value = cat.budgetLimit ? cat.budgetLimit : '';
+        els.newCategoryColor.value = /^#[0-9a-fA-F]{6}$/.test(cat.color || '') ? cat.color : '#6a5cff';
+        setCategoryModalMode('edit');
+        openAddCategoryModal();
+      }
+
       function addCategory() {
         const name = String(els.newCategoryName.value || '').trim();
         const emoji = String(els.newCategoryEmoji.value || '🏷️').trim().slice(0, 4) || '🏷️';
@@ -8394,6 +8464,32 @@ function renderCalendarView() {
           alert('نام دسته را وارد کن.');
           return;
         }
+
+        if (editingCategoryKey) {
+          const cat = categoryByKey(editingCategoryKey);
+          if (!cat || cat.builtin) {
+            editingCategoryKey = null;
+            closeAddCategoryModal();
+            return;
+          }
+          const duplicate = state.categories.some(c => c.key !== editingCategoryKey && c.name.trim() === name);
+          if (duplicate) {
+            alert('دسته‌ای با این نام قبلاً وجود دارد. نام دیگری انتخاب کن.');
+            return;
+          }
+          cat.name = name;
+          cat.emoji = emoji;
+          cat.color = color;
+          cat.type = type;
+          cat.budgetLimit = limit;
+          persistCategories();
+          renderAll();
+          editingCategoryKey = null;
+          resetCategoryForm();
+          closeAddCategoryModal();
+          return;
+        }
+
         const key = slugKey(name);
         if (state.categories.some(c => c.key === key)) {
           alert('این دسته قبلاً وجود دارد. نام دیگری انتخاب کن.');
@@ -8410,11 +8506,7 @@ function renderCalendarView() {
         });
         persistCategories();
         renderAll();
-        els.newCategoryName.value = '';
-        els.newCategoryEmoji.value = '';
-        els.newCategoryType.value = 'expense';
-        els.newCategoryLimit.value = '';
-        els.newCategoryColor.value = '#6a5cff';
+        resetCategoryForm();
       }
 
       function removeCategory(key) {
@@ -8708,6 +8800,10 @@ function renderCalendarView() {
           els.homeProfileBtn.addEventListener('click', () => setActivePage('profile'));
         }
 
+        [els.analyticsProfileBtn, els.budgetProfileBtn, els.aiProfileBtn].forEach(btn => {
+          if (btn) btn.addEventListener('click', () => setActivePage('profile'));
+        });
+
         if (els.profileThemeToggle) {
           els.profileThemeToggle.addEventListener('click', toggleTheme);
         }
@@ -8718,6 +8814,11 @@ function renderCalendarView() {
 
         els.addCategoryBtn.addEventListener('click', addCategory);
         els.categoryList.addEventListener('click', e => {
+          const editBtn = e.target.closest('[data-edit-category]');
+          if (editBtn) {
+            openEditCategoryModal(editBtn.dataset.editCategory);
+            return;
+          }
           const btn = e.target.closest('[data-remove-category]');
           if (!btn) return;
           removeCategory(btn.dataset.removeCategory);

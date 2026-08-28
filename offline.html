@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>عدم اتصال به اینترنت — Finora</title>
+<meta name="theme-color" content="#070b17">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#070b17;
+    --bg1:#0b1022;
+    --card: rgba(255,255,255,.07);
+    --border: rgba(255,255,255,.10);
+    --text:#f8fafc;
+    --muted: rgba(248,250,252,.68);
+    --shadow: 0 18px 50px rgba(0,0,0,.28);
+    --radius: 28px;
+    --accent1:#6a5cff;
+    --accent2:#00d2ff;
+    --accent3:#ff3cac;
+    --good:#18e6a6;
+    --bad:#ff5d7d;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+    background:
+      radial-gradient(circle at top right, rgba(106,92,255,.20), transparent 30%),
+      radial-gradient(circle at bottom left, rgba(0,210,255,.14), transparent 24%),
+      radial-gradient(circle at 50% 40%, rgba(255,60,172,.08), transparent 22%),
+      linear-gradient(180deg,var(--bg0),var(--bg1) 35%, #04060c 100%);
+    color:var(--text);
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* floating ambient orbs, purely decorative */
+  .orb{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(60px);
+    opacity:.35;
+    pointer-events:none;
+    animation: float 9s ease-in-out infinite;
+  }
+  .orb1{ width:220px;height:220px; background:var(--accent1); top:-60px; right:-40px; }
+  .orb2{ width:180px;height:180px; background:var(--accent2); bottom:-40px; left:-40px; animation-delay:2s }
+  @keyframes float{
+    0%,100%{ transform:translateY(0) }
+    50%{ transform:translateY(-18px) }
+  }
+
+  .offline-card{
+    width:100%;
+    max-width:400px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:var(--shadow);
+    padding:44px 28px 32px;
+    text-align:center;
+    position:relative;
+    z-index:1;
+    animation:card-in .6s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes card-in{
+    from{ opacity:0; transform:translateY(18px) scale(.97) }
+    to{ opacity:1; transform:translateY(0) scale(1) }
+  }
+
+  .icon-wrap{
+    width:128px;height:128px;
+    margin:0 auto 26px;
+    position:relative;
+    display:grid;
+    place-items:center;
+  }
+  .ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:1.5px solid var(--accent2);
+    opacity:0;
+    animation:ripple 2.6s ease-out infinite;
+  }
+  .ring:nth-child(2){ animation-delay:.65s }
+  .ring:nth-child(3){ animation-delay:1.3s }
+  @keyframes ripple{
+    0%{ transform:scale(.55); opacity:.55 }
+    100%{ transform:scale(1.4); opacity:0 }
+  }
+  .icon-core{
+    width:78px;height:78px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    display:grid;
+    place-items:center;
+    box-shadow:0 14px 34px rgba(106,92,255,.35);
+    position:relative;
+    z-index:1;
+    animation:breathe 3.2s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{ transform:scale(1) }
+    50%{ transform:scale(1.045) }
+  }
+  .icon-core svg{ width:38px;height:38px }
+
+  h1{
+    font-size:1.3rem;
+    font-weight:800;
+    margin-bottom:10px;
+    line-height:1.5;
+  }
+  p.subtitle{
+    color:var(--muted);
+    font-size:.92rem;
+    line-height:1.9;
+    margin-bottom:6px;
+  }
+
+  .status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    border-radius:999px;
+    background:rgba(255,93,125,.12);
+    border:1px solid rgba(255,93,125,.28);
+    color:var(--bad);
+    font-size:.8rem;
+    font-weight:600;
+    margin-top:16px;
+    transition:.3s ease;
+  }
+  .status-pill.online{
+    background:rgba(24,230,166,.12);
+    border-color:rgba(24,230,166,.28);
+    color:var(--good);
+  }
+  .status-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:currentColor;
+    animation:blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink{
+    0%,100%{ opacity:1 }
+    50%{ opacity:.3 }
+  }
+
+  .retry-btn{
+    margin-top:26px;
+    width:100%;
+    padding:15px 20px;
+    border:none;
+    border-radius:16px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:#fff;
+    font-family:inherit;
+    font-weight:700;
+    font-size:.95rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    transition:.22s ease;
+    box-shadow:0 14px 30px rgba(106,92,255,.28);
+  }
+  .retry-btn:hover{ transform:translateY(-2px) }
+  .retry-btn:active{ transform:translateY(0) }
+  .retry-btn.checking{ opacity:.75; pointer-events:none }
+  .retry-btn svg{ width:18px;height:18px; flex:0 0 auto }
+  .retry-btn.checking svg{ animation:spin .9s linear infinite }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+
+  .hint{
+    margin-top:18px;
+    font-size:.76rem;
+    color:var(--muted);
+    opacity:.75;
+  }
+
+  .brand{
+    margin-top:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color:var(--muted);
+    font-size:.78rem;
+    letter-spacing:.02em;
+  }
+  .brand-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  }
+</style>
+</head>
+<body>
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="offline-card">
+    <div class="icon-wrap">
+      <span class="ring"></span>
+      <span class="ring"></span>
+      <span class="ring"></span>
+      <div class="icon-core">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8.5 16.5a5 5 0 0 1 7 0"></path>
+          <path d="M5 12.5a10 10 0 0 1 4.5-2.6"></path>
+          <path d="M14.5 9.9A10 10 0 0 1 19 12.5"></path>
+          <path d="M2 8.5a15 15 0 0 1 5-3"></path>
+          <path d="M17 5.5a15 15 0 0 1 5 3"></path>
+          <line x1="3" y1="3" x2="21" y2="21"></line>
+          <circle cx="12" cy="19.5" r="1" fill="#fff" stroke="none"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <h1>به اینترنت متصل نیستی</h1>
+    <p class="subtitle">اتصال وای‌فای یا دیتای موبایلت رو بررسی کن.<br>به محض وصل شدن، خودکار برمی‌گردیم به Finora.</p>
+
+    <div class="status-pill" id="statusPill">
+      <span class="status-dot"></span>
+      <span id="statusText">در حال بررسی اتصال...</span>
+    </div>
+
+    <button class="retry-btn" id="retryBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      <span>تلاش دوباره</span>
+    </button>
+
+    <div class="hint">وصل شدی ولی هنوز این صفحه رو می‌بینی؟ همین دکمه رو بزن.</div>
+
+    <div class="brand"><span class="brand-dot"></span> Finora</div>
+  </div>
+
+  <script>
+    var statusPill = document.getElementById('statusPill');
+    var statusText = document.getElementById('statusText');
+    var retryBtn   = document.getElementById('retryBtn');
+    var checking   = false;
+
+    function pingServer() {
+      return fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
+        .then(function (res) { return !!res && (res.ok || res.type === 'opaque'); })
+        .catch(function () { return false; });
+    }
+
+    function checkConnection(manual) {
+      if (checking) return;
+      checking = true;
+      retryBtn.classList.add('checking');
+      statusText.textContent = 'در حال بررسی اتصال...';
+
+      var basicOnline = typeof navigator.onLine === 'boolean' ? navigator.onLine : true;
+      if (!basicOnline) {
+        return finish(false, manual);
+      }
+
+      pingServer().then(function (ok) { finish(ok, manual); });
+    }
+
+    function finish(online, manual) {
+      checking = false;
+      retryBtn.classList.remove('checking');
+
+      if (online) {
+        statusPill.classList.add('online');
+        statusText.textContent = 'متصل شدی! در حال بازگشت...';
+        setTimeout(function () {
+          window.location.href = './index.html';
+        }, 700);
+        return;
+      }
+
+      statusPill.classList.remove('online');
+      statusText.textContent = manual ? 'هنوز اینترنت وصل نیست' : 'منتظر اتصال اینترنت...';
+    }
+
+    retryBtn.addEventListener('click', function () { checkConnection(true); });
+    window.addEventListener('online', function () { checkConnection(false); });
+
+    setInterval(function () { if (!checking) checkConnection(false); }, 5000);
+    setTimeout(function () { checkConnection(false); }, 1000);
+  </script>
+</body>
+</html>
