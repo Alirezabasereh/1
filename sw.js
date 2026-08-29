@@ -3,7 +3,7 @@
 // network, show the app's own branded offline.html instead of the browser's
 // default "no internet" error page.
 
-const CACHE_NAME = 'finora-shell-v1';
+const CACHE_NAME = 'finora-shell-v2';
 const OFFLINE_URL = 'offline.html';
 
 // App-shell files worth having available before the network ever drops.
@@ -40,9 +40,14 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   // Page navigations: try the network first (so the app always gets fresh
-  // content when online), fall back to a cached copy, and if there's
-  // nothing cached either, show our own offline page instead of the
-  // browser's native error screen.
+  // content when online). If the network truly fails (no connectivity),
+  // go straight to the dedicated offline page rather than silently falling
+  // back to a cached copy of the app shell — a stale app shell with no
+  // network can't actually do anything useful (auth, sync, etc. all need
+  // a connection), so showing it instead of the offline screen is
+  // misleading. HTTP error responses (4xx/5xx) still resolve normally here
+  // and are NOT treated as offline, since fetch() only rejects on real
+  // network failures.
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -51,9 +56,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
           return res;
         })
-        .catch(() =>
-          caches.match(req).then((cached) => cached || caches.match(OFFLINE_URL))
-        )
+        .catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }

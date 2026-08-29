@@ -3735,10 +3735,57 @@
     @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 
 
+    /* ══ APP SPLASH (shown until we know the auth state — prevents any login-screen flash) ══ */
+    #appSplash{
+      position:fixed;inset:0;z-index:10000;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:22px;
+      background:radial-gradient(circle at top right,rgba(106,92,255,.22),transparent 32%),
+        radial-gradient(circle at bottom left,rgba(0,210,255,.14),transparent 24%),
+        linear-gradient(180deg,#070b17,#0b1022 40%,#04060c);
+      transition:opacity .35s ease;
+    }
+    #appSplash.hidden{opacity:0;pointer-events:none;visibility:hidden}
+    .splash-logo-wrap{
+      width:104px;height:104px;position:relative;display:grid;place-items:center;
+    }
+    .splash-logo-wrap .ring{
+      position:absolute;inset:0;border-radius:28px;
+      border:1.5px solid var(--accent2);
+      opacity:0;
+      animation:splashRipple 2.4s ease-out infinite;
+    }
+    .splash-logo-wrap .ring:nth-child(2){animation-delay:.6s}
+    @keyframes splashRipple{
+      0%{transform:scale(.7);opacity:.5}
+      100%{transform:scale(1.35);opacity:0}
+    }
+    .splash-logo-wrap img{
+      width:88px;height:88px;border-radius:24px;
+      box-shadow:0 16px 40px rgba(106,92,255,.35);
+      position:relative;z-index:1;
+      animation:splashBreathe 2.6s ease-in-out infinite;
+    }
+    @keyframes splashBreathe{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.05)}
+    }
+    .splash-spinner{
+      width:30px;height:30px;
+      border:3px solid rgba(255,255,255,.15);
+      border-top-color:var(--accent2);
+      border-radius:50%;
+      animation:spin .8s linear infinite;
+    }
+    .splash-title{
+      font-weight:800;font-size:1.05rem;color:var(--text);letter-spacing:.02em;
+    }
+
     /* ══ AUTH OVERLAY ══ */
     #authOverlay{
       position:fixed;inset:0;z-index:9999;
       display:flex;align-items:center;justify-content:center;
+      overflow-y:auto;
       background:radial-gradient(circle at top right,rgba(106,92,255,.22),transparent 32%),
         radial-gradient(circle at bottom left,rgba(0,210,255,.14),transparent 24%),
         linear-gradient(180deg,#070b17,#0b1022 40%,#04060c);
@@ -3880,8 +3927,19 @@
   <!-- ══ SYNC STATUS BAR ══ -->
   <div id="syncBar"></div>
 
+  <!-- ══ APP SPLASH (covers the auth check; nothing else renders until this hides) ══ -->
+  <div id="appSplash">
+    <div class="splash-logo-wrap">
+      <span class="ring"></span>
+      <span class="ring"></span>
+      <img src="icon-192.png" alt="Finora">
+    </div>
+    <div class="splash-spinner"></div>
+    <div class="splash-title">Finora</div>
+  </div>
+
   <!-- ══ AUTH OVERLAY ══ -->
-  <div id="authOverlay">
+  <div id="authOverlay" class="hidden">
     <div class="auth-card">
       <div class="auth-logo">
         <div class="auth-logo-icon">💰</div>
@@ -9445,10 +9503,31 @@ function renderCalendarView() {
     /* ══════════════════════════════════════════════
        AUTH STATE
     ══════════════════════════════════════════════ */
+    const appSplash = document.getElementById('appSplash');
+
+    function setScrollLocked(locked) {
+      document.documentElement.style.overflow = locked ? 'hidden' : '';
+      document.body.style.overflow = locked ? 'hidden' : '';
+    }
+    setScrollLocked(true); // splash is visible by default -> lock scroll immediately
+
+    function setAuthOverlayVisible(visible) {
+      authOverlay.classList.toggle('hidden', !visible);
+      // while the splash is still up, it alone controls the scroll lock
+      if (appSplash && !appSplash.classList.contains('hidden')) return;
+      setScrollLocked(visible);
+    }
+
+    function hideSplash() {
+      if (!appSplash || appSplash.classList.contains('hidden')) return;
+      appSplash.classList.add('hidden');
+      setScrollLocked(!authOverlay.classList.contains('hidden'));
+    }
+
     async function handleSession(session) {
       if (session && session.user) {
         currentUser = session.user;
-        authOverlay.classList.add('hidden');
+        setAuthOverlayVisible(false);
         if (profileUserEmail) profileUserEmail.textContent = currentUser.email;
 
         await loadFromSupabase();
@@ -9477,15 +9556,19 @@ function renderCalendarView() {
         currentUser = null;
         bootCalled = false;
         stopRealtime();
-        authOverlay.classList.remove('hidden');
+        setAuthOverlayVisible(true);
       }
     }
 
-    sb.auth.getSession().then((res) => {
-      handleSession(res.data.session);
-    }).catch(() => {
-      authOverlay.classList.remove('hidden');
-    });
+    // Wait until we KNOW whether the user is logged in before showing anything
+    // other than the splash — this is what prevents the login screen from
+    // flashing for already-authenticated users. A short minimum splash time
+    // keeps the transition smooth even when the session check resolves instantly.
+    const _splashMinDelay = new Promise((resolve) => setTimeout(resolve, 500));
+    const _sessionCheck = sb.auth.getSession()
+      .then((res) => handleSession(res.data.session))
+      .catch(() => setAuthOverlayVisible(true));
+    Promise.all([_sessionCheck, _splashMinDelay]).then(hideSplash);
 
     sb.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return;
