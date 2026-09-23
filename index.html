@@ -4849,8 +4849,16 @@
         safeStorageSet(STORAGE_KEYS.monthlyArchive, JSON.stringify(archive));
       }
 
-      // Save current live month into archive (called on month change detection)
-      function archiveCurrentMonth(jy, jm) {
+      // Save current live month into archive (called on month change detection).
+      // `openingBalance`, when provided, is the balance this month actually
+      // started with — used while chaining several skipped months forward in
+      // one sweep so each one's archived record reflects its real opening
+      // balance instead of the single global initial balance. When omitted
+      // (the normal live "keep archive fresh" call from persistTransactions),
+      // it falls back to state.initialBalance as before.
+      // Returns this month's ending balance (opening + its own net flow), so
+      // callers can chain it into the next month.
+      function archiveCurrentMonth(jy, jm, openingBalance) {
         const key = jalaliMonthKey(jy, jm);
         const archive = loadMonthlyArchive();
         // build Gregorian start/end for this Jalali month
@@ -4864,12 +4872,44 @@
           const ts = Number(t.createdAt || 0);
           return ts >= startTs && ts <= endTs;
         });
+        const resolvedOpening = openingBalance == null ? Number(state.initialBalance || 0) : Number(openingBalance || 0);
         archive[key] = {
           jy, jm,
-          initialBalance: state.initialBalance,
+          initialBalance: resolvedOpening,
           transactions: monthTxs
         };
         saveMonthlyArchive(archive);
+        return resolvedOpening + monthNetFlow(monthTxs);
+      }
+
+      // Net flow (income − expense) of an arbitrary list of transactions —
+      // used to compute a month's ending balance while archiving it.
+      function monthNetFlow(txs) {
+        let income = 0, expense = 0;
+        (txs || []).forEach(t => {
+          const amt = Number(t.amount) || 0;
+          if (t.type === 'income') income += amt; else expense += amt;
+        });
+        return income - expense;
+      }
+
+      // Drops a month's leftover balance into the (new) live month as an
+      // ordinary transaction, so the real balance carries forward instead of
+      // resetting to the one-time initial balance every month. Positive
+      // amounts become an income transaction, negative ones an expense —
+      // either way filed under the "سایر" (Other) category as requested.
+      function addCarryOverTransaction(amount, atTs) {
+        const rounded = Math.round(Number(amount) || 0);
+        if (!rounded) return; // nothing to carry forward
+        const categoryKey = (state.categories.some(c => c.key === 'other') && 'other') || fallbackCategoryKey('expense');
+        state.transactions.unshift({
+          id: uid(),
+          amount: Math.abs(rounded),
+          note: 'انتقال موجودی باقیمانده از ماه قبل',
+          category: categoryKey,
+          type: rounded >= 0 ? 'income' : 'expense',
+          createdAt: atTs
+        });
       }
 
       // Check if we've entered a new Jalali month since last visit; if so archive old month.
@@ -4898,10 +4938,14 @@
         let crossed = false;
         if (staleMonthKeys.size > 0) {
           crossed = true;
-          // Archive every stale month found, oldest first.
+          // Archive every stale month found, oldest first, chaining each
+          // month's real ending balance into the next one's opening balance
+          // (matters when several months were skipped in a single sweep —
+          // e.g. the app wasn't opened for a while).
+          let carry = Number(state.initialBalance) || 0;
           Array.from(staleMonthKeys).sort().forEach(key => {
             const [ly, lm] = key.split('_').map(Number);
-            if (ly && lm) archiveCurrentMonth(ly, lm);
+            if (ly && lm) carry = archiveCurrentMonth(ly, lm, carry);
           });
           // Keep only current-month transactions in the live list
           // (everything else has just been archived above).
@@ -4909,6 +4953,23 @@
           const [gs_y, gs_m, gs_d] = fromJalali(jy, jm, 1);
           const startTs = new Date(gs_y, gs_m - 1, gs_d, 0, 0, 0, 0).getTime();
           state.transactions = state.transactions.filter(t => Number(t.createdAt||0) >= startTs);
+
+          // The leftover balance from the most recently archived month is
+          // what actually carries forward: record it as a normal transaction
+          // (category "سایر") dated the 1st of the new live month.
+          addCarryOverTransaction(carry, startTs);
+
+          // The one-time global initial balance has now been fully folded
+          // into archived history + the carry-over transaction above; zero
+          // it BEFORE persisting so it doesn't get added again on top of the
+          // carried balance every future month (which would double-count
+          // it) — including in the fresh live-month snapshot that
+          // persistTransactions() below writes into the archive.
+          if (state.initialBalance) {
+            state.initialBalance = 0;
+            persistInitialBalance();
+          }
+
           persistTransactions();
         }
         safeStorageSet(STORAGE_KEYS.lastSeenMonth, todayKey);
