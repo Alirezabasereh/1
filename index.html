@@ -2511,7 +2511,7 @@
       margin-top:8px;
     }
     #weekdayCanvas{
-      width:100% !important; height:160px !important;
+      width:100% !important;
       display:block;
     }
     .weekday-insight{
@@ -3921,6 +3921,232 @@
 
     
     
+    /* ══════════════════════════════════════════════════════════════
+       DESKTOP / WIDE-SCREEN LAYOUT
+       Everything above this block is untouched and still drives the
+       phone layout. From here down we only *add* rules, scoped behind
+       min-width media queries, so nothing below ~900px changes at all.
+       Goal: stop centering a phone-width column in the middle of a big
+       screen — use the width, turn the bottom tab-bar into a side rail,
+       and let dashboard-y sections sit side by side.
+       ══════════════════════════════════════════════════════════════ */
+
+    @media screen and (min-width:900px){
+
+      /* ── side navigation rail (was a floating bottom bar) ── */
+      body{ padding-right:104px; }
+      .bottom-nav{
+        left:auto;
+        right:0;
+        bottom:0;
+        top:0;
+        transform:none;
+        width:104px;
+        height:100vh;
+        border-radius:0;
+        border:none;
+        border-inline-start:1px solid var(--border);
+        background:rgba(10,14,26,.55);
+        flex-direction:column;
+        justify-content:center;
+        gap:30px;
+        padding:24px 8px;
+      }
+      .nav-item{ min-width:auto; }
+      .nav-item span{ font-size:.72rem; }
+
+      /* ── main column: stop pinning everything to a 560px phone
+         width; let it breathe, but keep line-lengths readable ── */
+      .app-shell{
+        width:min(92%, 1180px);
+        padding:28px 32px 48px;
+      }
+
+      /* ── home page: balance card + income/expense stacked right
+         beside it as one hero unit; below that, the expense-breakdown
+         card sits beside the 3 insight chips (60/40 split); filters
+         and the transaction list stay full width underneath.
+         NOTE: scoped to `#homePage.active-page` (not bare `#homePage`)
+         — an ID selector on its own would out-rank `.page{display:none}`
+         and force the page to stay visible even while a different tab
+         is open. Requiring `.active-page` too keeps that from happening. */
+      #homePage.active-page{
+        display:grid;
+        grid-template-columns:3fr 2fr;
+        align-items:stretch;
+        gap:20px 24px;
+      }
+      #homePage.active-page > .topbar,
+      #homePage.active-page > .home-breakdown-insights-wrap,
+      #homePage.active-page > .filter-card,
+      #homePage.active-page > .section:has(#transactionsContainer){
+        grid-column:1 / -1;
+      }
+      #homePage.active-page > .balance-card{ grid-column:1; margin-bottom:0; }
+      #homePage.active-page > .stats-grid{
+        grid-column:2;
+        display:flex;
+        flex-direction:column;
+        margin-bottom:0;
+      }
+      /* each stat card takes an equal half of the column's height, and
+         the column itself is stretched (via align-items:stretch above)
+         to match the balance card's height */
+      #homePage.active-page > .stats-grid .stat-card{ width:100%; height:auto; flex:1 1 0; padding:20px 22px; gap:16px; }
+      #homePage.active-page > .stats-grid .stat-icon{ width:68px; height:68px; font-size:1.6rem; border-radius:18px; }
+      #homePage.active-page > .stats-grid .stat-meta p{ font-size:1.1rem; margin-bottom:6px; }
+      #homePage.active-page > .stats-grid .stat-meta h2{ font-size:2.3rem; }
+      #homePage.active-page .balance-value{ font-size:2.3rem !important; }
+
+      /* expense-breakdown card (60%) beside the 3 insight chips (40%),
+         stacked vertically in their own column, all stretched to the
+         same overall height as the breakdown card */
+      .home-breakdown-insights-wrap{
+        display:grid;
+        grid-template-columns:3fr 2fr;
+        align-items:stretch;
+        gap:20px;
+      }
+      .home-breakdown-insights-wrap .home-breakdown-card{ margin-bottom:0; }
+      .home-breakdown-insights-wrap .home-insights-row{
+        display:flex;
+        flex-direction:column;
+        margin-bottom:0;
+        gap:10px;
+      }
+      .home-breakdown-insights-wrap .home-insights-row .home-insight-chip{
+        flex:1 1 0;
+        justify-content:center;
+      }
+
+      /* transaction list gets more breathing room as a full-width
+         section instead of a squeezed phone list */
+      #transactionsContainer{
+        display:grid;
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+        align-items:start;
+      }
+
+      /* an empty-state placeholder (goals/loans/budgets with nothing
+         added yet) should stay centered across the *whole* card, not
+         just centered within a single half-width grid track */
+      .goals-grid > .empty-state,
+      .loans-grid > .empty-state,
+      .budget-list > .empty-state{
+        grid-column:1 / -1;
+      }
+
+      /* ── analytics page: 2-column card grid; the denser cards
+         (monthly report / loans / calendar) keep the full width ── */
+      .analytics-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+      .analytics-grid > .monthly-report-card,
+      .analytics-grid > .loan-summary-card,
+      .analytics-grid > .calendar-card{
+        grid-column:1 / -1;
+      }
+      .monthly-report-grid{
+        grid-template-columns:repeat(4,1fr) !important;
+      }
+
+      /* weekday chart: when it's paired in a grid row next to a taller
+         card (e.g. the heatmap), the row stretches this card taller
+         but the canvas used to stay locked at a fixed 160px, leaving
+         empty space under the bars. Let the chart area flex to fill
+         whatever height the stretched card actually has. */
+      #weekdayChartSection{
+        display:flex;
+        flex-direction:column;
+      }
+      #weekdayChartSection .weekday-chart-wrap{
+        flex:1 1 auto;
+        height:auto;
+        min-height:160px;
+      }
+
+      /* weekly expense chart (paired with the pie card in row 1):
+         same issue — its bars (and the price labels beside them) were
+         locked to a fixed 220px even when the row stretches this card
+         taller than that. This one turned out stubborn because a later
+         "cleanup overrides" block further down the stylesheet re-locks
+         .weekly-chart-shell/.weekly-y-axis/.weekly-chart-area/
+         .weekly-bars to fixed heights using `!important` — a plain
+         override can never beat that no matter how specific the
+         selector is, so these use `!important` too (their higher
+         specificity is what actually wins the tie). Also using
+         flex-basis:0 instead of `auto` on the parts that should grow,
+         since `auto` inside a flex item whose content is itself a
+         nested grid/absolute-positioned layout is exactly the kind of
+         circular sizing calculation that's unreliable — 0 is
+         unambiguous and always fills whatever height is available. */
+      .analytics-grid > .card:has(#weeklyChart){
+        display:flex;
+        flex-direction:column;
+      }
+      .analytics-grid > .card:has(#weeklyChart) .weekly-chart-shell{
+        display:flex !important;
+        flex:1 1 0;
+        min-height:0;
+        align-items:stretch !important;
+      }
+      .analytics-grid > .card:has(#weeklyChart) .weekly-y-axis{
+        flex:0 0 58px;
+        height:auto !important;
+      }
+      .analytics-grid > .card:has(#weeklyChart) .weekly-chart-area{
+        flex:1 1 0;
+        height:auto !important;
+        min-height:160px;
+      }
+      .analytics-grid > .card:has(#weeklyChart) .weekly-bars{ height:100% !important; }
+
+      /* ── budget page: reorder for this breakpoint — "add category"
+         and "financial goals" side by side; "monthly budgets" and
+         "loans" each drop to their own full-width row underneath,
+         in that order, each showing two cards per row internally ── */
+      .budget-page-grid{
+        grid-template-columns:repeat(2,1fr);
+        align-items:stretch;
+      }
+      .budget-page-grid > .management-card:has(#categoryList){ order:1; }
+      .budget-page-grid > .management-card:has(#goalsContainer){ order:2; }
+      .budget-page-grid > .management-card:has(#budgetContainer){ order:3; grid-column:1 / -1; }
+      .budget-page-grid > #loansSection{ order:4; grid-column:1 / -1; }
+      .budget-list{ grid-template-columns:repeat(2,1fr); }
+      .loans-grid{ grid-template-columns:repeat(2,1fr); }
+
+      /* goals card is stretched (align-items:stretch above) to match
+         the category card beside it — center its own content so a
+         short list (or the empty-state message) doesn't just sit at
+         the top with dead space below it */
+      .management-card:has(#goalsContainer){ display:flex; flex-direction:column; }
+      .goals-grid{
+        grid-template-columns:repeat(2,1fr);
+        flex:1 1 auto;
+        align-content:center;
+      }
+
+      /* ── AI page insights ── */
+      .smart-insights-grid{ grid-template-columns:repeat(2,1fr); }
+
+      /* ── profile page: keep it readable, but no longer a lonely
+         phone-width strip in the middle of the screen ── */
+      .profile-card{ max-width:760px; margin:0 auto; }
+      .profile-main-row{ grid-template-columns:auto 1fr; gap:20px; }
+
+      /* modal sheets: on a big screen a bottom sheet reading edge to
+         edge feels out of place — make it a normal centered dialog */
+      .modal-overlay{ align-items:center; }
+
+      /* keep the top sync-status bar clear of the side rail */
+      #syncBar{ right:104px; }
+    }
+
+    @media screen and (min-width:1280px){
+      .app-shell{ width:min(88%, 1320px); }
+    }
   </style>
 </head>
 <body>
@@ -4048,29 +4274,31 @@
         </div>
       </section>
 
-      <section class="glass card section home-breakdown-card">
-        <div class="section-head">
-          <h3>خلاصه تقسیم هزینه‌ها</h3>
-          
-                  <span>نمودار و درصد</span>
-        </div>
-        <div class="home-breakdown">
-          <div class="home-breakdown-legend" id="homeExpenseLegend"></div>
-          <div class="home-breakdown-chart">
-            <div class="pie-chart pie-chart-sm" id="homeExpensePieChart">
-              <div class="pie-center">
-                <div>
-                  <div class="big" id="homeExpensePieTotal">۰</div>
-                  <div class="small">مجموع هزینه</div>
+      <div class="home-breakdown-insights-wrap">
+        <section class="glass card section home-breakdown-card">
+          <div class="section-head">
+            <h3>خلاصه تقسیم هزینه‌ها</h3>
+            
+                    <span>نمودار و درصد</span>
+          </div>
+          <div class="home-breakdown">
+            <div class="home-breakdown-legend" id="homeExpenseLegend"></div>
+            <div class="home-breakdown-chart">
+              <div class="pie-chart pie-chart-sm" id="homeExpensePieChart">
+                <div class="pie-center">
+                  <div>
+                    <div class="big" id="homeExpensePieTotal">۰</div>
+                    <div class="small">مجموع هزینه</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <button class="home-full-button" type="button" data-nav-target="analytics">مشاهده گزارش کامل</button>
-      </section>
+          <button class="home-full-button" type="button" data-nav-target="analytics">مشاهده گزارش کامل</button>
+        </section>
 
-      <div class="home-insights-row" id="homeInsightsRow"></div>
+        <div class="home-insights-row" id="homeInsightsRow"></div>
+      </div>
       <section class="glass card section filter-card">
         <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false">
           <div class="filter-toggle-text">
@@ -5006,6 +5234,35 @@
         });
         window.addEventListener('focus', recheck);
         window.addEventListener('pageshow', recheck);
+      }
+
+      // Some analytics charts (weekly bars, weekday/line/compare-chart
+      // canvases) measure their container's actual pixel size in JS and
+      // draw to that exact size — unlike everything else, which is plain
+      // CSS and reflows on its own. That measurement only happens when
+      // the chart is (re)rendered, so resizing the browser between mobile
+      // and desktop widths without triggering some other re-render (e.g.
+      // adding a transaction, which happens to redraw everything) left
+      // these charts stuck at their old size until something else forced
+      // a redraw. This re-measures and redraws them whenever the window
+      // is resized, but only while the analytics tab is actually open —
+      // no point doing this work on a page with no dynamically-sized
+      // charts, or one that isn't even visible right now.
+      let _chartResizeWired = false;
+      function wireChartResize() {
+        if (_chartResizeWired) return;
+        _chartResizeWired = true;
+
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+          if (state.currentPage !== 'analytics') return;
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            if (state.currentPage !== 'analytics') return;
+            renderWeeklyChart();
+            renderAdvancedCharts();
+          }, 200);
+        });
       }
 
       const defaultCategories = [
@@ -6287,7 +6544,24 @@ function parseMoneyInput(value) {
 
         weeklyYAxis.innerHTML = ticks.map(value => `<span>${formatMoney(value)}</span>`).join('');
 
-        const BARS_HEIGHT = 220; // must match .weekly-bars height in CSS
+        // BARS_HEIGHT: always trust the container's *actual* measured
+        // height — never force a floor of 220. Some narrow-phone
+        // breakpoints deliberately size .weekly-bars smaller than 220
+        // (e.g. 208px); forcing a 220 floor there scaled the bars for a
+        // box bigger than the one that actually exists, which is what
+        // pushed them into overflow on mobile. On desktop, where this
+        // card can get stretched taller next to the pie chart, the real
+        // measured height is simply bigger than 220 and gets used as-is
+        // — mobile sizes stay byte-for-byte identical to before.
+        const RAW_HEIGHT = weeklyChart.clientHeight || 220;
+        // Only the *stretched* (desktop) case gets extra top headroom,
+        // scaled down a bit so the tallest bar's rounded corner has room
+        // to show. Mobile/tablet heights (<=220, the original design
+        // baseline) are left completely untouched — full height, no
+        // scaling — exactly as before this whole fix.
+        const BARS_HEIGHT = RAW_HEIGHT > 220
+          ? Math.max(Math.round(RAW_HEIGHT * 0.85), 220)
+          : RAW_HEIGHT;
         weeklyChart.innerHTML = data.map((day, index) => {
           const barPx = Math.max(Math.round((day.value / max) * BARS_HEIGHT), day.value ? 12 : 4);
           return `
@@ -6611,7 +6885,12 @@ function parseMoneyInput(value) {
         // canvas setup
         const wrap = canvas.closest('.weekday-chart-wrap');
         const W    = (wrap ? wrap.clientWidth : 320) || 320;
-        const H    = 160;
+        // Height used to be hard-locked at 160 — but on wider layouts
+        // this card can get stretched taller (e.g. sitting next to the
+        // heatmap card in a 2-column row), leaving the chart floating
+        // in the top half with empty space below it. Fill whatever
+        // height the wrap actually has, never less than the original 160.
+        const H    = Math.max(160, (wrap ? wrap.clientHeight : 160) || 160);
         const DPR  = window.devicePixelRatio || 1;
         canvas.width  = W * DPR; canvas.height = H * DPR;
         canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
@@ -9401,6 +9680,7 @@ function renderCalendarView() {
           wireLoanEvents();
           wireAddEntityModals();
           wireMonthWatcher();
+          wireChartResize();
         }
 
         ensurePageConsistency();
