@@ -3998,25 +3998,51 @@
       #homePage.active-page > .stats-grid .stat-meta h2{ font-size:2.3rem; }
       #homePage.active-page .balance-value{ font-size:2.3rem !important; }
 
-      /* expense-breakdown card (60%) beside the 3 insight chips (40%),
-         stacked vertically in their own column, all stretched to the
-         same overall height as the breakdown card */
+      /* expense-breakdown card + the 3 insight chips.
+         The chips used to be stretched into a tall 40% side column
+         (3 big cards holding one short line each). On desktop they now
+         become a slim 3-up status strip above the breakdown card, and the
+         breakdown card uses the freed width: donut on one side, legend
+         in two columns on the other. Phone layout is untouched. */
       .home-breakdown-insights-wrap{
         display:grid;
-        grid-template-columns:3fr 2fr;
-        align-items:stretch;
-        gap:20px;
+        grid-template-columns:1fr;
+        align-items:start;
+        gap:16px;
       }
       .home-breakdown-insights-wrap .home-breakdown-card{ margin-bottom:0; }
       .home-breakdown-insights-wrap .home-insights-row{
-        display:flex;
-        flex-direction:column;
+        order:-1;
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
         margin-bottom:0;
-        gap:10px;
+        gap:14px;
       }
       .home-breakdown-insights-wrap .home-insights-row .home-insight-chip{
-        flex:1 1 0;
-        justify-content:center;
+        flex-direction:row;
+        align-items:center;
+        gap:12px;
+        padding:12px 16px;
+        border-radius:18px;
+      }
+      .home-breakdown-insights-wrap .home-insight-chip .hic-icon{ width:40px;height:40px;font-size:1rem; }
+      .home-breakdown-insights-wrap .home-insight-chip .hic-body{ width:auto;flex:1 1 auto; }
+      .home-breakdown-insights-wrap .home-insight-chip .hic-title{
+        font-size:.76rem;color:var(--muted);font-weight:600;margin-bottom:3px;
+      }
+      .home-breakdown-insights-wrap .home-insight-chip .hic-sub{
+        font-size:.86rem;color:var(--text);font-weight:700;line-height:1.55;
+      }
+      @media (max-width:1100px){
+        .home-breakdown-insights-wrap .home-insight-chip .hic-sub{ font-size:.78rem; }
+        .home-breakdown-insights-wrap .home-insights-row .home-insight-chip{ padding:10px 12px; gap:10px; }
+      }
+      .home-breakdown-insights-wrap .home-breakdown{ gap:32px; }
+      .home-breakdown-insights-wrap .home-breakdown-chart{ width:38%; }
+      .home-breakdown-insights-wrap .home-breakdown-legend{
+        width:62%;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:12px 36px;
       }
 
       /* transaction list gets more breathing room as a full-width
@@ -4263,6 +4289,12 @@
       .analytics-grid > .card:has(#weeklyChart) .weekly-chart-shell .weekly-y-axis{
         flex:0 0 58px !important;
       }
+    }
+    /* weekly chart day labels: single-letter form on desktop widths where the
+       chart card is narrow (900–1220px), same as the phone (<420px) behaviour */
+    @media screen and (min-width:900px) and (max-width:1220px){
+      #weeklyChart .week-label-full{ display:none !important; }
+      #weeklyChart .week-label-short{ display:inline !important; }
     }
   </style>
 </head>
