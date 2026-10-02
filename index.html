@@ -2949,10 +2949,10 @@
       overflow:hidden;
     }
     .smart-insights-grid{
+      display:flex;
       flex-direction:column;
       gap:12px;
       width:100%;
-      /* display:flex; */
     }
     .smart-insight{
       border-radius:22px;
@@ -4296,6 +4296,203 @@
       #weeklyChart .week-label-full{ display:none !important; }
       #weeklyChart .week-label-short{ display:inline !important; }
     }
+
+    /* ═══════════════════════════════════════════
+       MONTH PACE (مسیر ماه) + safe-to-spend chip
+    ═══════════════════════════════════════════ */
+    .month-pace-card{
+      --mp-c:#18e6a6; --mp-rgb:24,230,166;
+      position:relative; padding:20px; overflow:hidden;
+      background-image:
+        radial-gradient(520px 200px at 92% -12%, rgba(var(--mp-rgb),.17), transparent 70%),
+        radial-gradient(420px 180px at 4% 112%, rgba(106,92,255,.12), transparent 70%);
+      transition:background-image .4s ease;
+    }
+    .month-pace-card.mp-good{ --mp-c:#18e6a6; --mp-rgb:24,230,166; }
+    .month-pace-card.mp-warn{ --mp-c:#ffb84d; --mp-rgb:255,184,77; }
+    .month-pace-card.mp-bad { --mp-c:#ff5d7d; --mp-rgb:255,93,125; }
+
+    .mp-hero{
+      display:flex; align-items:center; gap:14px;
+      margin:4px 0 16px;
+    }
+    .mp-orb{
+      width:48px; height:48px; flex:0 0 auto; border-radius:16px;
+      display:grid; place-items:center; font-size:1.1rem;
+      color:var(--mp-c);
+      background:linear-gradient(145deg, rgba(var(--mp-rgb),.24), rgba(var(--mp-rgb),.07));
+      border:1px solid rgba(var(--mp-rgb),.32);
+      box-shadow:0 8px 22px rgba(var(--mp-rgb),.20), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .mp-hero-text{ min-width:0; flex:1 1 auto; display:flex; flex-direction:column; gap:3px; }
+    .mp-hero-text strong{ font-size:1.05rem; font-weight:800; line-height:1.5; color:var(--text); }
+    .mp-hero-text span{ font-size:.8rem; color:var(--muted); line-height:1.7; }
+    .mp-pill{
+      flex:0 0 auto; display:inline-flex; align-items:center; gap:7px;
+      padding:6px 13px; border-radius:999px;
+      font-size:.74rem; font-weight:700; color:var(--mp-c);
+      background:rgba(var(--mp-rgb),.12);
+      border:1px solid rgba(var(--mp-rgb),.34);
+      white-space:nowrap;
+    }
+    .mp-pill i{
+      width:7px; height:7px; border-radius:50%; background:var(--mp-c);
+      box-shadow:0 0 0 0 rgba(var(--mp-rgb),.55);
+      animation:mpPulse 2.2s ease-out infinite;
+    }
+    @keyframes mpPulse{
+      0%{ box-shadow:0 0 0 0 rgba(var(--mp-rgb),.55) }
+      70%,100%{ box-shadow:0 0 0 8px rgba(var(--mp-rgb),0) }
+    }
+
+    .mp-body{ display:grid; grid-template-columns:1fr; gap:14px; }
+    .mp-chart-col{ min-width:0; }
+    .mp-chart-wrap{
+      position:relative; width:100%; height:230px;
+      border-radius:18px; overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+      border:1px solid var(--border);
+      touch-action:pan-y; cursor:crosshair;
+    }
+    .mp-chart-wrap canvas{ display:block; width:100%; height:100%; }
+    .mp-guide{
+      position:absolute; top:0; bottom:0; width:0; pointer-events:none;
+      border-left:1px dashed rgba(255,255,255,.34); opacity:0; transition:opacity .15s ease;
+    }
+    .mp-today-dot{
+      position:absolute; width:12px; height:12px; border-radius:50%;
+      background:var(--mp-c); border:2px solid #0b1020;
+      transform:translate(-50%,-50%); pointer-events:none;
+      box-shadow:0 0 14px rgba(var(--mp-rgb),.8);
+    }
+    .mp-today-dot::after{
+      content:""; position:absolute; inset:-7px; border-radius:50%;
+      border:2px solid rgba(var(--mp-rgb),.55);
+      animation:mpRing 2.2s ease-out infinite;
+    }
+    @keyframes mpRing{
+      0%{ transform:scale(.55); opacity:.9 }
+      80%,100%{ transform:scale(1.5); opacity:0 }
+    }
+    .mp-tip{
+      position:absolute; top:10px; min-width:150px; max-width:210px;
+      padding:9px 12px; border-radius:12px; pointer-events:none;
+      background:rgba(11,16,32,.92); border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      font-size:.74rem; line-height:1.75; color:#f8fafc;
+      opacity:0; transform:translateY(4px); transition:opacity .15s ease, transform .15s ease;
+      z-index:3;
+    }
+    .mp-tip.show{ opacity:1; transform:none; }
+    .mp-tip b{ display:block; font-size:.8rem; margin-bottom:2px; }
+    .mp-tip div{ display:flex; justify-content:space-between; gap:12px; }
+    .mp-tip div span:first-child{ color:rgba(248,250,252,.62); }
+
+    .mp-legend{ margin-top:12px; gap:16px; }
+    .mp-model-note{
+      margin-top:10px; font-size:.72rem; line-height:1.9; color:var(--muted);
+      padding:9px 12px; border-radius:12px;
+      background:rgba(var(--mp-rgb),.06); border:1px dashed rgba(var(--mp-rgb),.25);
+    }
+    .mp-key{ display:inline-block; width:22px; height:0; border-top:3px solid var(--mp-c); border-radius:3px; }
+    .mp-key-ideal{ border-top:2px dashed rgba(255,255,255,.55); }
+    .mp-key-forecast{ border-top:3px dotted var(--mp-c); }
+
+    /* chips */
+    .mp-chips{ display:grid; grid-template-columns:1fr 1fr; gap:10px; align-content:start; }
+    .mp-chip{
+      --c:#18e6a6; --c-rgb:24,230,166;
+      position:relative; overflow:hidden;
+      padding:13px 14px; border-radius:18px;
+      background:
+        linear-gradient(160deg, rgba(var(--c-rgb),.10), rgba(255,255,255,.02) 70%),
+        var(--card);
+      border:1px solid rgba(var(--c-rgb),.22);
+      box-shadow:0 8px 22px rgba(0,0,0,.14);
+      display:flex; flex-direction:column; gap:7px; min-width:0;
+    }
+    .mp-chip.c-good{ --c:#18e6a6; --c-rgb:24,230,166; }
+    .mp-chip.c-warn{ --c:#ffb84d; --c-rgb:255,184,77; }
+    .mp-chip.c-bad { --c:#ff5d7d; --c-rgb:255,93,125; }
+    .mp-chip-top{ display:flex; align-items:center; gap:9px; }
+    .mp-chip-icon{
+      width:32px; height:32px; flex:0 0 auto; border-radius:11px;
+      display:grid; place-items:center; font-size:.86rem;
+      color:var(--c); background:rgba(var(--c-rgb),.16);
+    }
+    .mp-chip-label{ font-size:.78rem; font-weight:700; color:var(--muted); flex:1 1 auto; min-width:0; }
+    .mp-chip-tag{
+      font-size:.66rem; font-weight:700; color:var(--c);
+      background:rgba(var(--c-rgb),.12); border-radius:999px; padding:2px 8px; white-space:nowrap;
+    }
+    .mp-chip-value{
+      font-size:1.12rem; font-weight:800; color:var(--text); line-height:1.35;
+      font-variant-numeric:tabular-nums; word-break:break-word;
+    }
+    .mp-chip-value small{ font-size:.7rem; font-weight:600; color:var(--muted); margin-inline-start:4px; }
+    .mp-chip-note{ font-size:.72rem; color:var(--muted); line-height:1.6; }
+    .mp-meter{
+      height:7px; border-radius:999px; overflow:hidden;
+      background:rgba(255,255,255,.09);
+    }
+    .mp-meter span{
+      display:block; height:100%; width:0; border-radius:inherit;
+      background:linear-gradient(90deg, rgba(var(--c-rgb),.55), var(--c));
+      box-shadow:0 0 12px rgba(var(--c-rgb),.55);
+      transition:width .7s cubic-bezier(.2,.8,.2,1);
+    }
+    .mp-chip-foot{ display:flex; justify-content:space-between; gap:8px; font-size:.68rem; color:var(--muted); }
+    /* featured safe-to-spend chip spans the full row */
+    .mp-chip-safe{ grid-column:1 / -1; padding:15px 16px; gap:9px; }
+    .mp-chip-safe .mp-chip-value{ font-size:1.5rem; }
+
+    .mp-empty{ text-align:center; padding:22px 10px 10px; color:var(--muted); }
+    .mp-empty i{ font-size:1.7rem; color:var(--accent2); opacity:.8; margin-bottom:8px; }
+    .mp-empty h4{ color:var(--text); margin-bottom:4px; }
+    .mp-empty p{ font-size:.82rem; line-height:1.8; }
+    .month-pace-card.mp-empty-mode .mp-hero,
+    .month-pace-card.mp-empty-mode .mp-body{ display:none; }
+
+    body.light-mode .month-pace-card{
+      background-image:
+        radial-gradient(520px 200px at 92% -12%, rgba(var(--mp-rgb),.16), transparent 70%),
+        radial-gradient(420px 180px at 4% 112%, rgba(106,92,255,.08), transparent 70%);
+    }
+    body.light-mode .mp-chart-wrap{
+      background:linear-gradient(180deg, rgba(15,23,42,.035), rgba(15,23,42,.01));
+    }
+    body.light-mode .mp-guide{ border-left-color:rgba(15,23,42,.35); }
+    body.light-mode .mp-key-ideal{ border-top-color:rgba(15,23,42,.45); }
+    body.light-mode .mp-today-dot{ border-color:#fff; }
+    body.light-mode .mp-chip{
+      background:linear-gradient(160deg, rgba(var(--c-rgb),.10), rgba(255,255,255,.9) 70%);
+      box-shadow:0 3px 14px rgba(15,23,42,.08);
+    }
+    body.light-mode .mp-meter{ background:rgba(15,23,42,.09); }
+
+    @media (prefers-reduced-motion:reduce){
+      .mp-pill i, .mp-today-dot::after{ animation:none; }
+      .mp-meter span{ transition:none; }
+    }
+    @media (max-width:640px){
+      .mp-hero{ display:grid; grid-template-columns:48px minmax(0,1fr); gap:6px 12px; align-items:center; }
+      .mp-hero .mp-pill{ grid-column:1 / -1; justify-self:start; }
+    }
+    @media (max-width:419px){
+      .month-pace-card{ padding:16px; }
+      .mp-chart-wrap{ height:210px; }
+      .mp-chip-value{ font-size:1rem; }
+      .mp-chip-safe .mp-chip-value{ font-size:1.3rem; }
+    }
+    /* desktop (>=900px): chart on the main side, chips stacked beside it */
+    @media screen and (min-width:900px){
+      .month-pace-card{ grid-column:1 / -1; padding:24px; }
+      .mp-body{ grid-template-columns:minmax(0,1.9fr) minmax(280px,1fr); gap:20px; align-items:stretch; }
+      .mp-chart-col{ display:flex; flex-direction:column; }
+      .mp-chart-wrap{ flex:1 1 auto; height:auto; min-height:300px; }
+      .mp-chips{ grid-template-columns:1fr; gap:12px; align-content:stretch; }
+      .mp-chip-safe{ grid-column:auto; }
+    }
   </style>
 </head>
 <body>
@@ -4564,6 +4761,48 @@
 
           <div class="weekly-summary" id="weeklySummary"></div>
         </section>
+
+        <!-- ═══ MONTH PACE (مسیر ماه) — remove this block to disable ═══ -->
+        <section class="glass card adv-chart-card month-pace-card mp-good" id="monthPaceSection">
+          <div class="section-head">
+            <h3>مسیر ماه</h3>
+            <span>بودجه در برابر واقعیت</span>
+          </div>
+
+          <div class="mp-empty" id="mpEmpty" hidden>
+            <i class="fa-solid fa-route"></i>
+            <h4>هنوز بودجه‌ای برای این ماه نداریم</h4>
+            <p>بعد از ثبت درآمد یا موجودی اولیه، مسیر هزینه‌ها و پیش‌بینی پایان ماه اینجا ساخته می‌شه.</p>
+          </div>
+
+          <div class="mp-hero" id="mpHero">
+            <div class="mp-orb"><i class="fa-solid fa-route" id="mpOrbIcon"></i></div>
+            <div class="mp-hero-text">
+              <strong id="mpHeadline">—</strong>
+              <span id="mpSubline"></span>
+            </div>
+            <span class="mp-pill" id="mpPill"><i></i><b>روی مسیر</b></span>
+          </div>
+
+          <div class="mp-body" id="mpBody">
+            <div class="mp-chart-col">
+              <div class="mp-chart-wrap" id="mpChartWrap">
+                <canvas id="monthPaceCanvas"></canvas>
+                <div class="mp-guide" id="mpGuide"></div>
+                <div class="mp-today-dot" id="mpTodayDot"></div>
+                <div class="mp-tip" id="mpTip"></div>
+              </div>
+              <div class="adv-legend mp-legend">
+                <span class="adv-legend-item"><i class="mp-key mp-key-actual"></i>هزینه واقعی</span>
+                <span class="adv-legend-item"><i class="mp-key mp-key-ideal"></i>مسیر ایده‌آل</span>
+                <span class="adv-legend-item"><i class="mp-key mp-key-forecast"></i>پیش‌بینی</span>
+              </div>
+              <p class="mp-model-note" id="mpModelNote"></p>
+            </div>
+            <div class="mp-chips" id="mpChips"></div>
+          </div>
+        </section>
+        <!-- ═══ END MONTH PACE ═══ -->
 
         <section class="glass card monthly-report-card">
           <div class="section-head">
@@ -5814,6 +6053,159 @@ const presetAvatars = [
         return { day: peak.date.getDate(), amount: peak.amount, date: peak.date };
       }
 
+      // ═══ SMART MONTH-END FORECAST ═══════════════════════════════
+      // The old forecast averaged TOTAL monthly spending into a flat daily
+      // rate. People who pay all their installments on day 1 (one huge
+      // lump) then got the same lump counted twice: once inside "spent so
+      // far" and again inside the daily rate used for the remaining days.
+      // One giant one-off purchase in an old month inflated the rate too.
+      //
+      // New model = three separate parts:
+      //   1. Fixed obligations (installments): known lumps, not a daily
+      //      rate. Only what is still unpaid this month is added.
+      //   2. Everyday spending: a robust (median) daily rate from the last
+      //      3 months, with one-off big purchases removed from the rate.
+      //   3. Big one-off purchases: never repeated in the expected value;
+      //      only a reserve in the pessimistic end of the range.
+      const SF_BIG_PURCHASE_SHARE = 0.08;   // single expense >= 8% of that month's income = "big one-off"
+
+      function sfMedian(list) {
+        const a = list.filter(v => Number.isFinite(v)).slice().sort((x, y) => x - y);
+        if (!a.length) return 0;
+        const m = Math.floor(a.length / 2);
+        return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+      }
+
+      function isFixedObligation(t) {
+        if (!t || t.type !== 'expense') return false;
+        if (t.loanId || t.category === 'loanes') return true;
+        let catName = '';
+        try { catName = categoryLabel(t.category) || ''; } catch (e) { catName = ''; }
+        return /قسط|اقساط/.test(`${t.note || ''} ${catName} ${t.category || ''}`);
+      }
+
+      // Exact "installments still unpaid this month", straight from the loans module.
+      function loanInstallmentsRemainingThisMonth() {
+        const loans = Array.isArray(state.loans) ? state.loans : [];
+        if (!loans.length) return null;
+        const key = getJalaliMonthKey(new Date());
+        const paidBy = {};
+        (state.transactions || []).forEach(t => {
+          if (!t || getJalaliMonthKey(t.createdAt) !== key) return;
+          let id = t.loanId;
+          if (!id && typeof t.note === 'string') {
+            const m = t.note.match(/^قسط وام: (.+)$/);
+            if (m) { const l = loans.find(x => x.title === m[1]); if (l) id = l.id; }
+          }
+          if (id) paidBy[id] = (paidBy[id] || 0) + Number(t.amount || 0);
+        });
+        let remaining = 0;
+        loans.forEach(l => {
+          const inst = Number(l.installmentAmount || 0);
+          const active = Number(l.paidInstallments || 0) < Number(l.totalInstallments || 0);
+          const paid = Math.min(paidBy[l.id] || 0, inst);
+          if (active) remaining += Math.max(0, inst - paid);
+        });
+        return remaining;
+      }
+
+      function weightedMedianDay(items) {          // items: [{day, amount}]
+        const total = items.reduce((s, i) => s + i.amount, 0);
+        if (!total) return 0;
+        const sorted = items.slice().sort((a, b) => a.day - b.day);
+        let acc = 0;
+        for (const i of sorted) { acc += i.amount; if (acc >= total / 2) return i.day; }
+        return sorted[sorted.length - 1].day;
+      }
+
+      function buildSmartForecast(now, cur) {
+        const td = cur.daysPassed, md = cur.monthDays;
+        const remainingDays = Math.max(0, md - td);
+        const all = allTransactionsCombined();
+        const dayOf = t => getJalaliDateParts(new Date(Number(t.createdAt))).jd;
+        const amt = t => Number(t.amount || 0);
+        const sum = list => list.reduce((x, t) => x + amt(t), 0);
+
+        // ── history: up to 3 previous months that have data ──
+        const hist = [];
+        for (let off = -1; off >= -3; off--) {
+          const r = getMonthRange(off, now);
+          const inM = t => { const c = Number(t.createdAt || 0); return c >= r.start.getTime() && c < r.end.getTime(); };
+          const exps = all.filter(t => t.type === 'expense' && inM(t));
+          if (!exps.length) continue;
+          const income = sum(all.filter(t => t.type === 'income' && inM(t)));
+          const days = jalaliDaysInMonth(r.jYear, r.jMonth);
+          const fixed = exps.filter(isFixedObligation);
+          const variable = exps.filter(t => !isFixedObligation(t));
+          const limit = (income || sum(exps)) * SF_BIG_PURCHASE_SHARE;
+          const big = variable.filter(t => amt(t) >= limit);
+          const regular = variable.filter(t => amt(t) < limit);
+          hist.push({
+            days,
+            fixedTotal: sum(fixed),
+            fixedDays: fixed.map(t => ({ day: dayOf(t), amount: amt(t) })),
+            regularRate: sum(regular) / days,
+            bigTotal: sum(big)
+          });
+        }
+
+        // ── this month so far ──
+        const curFixed = cur.expenses.filter(isFixedObligation);
+        const curVariable = cur.expenses.filter(t => !isFixedObligation(t));
+        const curLimit = (cur.incomeTotal || cur.spent) * SF_BIG_PURCHASE_SHARE;
+        const curBig = curVariable.filter(t => amt(t) >= curLimit);
+        const curRegular = curVariable.filter(t => amt(t) < curLimit);
+        const fixedPaid = sum(curFixed);
+
+        // ── 1) fixed obligations still to come ──
+        const histFixedDay = weightedMedianDay([].concat(...hist.map(h => h.fixedDays)));
+        const payDay = fixedPaid > 0
+          ? Math.max(1, weightedMedianDay(curFixed.map(t => ({ day: dayOf(t), amount: amt(t) }))))
+          : Math.max(1, histFixedDay || 1);
+        const loanRemaining = loanInstallmentsRemainingThisMonth();
+        let fixedRemaining;
+        if (loanRemaining !== null) {
+          fixedRemaining = loanRemaining;                         // exact, from the loans module
+        } else {
+          const typical = sfMedian(hist.map(h => h.fixedTotal).filter(v => v > 0));
+          fixedRemaining = (typical > fixedPaid && !(fixedPaid > 0 && td >= histFixedDay + 7))
+            ? typical - fixedPaid : 0;
+        }
+        fixedRemaining = remainingDays === 0 ? 0 : fixedRemaining;
+        const fixedPlan = fixedPaid + fixedRemaining;
+        const fixedRemainingDay = Math.min(md, Math.max(td + 1, histFixedDay || td + 1));
+
+        // ── 2) everyday spending rate ──
+        let varRate, varLo, varHi, method;
+        const rates = hist.map(h => h.regularRate).filter(v => v >= 0);
+        if (rates.length) {
+          method = 'history';
+          varRate = sfMedian(rates);
+          varLo = Math.min(...rates); varHi = Math.max(...rates);
+          if (rates.length === 1) { varLo = varRate * 0.7; varHi = varRate * 1.4; }
+        } else {
+          method = 'own-pace';
+          varRate = sum(curRegular) / Math.max(1, td);
+          varLo = varRate * 0.7; varHi = varRate * 1.4;
+        }
+
+        // ── 3) big one-off purchases: reserve only in the pessimistic end ──
+        const bigMonths = hist.filter(h => h.bigTotal > 0);
+        const bigReserve = (!curBig.length && hist.length && bigMonths.length >= hist.length / 2)
+          ? sfMedian(bigMonths.map(h => h.bigTotal)) : 0;
+
+        const remaining = fixedRemaining + varRate * remainingDays;
+        const lo = fixedRemaining + varLo * remainingDays;
+        const hi = fixedRemaining + varHi * remainingDays + (remainingDays > 0 ? bigReserve : 0);
+
+        return {
+          method, monthsUsed: hist.length,
+          fixedPaid, fixedRemaining, fixedPlan, payDay, fixedRemainingDay,
+          varRate, varLo, varHi, bigReserve,
+          remaining, lo, hi
+        };
+      }
+
       function buildFinancialSnapshot(now = new Date()) {
         const currentMonth = getMonthRange(0, now);
         const prevMonth = getMonthRange(-1, now);
@@ -5870,15 +6262,22 @@ const presetAvatars = [
         const rolling30ExpenseAvg = rolling30ExpenseTotal / 30;
         const rolling30IncomeAvg = rolling30IncomeTotal / 30;
 
-        const forecastDailyRate = historicalDailyExpense > 0
-          ? historicalDailyExpense
-          : rolling30ExpenseAvg;
-        const projectedRemainingExpense = forecastDailyRate * remainingDays;
+        const smartForecast = buildSmartForecast(now, {
+          expenses: currentExpenses,
+          incomeTotal: currentIncomeTotal,
+          spent: currentExpenseTotal,
+          daysPassed,
+          monthDays
+        });
 
-        // With history available, forecast = actual spending so far + expected
-        // spending for the remaining days. For a brand-new account, use the
-        // 30-day rolling rate instead of multiplying today's spending by the
-        // whole month; this avoids the same early-month spike problem.
+        // Forecast = what is already spent + unpaid installments + the
+        // everyday-spending rate for the remaining days (see buildSmartForecast).
+        // forecastDailyRate is kept as the effective average so older
+        // consumers of the snapshot keep working.
+        const projectedRemainingExpense = smartForecast.remaining;
+        const forecastDailyRate = remainingDays > 0
+          ? projectedRemainingExpense / remainingDays
+          : smartForecast.varRate;
         const projectedExpense = currentExpenseTotal + projectedRemainingExpense;
 
         const currentExpenseDays = countUniqueExpenseDays(currentExpenses);
@@ -5927,6 +6326,7 @@ const presetAvatars = [
           remainingDays,
           projectedRemainingExpense,
           projectedExpense,
+          smartForecast,
           currentExpenseDays,
           averageExpenseOnActiveDays,
           rolling30ExpenseTotal,
@@ -6808,6 +7208,7 @@ function parseMoneyInput(value) {
       }
 
       function renderAdvancedCharts() {
+        renderMonthPace();
         renderHealthScore();
         renderWeekdayChart();
         renderLineChart30();
@@ -7188,6 +7589,362 @@ function parseMoneyInput(value) {
       }
 
       // ── Line Chart: 30-day expense trend ─────────────────────
+      // ══ MONTH PACE (مسیر ماه) ═══════════════════════════════════
+      // Cumulative spend vs. an even-pace budget line, a forecast to the end
+      // of the month, and a "safe to spend today" chip. Reuses the same
+      // budget base as the home "بودجه ماه" chip (opening balance + income)
+      // and the existing forecast rate from buildFinancialSnapshot().
+      let _mpModel = null;
+
+      function mpNiceStep(raw) {
+        const mag = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1))));
+        for (const m of [1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) {
+          if (m * mag >= raw) return m * mag;
+        }
+        return 10 * mag;
+      }
+
+      function renderMonthPace() {
+        const section = document.getElementById('monthPaceSection');
+        const canvas = document.getElementById('monthPaceCanvas');
+        const wrap = document.getElementById('mpChartWrap');
+        if (!section || !canvas || !wrap) return;
+
+        const snap = buildFinancialSnapshot();
+        const budget = Math.max(0, Number(state.initialBalance || 0) + snap.currentIncomeTotal);
+        const emptyEl = document.getElementById('mpEmpty');
+
+        if (budget <= 0) {
+          section.classList.add('mp-empty-mode');
+          if (emptyEl) emptyEl.hidden = false;
+          _mpModel = null;
+          return;
+        }
+        section.classList.remove('mp-empty-mode');
+        if (emptyEl) emptyEl.hidden = true;
+
+        // ── model ────────────────────────────────────────────
+        const md = snap.monthDays;
+        const td = Math.min(snap.daysPassed, md);
+        const perDay = new Array(md + 2).fill(0);
+        snap.currentExpenses.forEach(t => {
+          const jd = getJalaliDateParts(new Date(Number(t.createdAt))).jd;
+          if (jd >= 1 && jd <= md) perDay[jd] += Number(t.amount || 0);
+        });
+        const cum = [0];
+        for (let d = 1; d <= md; d++) cum[d] = cum[d - 1] + perDay[d];
+
+        const spent = cum[td];
+        const sf = snap.smartForecast;
+        const projected = snap.projectedExpense;
+        const projLo = spent + sf.lo;
+        const projHi = spent + sf.hi;
+
+        // Ideal path: installments are a lump on their usual payday, only the
+        // rest of the budget is spread evenly over the month (so paying all
+        // installments on day 1 no longer looks like "overspending").
+        const fixedPlan = Math.min(sf.fixedPlan, budget);
+        const freeBudget = Math.max(0, budget - fixedPlan);
+        const ideal = d => fixedPlan * Math.min(1, d / sf.payDay) + freeBudget * d / md;
+        // Expected path from today: unpaid installments land on their usual day,
+        // everyday spending accrues at the robust daily rate.
+        const forecastAt = d => spent
+          + (d >= sf.fixedRemainingDay ? sf.fixedRemaining : 0)
+          + sf.varRate * (d - td);
+        const idealToday = ideal(td);
+        const delta = spent - idealToday;
+        const remainingDays = md - td;
+
+        // when would the budget run out at the forecast pace?
+        let runOutDay = null;
+        if (spent < budget && (sf.varRate > 0 || sf.fixedRemaining > 0)) {
+          for (let d = td + 1; d <= md; d++) {
+            if (forecastAt(d) >= budget) { runOutDay = d; break; }
+          }
+        }
+
+        let status = 'good';
+        if (spent >= budget || projected > budget * 1.05) status = 'bad';
+        else if (projected > budget * 0.95) status = 'warn';
+
+        const fmt = v => formatPlainMoney(v) + ' تومان';
+        const monthName = jalaliMonthNames[snap.currentMonth.jMonth - 1];
+
+        // ── hero text ────────────────────────────────────────
+        let headline, subline, pill, icon;
+        if (spent >= budget) {
+          headline = 'بودجه‌ی این ماه تموم شده';
+          subline = `${fmt(spent - budget)} بیشتر از بودجه خرج کرده‌ای · ${toPersianNumber(remainingDays)} روز تا پایان ماه`;
+          pill = 'بودجه تمام'; icon = 'fa-triangle-exclamation';
+        } else if (status === 'bad') {
+          const left = runOutDay ? runOutDay - td : remainingDays;
+          headline = `با این روند بودجه‌ات ${toPersianNumber(left)} روز دیگه تموم می‌شه`;
+          subline = `حدود ${toPersianNumber(runOutDay || md)} ${monthName} · ${fmt(Math.max(0, projected - budget))} کسری تا پایان ماه`;
+          pill = 'خارج از مسیر'; icon = 'fa-triangle-exclamation';
+        } else if (status === 'warn') {
+          headline = 'نزدیک مرز بودجه‌ای؛ مراقب باش';
+          subline = `پیش‌بینی پایان ماه ${fmt(projected)} از ${fmt(budget)} · فقط ${fmt(Math.max(0, budget - projected))} فاصله`;
+          pill = 'نزدیک مرز'; icon = 'fa-gauge-high';
+        } else {
+          headline = 'روی مسیر درستی هستی';
+          subline = `با این روند حدود ${fmt(Math.max(0, budget - projected))} از بودجه‌ات تا آخر ماه می‌مونه`;
+          pill = 'روی مسیر'; icon = 'fa-route';
+        }
+        section.classList.remove('mp-good', 'mp-warn', 'mp-bad');
+        section.classList.add('mp-' + status);
+        document.getElementById('mpHeadline').textContent = headline;
+        document.getElementById('mpSubline').textContent = subline;
+        document.getElementById('mpPill').querySelector('b').textContent = pill;
+        document.getElementById('mpOrbIcon').className = 'fa-solid ' + icon;
+
+        // ── chips ────────────────────────────────────────────
+        const spentBeforeToday = cum[td - 1] || 0;
+        const daysIncToday = md - td + 1;
+        const room = budget - spentBeforeToday - sf.fixedRemaining;
+        const allowance = room > 0 ? room / daysIncToday : 0;
+        const todaySpent = perDay[td] || 0;
+        const leftToday = allowance - todaySpent;
+        const useRatio = allowance > 0 ? todaySpent / allowance : (todaySpent > 0 ? 2 : 0);
+        const safeClass = useRatio >= 1 ? 'c-bad' : useRatio >= .7 ? 'c-warn' : 'c-good';
+
+        let safeValue, safeNote, safeIcon = 'fa-bolt';
+        if (allowance <= 0) {
+          safeValue = `<span>۰</span><small>تومان</small>`;
+          safeNote = 'بودجه‌ی باقی‌مونده صفره؛ امروز خرجی نداشته باش';
+          safeIcon = 'fa-hand';
+        } else if (leftToday >= 0) {
+          safeValue = `<span>${formatPlainMoney(leftToday)}</span><small>تومان</small>`;
+          safeNote = 'امروز می‌تونی خرج کنی و هنوز روی مسیر بمونی';
+        } else {
+          safeValue = `<span>${formatPlainMoney(-leftToday)}</span><small>تومان بیشتر از سقف</small>`;
+          safeNote = 'سقف امروز رد شده؛ فردا سقف کمی پایین‌تر میاد';
+          safeIcon = 'fa-triangle-exclamation';
+        }
+
+        const deltaClass = delta <= 0 ? 'c-good'
+          : status === 'good' ? 'c-warn'
+          : delta <= budget * 0.05 ? 'c-warn' : 'c-bad';
+        const projPct = Math.round((projected / budget) * 100);
+        const projClass = status === 'bad' ? 'c-bad' : status === 'warn' ? 'c-warn' : 'c-good';
+
+        document.getElementById('mpChips').innerHTML = `
+          <div class="mp-chip mp-chip-safe ${safeClass}">
+            <div class="mp-chip-top">
+              <span class="mp-chip-icon"><i class="fa-solid ${safeIcon}"></i></span>
+              <span class="mp-chip-label">تراز امروز</span>
+              <span class="mp-chip-tag">سقف امروز ${formatMoneyCompact(allowance)}</span>
+            </div>
+            <div class="mp-chip-value">${safeValue}</div>
+            <div class="mp-chip-note">${safeNote}</div>
+            <div class="mp-meter"><span style="width:${Math.min(100, Math.round(useRatio * 100))}%"></span></div>
+            <div class="mp-chip-foot">
+              <span>خرج امروز: ${formatMoneyCompact(todaySpent)}</span>
+              <span>${toPersianNumber(Math.min(100, Math.round(useRatio * 100)))}٪ از سقف</span>
+            </div>
+          </div>
+          <div class="mp-chip ${deltaClass}">
+            <div class="mp-chip-top">
+              <span class="mp-chip-icon"><i class="fa-solid ${delta > 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i></span>
+              <span class="mp-chip-label">فاصله با مسیر</span>
+            </div>
+            <div class="mp-chip-value"><span>${formatPlainMoney(Math.abs(delta))}</span><small>تومان</small></div>
+            <div class="mp-chip-note">${delta > 0 ? 'بالاتر از' : 'پایین‌تر از'} مسیر ایده‌آل تا امروز${delta > 0 && status === 'good' ? ' · ولی پیش‌بینی هنوز داخل بودجه‌ست' : ''}</div>
+          </div>
+          <div class="mp-chip ${projClass}">
+            <div class="mp-chip-top">
+              <span class="mp-chip-icon"><i class="fa-solid fa-flag-checkered"></i></span>
+              <span class="mp-chip-label">پیش‌بینی آخر ماه</span>
+            </div>
+            <div class="mp-chip-value"><span>${formatPlainMoney(projected)}</span><small>تومان</small></div>
+            <div class="mp-chip-note">${toPersianNumber(projPct)}٪ از بودجه · بازه‌ی محتمل ${formatMoneyCompact(projLo)} تا ${formatMoneyCompact(projHi)}</div>
+          </div>
+        `;
+
+        // ── canvas ───────────────────────────────────────────
+        const light = document.body.classList.contains('light-mode');
+        const col = {
+          grid:  light ? 'rgba(15,23,42,.08)'  : 'rgba(255,255,255,.07)',
+          text:  light ? 'rgba(15,23,42,.55)'  : 'rgba(255,255,255,.45)',
+          ideal: light ? 'rgba(15,23,42,.42)'  : 'rgba(255,255,255,.55)'
+        };
+        const rgb = status === 'bad' ? '255,93,125' : status === 'warn' ? '255,184,77' : '24,230,166';
+        const stroke = `rgb(${rgb})`;
+
+        const W = wrap.clientWidth || 320;
+        const H = wrap.clientHeight || 230;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+
+        const PAD = { top: 26, right: 16, bottom: 30, left: 46 };
+        const cW = W - PAD.left - PAD.right;
+        const cH = H - PAD.top - PAD.bottom;
+
+        const rawMax = Math.max(budget, projected, spent) * 1.04;
+        const step = mpNiceStep(rawMax / 4);
+        const yMax = step * 4;
+        const X = d => PAD.left + (d / md) * cW;
+        const Y = v => PAD.top + (1 - v / yMax) * cH;
+
+        // grid + y labels (5 ticks, exactly on their lines)
+        ctx.font = '10.5px sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        for (let i = 0; i <= 4; i++) {
+          const v = step * i, y = Y(v);
+          ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W - PAD.right, y); ctx.stroke();
+          ctx.fillStyle = col.text;
+          ctx.fillText(i === 0 ? '۰' : formatMoneyCompact(v), PAD.left - 8, y);
+        }
+
+        // over-budget zone
+        if (yMax > budget * 1.001) {
+          const yb = Y(budget);
+          const zone = ctx.createLinearGradient(0, PAD.top, 0, yb);
+          const zoneA = status === 'bad' ? .14 : status === 'warn' ? .08 : .045;
+          zone.addColorStop(0, `rgba(255,93,125,${zoneA})`);
+          zone.addColorStop(1, `rgba(255,93,125,${zoneA * .15})`);
+          ctx.fillStyle = zone;
+          ctx.fillRect(PAD.left, PAD.top, cW, yb - PAD.top);
+          ctx.setLineDash([2, 4]);
+          ctx.strokeStyle = 'rgba(255,93,125,.55)'; ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.moveTo(PAD.left, yb); ctx.lineTo(W - PAD.right, yb); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = 'rgba(255,93,125,.9)';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+          ctx.fillText('سقف بودجه', PAD.left + 6, yb - 4);
+        }
+
+        // ideal pace line
+        ctx.setLineDash([7, 6]);
+        ctx.strokeStyle = col.ideal; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let d = 0; d <= md; d++) {
+          if (d === 0) ctx.moveTo(X(0), Y(ideal(0))); else ctx.lineTo(X(d), Y(ideal(d)));
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // forecast fan + dotted line
+        if (td < md) {
+          const hi = Math.min(yMax, projHi);
+          const lo = Math.max(spent, projLo);
+          const fan = ctx.createLinearGradient(X(td), 0, X(md), 0);
+          fan.addColorStop(0, `rgba(${rgb},.02)`);
+          fan.addColorStop(1, `rgba(${rgb},.20)`);
+          ctx.fillStyle = fan;
+          ctx.beginPath();
+          ctx.moveTo(X(td), Y(spent));
+          ctx.lineTo(X(md), Y(hi));
+          ctx.lineTo(X(md), Y(lo));
+          ctx.closePath(); ctx.fill();
+
+          ctx.setLineDash([1, 6]);
+          ctx.strokeStyle = stroke; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(X(td), Y(spent)); ctx.lineTo(X(md), Y(projected)); ctx.stroke();
+          ctx.setLineDash([]);
+
+          // end-of-month marker
+          ctx.fillStyle = stroke;
+          ctx.beginPath(); ctx.arc(X(md), Y(projected), 3.6, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // actual cumulative area + glowing line
+        const pts = [];
+        for (let d = 0; d <= td; d++) pts.push({ x: X(d), y: Y(cum[d]) });
+        const area = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + cH);
+        area.addColorStop(0, `rgba(${rgb},.36)`);
+        area.addColorStop(1, `rgba(${rgb},.01)`);
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, Y(0));
+        pts.forEach(pt => ctx.lineTo(pt.x, pt.y));
+        ctx.lineTo(pts[pts.length - 1].x, Y(0));
+        ctx.closePath(); ctx.fillStyle = area; ctx.fill();
+
+        const lineGrad = ctx.createLinearGradient(X(0), 0, X(td), 0);
+        lineGrad.addColorStop(0, '#00d2ff');
+        lineGrad.addColorStop(1, stroke);
+        ctx.save();
+        ctx.shadowColor = `rgba(${rgb},.55)`; ctx.shadowBlur = 10;
+        ctx.strokeStyle = lineGrad; ctx.lineWidth = 2.8; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        ctx.beginPath();
+        pts.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+        ctx.stroke();
+        ctx.restore();
+
+        // "today" guide + label
+        ctx.setLineDash([3, 5]);
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(X(td), PAD.top - 4); ctx.lineTo(X(td), PAD.top + cH); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = stroke; ctx.font = '700 10.5px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('امروز', X(td), PAD.top - 8);
+
+        // x labels
+        ctx.font = '10.5px sans-serif'; ctx.fillStyle = col.text;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        const xDays = [1, 5, 10, 15, 20, 25].filter(d => d < md - 2);
+        xDays.push(md);
+        xDays.forEach(d => ctx.fillText(toPersianNumber(d), X(d), H - 9));
+
+        // how the forecast was built (transparency)
+        const noteEl = document.getElementById('mpModelNote');
+        if (noteEl) {
+          const parts = [];
+          if (sf.fixedPlan > 0) {
+            parts.push(`اقساط جدا حساب می‌شن: ${fmt(sf.fixedPaid)} پرداخت‌شده` + (sf.fixedRemaining > 0 ? ` · ${fmt(sf.fixedRemaining)} باقی‌مونده` : ' · چیزی باقی نمونده'));
+          }
+          parts.push(sf.method === 'history'
+            ? `خرج روزمره حدود ${formatPlainMoney(sf.varRate)} تومان در روز (میانه‌ی ${toPersianNumber(sf.monthsUsed)} ماه اخیر، بدون خریدهای بزرگ یک‌باره)`
+            : `خرج روزمره از روند همین ماه تخمین زده شده (سابقه‌ی ماه قبل کافی نیست)`);
+          if (sf.bigReserve > 0) parts.push(`در بدترین حالت یک خرید بزرگ حدود ${formatMoneyCompact(sf.bigReserve)} هم اضافه می‌شه`);
+          noteEl.textContent = parts.join(' · ');
+        }
+
+        // overlay: pulsing dot on today
+        const dot = document.getElementById('mpTodayDot');
+        dot.style.left = X(td) + 'px';
+        dot.style.top = Y(spent) + 'px';
+
+        // ── hover / tap tooltip ──────────────────────────────
+        _mpModel = { md, td, cum, ideal, forecastAt, X, W, PAD, cW, monthName, fmt, budget };
+        const guide = document.getElementById('mpGuide');
+        const tip = document.getElementById('mpTip');
+        const hide = () => { guide.style.opacity = 0; tip.classList.remove('show'); };
+        const show = e => {
+          const m = _mpModel; if (!m) return;
+          const rect = wrap.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const d = Math.max(1, Math.min(m.md, Math.round(((mx - m.PAD.left) / m.cW) * m.md)));
+          const gx = m.X(d);
+          guide.style.left = gx + 'px'; guide.style.opacity = 1;
+          const isPast = d <= m.td;
+          const val = isPast ? m.cum[d] : m.forecastAt(d);
+          const diff = val - m.ideal(d);
+          tip.innerHTML = `
+            <b>${toPersianNumber(d)} ${m.monthName}${d === m.td ? ' · امروز' : ''}</b>
+            <div><span>${isPast ? 'هزینه تجمعی' : 'پیش‌بینی'}</span><span>${formatPlainMoney(val)}</span></div>
+            <div><span>مسیر ایده‌آل</span><span>${formatPlainMoney(m.ideal(d))}</span></div>
+            <div><span>اختلاف</span><span style="color:${diff > 0 ? '#ff5d7d' : '#18e6a6'}">${diff > 0 ? '+' : '−'}${formatPlainMoney(Math.abs(diff))}</span></div>`;
+          const tw = tip.offsetWidth || 160;
+          let left = gx + 12;
+          if (left + tw > m.W - 6) left = gx - tw - 12;
+          tip.style.left = Math.max(6, left) + 'px';
+          tip.classList.add('show');
+        };
+        wrap.onpointermove = show;
+        wrap.onpointerdown = show;
+        wrap.onpointerleave = e => { if (e.pointerType === 'mouse') hide(); };
+        if (!wrap._mpOutside) {
+          wrap._mpOutside = true;
+          document.addEventListener('pointerdown', ev => { if (!wrap.contains(ev.target)) hide(); });
+        }
+      }
+
       function renderLineChart30() {
         const canvas = document.getElementById('lineChart30');
         if (!canvas) return;
