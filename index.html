@@ -4493,7 +4493,149 @@
       .mp-chips{ grid-template-columns:1fr; gap:12px; align-content:stretch; }
       .mp-chip-safe{ grid-column:auto; }
     }
-  </style>
+  
+/* ═══ HOME HERO REDESIGN (container-driven: reacts to the hero's own width) ═══ */
+#homePage .hero-card{container:hx / inline-size;padding:20px;min-height:0;display:grid;gap:18px;
+  background:radial-gradient(120% 140% at 100% 0%,rgba(106,92,255,.28),transparent 55%),radial-gradient(90% 100% at 0% 100%,rgba(0,210,255,.14),transparent 60%),var(--card)}
+#homePage .hero-card::after{inset:auto auto -70px -50px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,60,172,.20),transparent 68%)}
+#homePage.active-page > .hero-card{grid-column:1 / -1;margin-bottom:0}
+.hero-main{--ring:clamp(92px,27cqw,190px);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:clamp(10px,3cqw,28px);position:relative;z-index:1;min-width:0}
+.hero-copy{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(8px,1.6cqw,14px);min-width:0;flex:1 1 0}
+.hero-card .balance-label{display:flex;align-items:center;gap:8px;margin:0;font-size:.95rem;font-weight:600}
+.hero-card .balance-label i{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:.8rem;color:var(--accent2);background:rgba(0,210,255,.12)}
+/* total balance: container-driven below 950px, viewport-driven (4rem @ ~990px → 5rem max) above */
+#homePage .hero-card .balance-value,#homePage.active-page .hero-card .balance-value{font-size:clamp(1.6rem,11cqw,3.9rem) !important;white-space:nowrap;max-width:100%;line-height:1.2;
+  background:linear-gradient(135deg,#fff 30%,#b9c4ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+@media (min-width:950px){
+  #homePage .hero-card .balance-value,#homePage.active-page .hero-card .balance-value{font-size:clamp(3.7rem,calc(4rem + (100vw - 990px) * .0262),5rem) !important}
+}
+.hero-card .balance-value > span{display:inline-block}
+.hero-card .balance-value small{display:block;font-size:.34em;font-weight:500;margin:.1em 0 0;-webkit-text-fill-color:var(--muted)}
+@container hx (min-width:700px){.hero-card .balance-value small{display:inline;margin:0 .3em 0 0}}
+body.light-mode #homePage .hero-card .balance-value,body.light-mode #homePage.active-page .hero-card .balance-value{background:none;-webkit-text-fill-color:var(--text);color:var(--text)}
+body.light-mode .hero-card .balance-value small{-webkit-text-fill-color:var(--muted)}
+/* budget ring: always beside the balance; scales with the hero.
+   layers (outside→in): lit ticks · gradient arc (round caps, glow) · glass disc · percent */
+.hero-ring-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 auto;min-width:var(--ring);max-width:calc(var(--ring) * 1.4)}
+.hero-card .balance-ring{--g1:var(--accent2);--g2:var(--accent1);--g3:var(--accent3);--track:color-mix(in srgb,var(--text) 9%,transparent);--tick:color-mix(in srgb,var(--text) 22%,transparent);
+  position:relative;width:var(--ring);height:var(--ring);flex:0 0 auto;border-radius:50%;background:none;box-shadow:none;display:grid;place-items:center;
+  filter:drop-shadow(0 calc(var(--ring) * .05) calc(var(--ring) * .11) rgba(0,0,0,.28))}
+.hero-card .balance-ring[data-level="warn"]{--g1:#ffd36b;--g2:#ffb84d;--g3:#ff8a3d}
+.hero-card .balance-ring[data-level="bad"]{--g1:#ff9a5c;--g2:#ff5d7d;--g3:#ff2d6f}
+.hero-card .balance-ring::after{display:none}
+.rg-ticks,.rg-glow,.rg-arc,.rg-disc{position:absolute;inset:0;border-radius:50%;pointer-events:none;display:block}
+.rg-ticks{background:conic-gradient(from 0deg,color-mix(in srgb,var(--g2) 55%,#fff) var(--usage),var(--tick) var(--usage) 100%);
+  -webkit-mask:radial-gradient(farthest-side,transparent 73%,#000 73.5%,#000 79.5%,transparent 80%),repeating-conic-gradient(from -.35deg,#000 0 .7deg,transparent .7deg 6deg);-webkit-mask-composite:source-in;
+  mask:radial-gradient(farthest-side,transparent 73%,#000 73.5%,#000 79.5%,transparent 80%),repeating-conic-gradient(from -.35deg,#000 0 .7deg,transparent .7deg 6deg);mask-composite:intersect}
+.rg-glow{filter:drop-shadow(0 0 calc(var(--ring) * .045) color-mix(in srgb,var(--g2) 70%,transparent))}
+.rg-arc{background:conic-gradient(from 0deg,var(--g1),var(--g2) calc(var(--usage) * .55),var(--g3) var(--usage),var(--track) var(--usage) 100%);
+  -webkit-mask:radial-gradient(farthest-side,transparent 82.5%,#000 83.2%);mask:radial-gradient(farthest-side,transparent 82.5%,#000 83.2%)}
+.rg-cap{position:absolute;top:0;left:50%;display:block;width:calc(var(--ring) * .086);height:calc(var(--ring) * .086);margin-left:calc(var(--ring) * -.043);border-radius:50%;pointer-events:none}
+.rg-start{background:var(--g1);opacity:calc(var(--p) * 30)}
+.rg-end{position:absolute;inset:0;display:block;transform:rotate(calc(var(--p) * 3.6deg));pointer-events:none;opacity:calc(var(--p) * 30)}
+.rg-end .rg-cap{background:var(--g3);box-shadow:0 0 calc(var(--ring) * .06) var(--g3),0 0 0 calc(var(--ring) * .008) rgba(255,255,255,.5)}
+.rg-end .rg-cap::after{content:'';position:absolute;inset:32%;border-radius:50%;background:#fff;opacity:.92}
+.balance-ring[data-level="bad"] .rg-end .rg-cap{animation:rgPulse 1.8s ease-in-out infinite}
+@keyframes rgPulse{50%{box-shadow:0 0 calc(var(--ring) * .12) var(--g3),0 0 0 calc(var(--ring) * .03) rgba(255,45,111,.35)}}
+.rg-disc{inset:15%;background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--g2) 14%,var(--bg2)) 0,var(--bg1) 58%,var(--bg0) 100%);
+  box-shadow:inset 0 0 0 1px var(--border),inset 0 calc(var(--ring) * .03) calc(var(--ring) * .07) rgba(255,255,255,.06),inset 0 calc(var(--ring) * -.05) calc(var(--ring) * .1) rgba(0,0,0,.28)}
+.hero-card .balance-ring-inner{position:relative;z-index:1;padding:0;gap:calc(var(--ring) * .03)}
+.hero-card .balance-ring-percent{font-size:calc(var(--ring) * .2);letter-spacing:-.02em;
+  background:linear-gradient(180deg,var(--text),color-mix(in srgb,var(--g2) 45%,var(--text)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-card .balance-ring-caption{font-size:max(.58rem,calc(var(--ring) * .075));color:var(--muted)}
+@container hx (max-width:400px){.rg-ticks{display:none}.rg-disc{inset:12%}}
+@media (prefers-reduced-motion:reduce){.balance-ring[data-level="bad"] .rg-end .rg-cap{animation:none}}
+.hero-card #budgetUsageText{font-size:max(.62rem,calc(var(--ring) * .075));color:var(--muted);text-align:center;line-height:1.6;overflow-wrap:anywhere}
+/* stat tiles */
+.hero-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;position:relative;z-index:1;align-items:stretch}
+.hero-stat{container-type:inline-size;--c:var(--accent2);padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-width:0;position:relative;overflow:hidden}
+body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
+.hero-stat.income{--c:var(--good);background:linear-gradient(160deg,rgba(24,230,166,.10),rgba(255,255,255,.03))}
+.hero-stat.expense{--c:var(--bad);background:linear-gradient(160deg,rgba(255,93,125,.10),rgba(255,255,255,.03))}
+.hero-stat.today,.hero-stat.health{background:linear-gradient(160deg,color-mix(in srgb,var(--c) 11%,transparent),rgba(255,255,255,.03))}
+.hero-stat.today.c-good{--c:var(--good)}.hero-stat.today.c-warn{--c:var(--warn)}.hero-stat.today.c-bad{--c:var(--bad)}.hero-stat.today.c-idle,.hero-stat.health.c-idle{--c:#8a95c9}
+.hero-stat[data-hero-go]{cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+.hero-stat[data-hero-go]:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c) 55%,transparent);box-shadow:0 8px 26px color-mix(in srgb,var(--c) 22%,transparent)}
+.hs-head{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:.84rem;min-width:0}
+.hs-icon{flex:0 0 auto;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:.8rem;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.hs-label{flex:1 1 0;min-width:0;line-height:1.35}
+.hs-tag{flex:0 0 auto;font-size:.66rem;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.hs-tag:empty{display:none}
+.hs-main{flex:1 1 auto;display:flex;align-items:center;min-width:0;padding:2px 0}
+.hs-main > .hs-value{flex:1 1 0;min-width:0}
+.hs-value{display:block;font-weight:900;line-height:1.15;font-size:clamp(1.3rem,11cqw,2.4rem)}
+.hs-value > span,.hs-value > b{display:inline-block;white-space:nowrap;font-weight:900}
+.hs-value > small{display:block;font-size:max(.42em,11px);font-weight:500;color:var(--muted);margin-top:3px;line-height:1.4}
+.hero-stat.health .hs-value{display:flex;align-items:baseline;gap:6px;font-size:.8rem}
+.hero-stat.health .hs-value > b{font-size:calc(var(--hs-u,28px) * 1.2);line-height:1}
+.hero-stat.health .hs-value > small{display:inline;margin:0}
+.hs-go{flex:0 0 auto;font-size:.7rem;color:var(--muted);transition:transform .2s,color .2s}
+.hero-stat[data-hero-go]:hover .hs-go{color:var(--c);transform:translateX(-3px)}
+.hs-bottom{display:grid;gap:7px;min-width:0}
+.hs-meter{height:8px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden}
+.hs-meter span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 55%,transparent),var(--c));box-shadow:0 0 10px color-mix(in srgb,var(--c) 55%,transparent);transition:width .9s cubic-bezier(.22,.8,.2,1)}
+.hs-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 8px;font-size:.7rem;color:var(--muted)}
+.hs-foot:not(:has(:not(:empty))){display:none}
+.hs-more{display:inline-flex;align-items:center;gap:5px;color:var(--c);font-weight:600}.hs-more i{font-size:.6rem}
+.hs-note{font-size:.72rem;line-height:1.7;color:var(--muted)}.hs-note:empty{display:none}
+@container (max-width:235px){.hs-tag{display:none}.hs-note{display:none}.hero-stat{padding:13px 14px}}
+/* hero layout by the HERO's width */
+@container hx (max-width:820px){.hero-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* compact tiles on narrow heroes: all four tiles stay a balanced 2×2 grid */
+@container hx (max-width:560px){
+  .hero-stats{gap:9px}
+  .hero-stat{padding:11px 12px;gap:7px}
+  .hs-icon{width:26px;height:26px;border-radius:9px;font-size:.72rem}
+  .hs-head{gap:7px;font-size:.78rem}
+  .hs-meter{height:6px}
+  .hs-bottom{gap:5px}
+  .hs-foot{font-size:.66rem}
+  .hs-note{display:none}
+  .hs-value > small{margin-top:1px}
+}
+@media (max-width:860px){#homePage .hero-card{padding:16px;gap:14px}}
+/* smooth-scroll target highlight (analysis tab) */
+.nav-flash{animation:navFlash 1.6s ease-out}
+@keyframes navFlash{0%{box-shadow:0 0 0 0 rgba(0,210,255,.75)}35%{box-shadow:0 0 0 4px rgba(0,210,255,.55),0 0 38px rgba(0,210,255,.35)}100%{box-shadow:0 0 0 0 rgba(0,210,255,0)}}
+@media (prefers-reduced-motion:reduce){.nav-flash{animation:none}.hero-stat.health,.hero-go,.hero-go-arrow,.hs-meter span{transition:none}}
+/* transactions list header: filter button */
+.list-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.filter-open-btn{position:relative;width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);display:grid;place-items:center;cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+.filter-open-btn:hover{border-color:var(--accent2);background:rgba(0,210,255,.08)}
+.filter-open-btn:active{transform:scale(.95)}
+.filter-open-btn.has-filters{border-color:var(--accent2);color:var(--accent2);background:rgba(0,210,255,.1)}
+.filter-badge{position:absolute;top:-6px;inset-inline-start:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:99px;display:grid;place-items:center;font-size:.66rem;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent1),var(--accent3));border:2px solid var(--bg0)}
+.filter-badge[hidden]{display:none}
+.filter-clear-chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.filter-clear-chip:hover{color:var(--bad);border-color:var(--bad)}
+.filter-clear-chip[hidden]{display:none}
+/* filter modal */
+.filter-modal{max-height:min(88vh,88dvh);overflow:hidden;padding:20px 20px 18px;gap:0}
+.fm-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex:0 0 auto}
+.fm-title{font-size:1.15rem;font-weight:800}
+.fm-sub{color:var(--muted);font-size:.85rem;margin-top:3px}
+.fm-body{display:grid;gap:10px;overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto;padding:2px 2px 6px;scrollbar-width:none}
+.fm-body::-webkit-scrollbar{display:none}
+.fm-body{container-type:inline-size}
+.fm-body .filter-amount-row,.fm-body .filter-sort-row,.fm-body .form-grid{margin-top:0}
+.fm-body .input,.fm-body .select{min-width:0;width:100%;box-sizing:border-box}
+.fm-body .form-grid.two,.fm-body .filter-amount-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fm-body .form-grid.two > div,.fm-body .filter-amount-row > div{min-width:0}
+@container (max-width:430px){.fm-body .form-grid.two.fm-date-grid,.fm-body .filter-amount-row{grid-template-columns:minmax(0,1fr)}}
+@container (max-width:250px){.fm-body .form-grid.two.fm-sel-grid{grid-template-columns:minmax(0,1fr)}}
+.fm-actions{display:flex;align-items:center;gap:10px;margin-top:14px;flex:0 0 auto}
+.fm-apply{flex:1 1 auto;height:48px;border:0;border-radius:16px;font:inherit;font-weight:800;font-size:.98rem;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--accent1),var(--accent3));box-shadow:0 8px 24px rgba(106,92,255,.35)}
+.fm-apply:active{transform:scale(.98)}
+.fm-clear{flex:0 0 auto;height:48px;padding:0 14px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--muted);font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.fm-clear:hover{color:var(--bad);border-color:var(--bad)}
+@media (max-width:380px){.fm-clear span{display:none}.fm-clear{padding:0 14px}}
+/* insight chips */
+.home-insights-row .home-insight-chip{position:relative;overflow:hidden;border-radius:20px;box-shadow:none}
+.home-insights-row .home-insight-chip::before{content:'';position:absolute;inset:0 0 auto auto;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--good))}
+.home-insights-row .home-insight-chip.warn::before{background:linear-gradient(90deg,transparent,var(--warn))}
+.home-insights-row .home-insight-chip .hic-icon{width:42px;height:42px;border-radius:50%;font-size:1rem}
+.home-insights-row .home-insight-chip .hic-sub{direction:rtl;unicode-bidi:plaintext}
+</style>
 </head>
 <body>
   <!-- ══ SYNC STATUS BAR ══ -->
@@ -4572,16 +4714,19 @@
         </button>
       </header>
 
-      <section class="glass balance-card section">
-        <div class="balance-hero">
-          <div class="balance-copy">
-            <div class="balance-label">موجودی کل</div>
+      <section class="glass balance-card hero-card section">
+        <div class="hero-main">
+          <div class="hero-copy">
+            <div class="balance-label"><i class="fa-solid fa-wallet"></i>موجودی کل</div>
             <div class="balance-value" id="balanceAmount">۰ تومان</div>
-            <div class="balance-sub">موجودی اولیه + درآمدها - هزینه‌ها</div>
-            <div class="balance-net" id="netFlowChip">خالص: ۰</div>
           </div>
-          <div class="balance-visual">
-            <div class="balance-ring" id="budgetUsageRing" style="--usage:0%">
+          <div class="hero-ring-wrap">
+            <div class="balance-ring" id="budgetUsageRing" style="--usage:0%;--p:0" data-level="ok">
+              <i class="rg-ticks"></i>
+              <i class="rg-glow"><i class="rg-arc"></i></i>
+              <i class="rg-cap rg-start"></i>
+              <span class="rg-end"><i class="rg-cap"></i></span>
+              <i class="rg-disc"></i>
               <div class="balance-ring-inner">
                 <div class="balance-ring-percent" id="budgetUsagePercent">۰٪</div>
                 <div class="balance-ring-caption">مصرف بودجه</div>
@@ -4590,32 +4735,33 @@
             <div class="balance-usage-text" id="budgetUsageText">۰ از ۰ تومان</div>
           </div>
         </div>
-        <div class="balance-footer">
-          <div class="balance-footer-item">
-            <span>بودجه قابل مصرف</span>
-            <strong id="budgetBaseAmount">۰</strong>
+        <div class="hero-stats">
+          <div class="hero-stat income">
+            <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-arrow-trend-up"></i></span><span class="hs-label">درآمد</span></div>
+            <div class="hs-value" data-fit="56" id="incomeAmount">۰</div>
           </div>
-          <div class="balance-footer-item">
-            <span>هزینه ثبت‌شده</span>
-            <strong id="budgetSpentAmount">۰</strong>
+          <div class="hero-stat expense">
+            <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-arrow-trend-down"></i></span><span class="hs-label">هزینه</span></div>
+            <div class="hs-value" data-fit="56" id="expenseAmount">۰</div>
           </div>
-        </div>
-        <div class="balance-progress"><span id="budgetUsageBar"></span></div>
-      </section>
-
-      <section class="stats-grid section">
-        <div class="glass stat-card income-card">
-          <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-          <div class="stat-meta">
-            <p>درآمد</p>
-            <h2 id="incomeAmount">۰</h2>
+          <!-- تراز امروز: همان داده‌ی «تراز امروز» تب تحلیل (مسیر ماه) — computeTodayBalance() -->
+          <div class="hero-stat today c-idle" id="heroToday" role="link" tabindex="0" data-hero-go="monthPaceSection" aria-label="تراز امروز؛ رفتن به مسیر ماه در تب تحلیل">
+            <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-bolt" id="heroTodayIcon"></i></span><span class="hs-label" id="heroTodayLabel">تراز امروز</span><span class="hs-tag" id="heroTodayTag"></span><i class="fa-solid fa-chevron-left hs-go"></i></div>
+            <div class="hs-main"><div class="hs-value" data-fit="44" id="heroTodayValue">—</div></div>
+            <div class="hs-bottom">
+              <div class="hs-meter"><span id="heroTodayMeter"></span></div>
+              <div class="hs-foot"><span id="heroTodaySpent"></span><span id="heroTodayPct"></span></div>
+              <div class="hs-note" id="heroTodayNote"></div>
+            </div>
           </div>
-        </div>
-        <div class="glass stat-card expense-card">
-          <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
-          <div class="stat-meta">
-            <p>هزینه</p>
-            <h2 id="expenseAmount">۰</h2>
+          <!-- سلامت مالی: خلاصه‌ی امتیاز؛ با کلیک به سکشن «سلامت مالی» تب تحلیل می‌رود -->
+          <div class="hero-stat health c-idle" id="heroHealth" role="link" tabindex="0" data-hero-go="healthScoreSection" aria-label="سلامت مالی؛ رفتن به جزئیات در تب تحلیل">
+            <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-heart-pulse"></i></span><span class="hs-label">سلامت مالی</span><span class="hs-tag" id="heroHealthTag"></span><i class="fa-solid fa-chevron-left hs-go"></i></div>
+            <div class="hs-main"><div class="hs-value"><b id="heroHealthScore">--</b><small>از ۱۰۰</small></div></div>
+            <div class="hs-bottom">
+              <div class="hs-meter"><span id="heroHealthMeter"></span></div>
+              <div class="hs-foot"><span id="heroHealthNote">در حال محاسبه</span><span class="hs-more">جزئیات<i class="fa-solid fa-chevron-left"></i></span></div>
+            </div>
           </div>
         </div>
       </section>
@@ -4645,64 +4791,13 @@
 
         <div class="home-insights-row" id="homeInsightsRow"></div>
       </div>
-      <section class="glass card section filter-card">
-        <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false">
-          <div class="filter-toggle-text">
-            <h3>جستجو و فیلتر</h3>
-            <span>سرچ، دسته، بازه زمانی و نوع تراکنش</span>
-          </div>
-          <i class="fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="filter-panel" id="filterPanel">
-          <input class="input" type="search" id="transactionSearchInput" placeholder="جستجو در تراکنش‌ها">
-          <div class="form-grid two">
-            <select class="select" id="transactionTypeFilter">
-              <option value="all">همه تراکنش‌ها</option>
-              <option value="expense">فقط هزینه‌ها</option>
-              <option value="income">فقط درآمدها</option>
-            </select>
-            <select class="select" id="transactionCategoryFilter">
-              <option value="all">همه دسته‌بندی‌ها</option>
-            </select>
-          </div>
-          <div class="filter-amount-row">
-            <div>
-              <label class="field-label" style="display:block;margin-bottom:6px">مبلغ از (تومان)</label>
-              <input class="input" type="number" id="filterMinAmount" placeholder="مثلاً ۵۰۰۰۰">
-            </div>
-            <div>
-              <label class="field-label" style="display:block;margin-bottom:6px">مبلغ تا (تومان)</label>
-              <input class="input" type="number" id="filterMaxAmount" placeholder="مثلاً ۵۰۰۰۰۰۰">
-            </div>
-          </div>
-          <div class="form-grid two" style="margin-top:10px">
-            <div>
-              <label class="field-label" style="display:block;margin-bottom:6px">از تاریخ</label>
-              <input class="input" type="date" id="transactionFromDate">
-            </div>
-            <div>
-              <label class="field-label" style="display:block;margin-bottom:6px">تا تاریخ</label>
-              <input class="input" type="date" id="transactionToDate">
-            </div>
-          </div>
-          <div class="filter-sort-row">
-            <select class="select" id="transactionSortBy">
-              <option value="dateDesc">جدیدترین (پیش‌فرض)</option>
-              <option value="dateAsc">قدیمی‌ترین</option>
-              <option value="amountDesc">بیشترین مبلغ</option>
-              <option value="amountAsc">کمترین مبلغ</option>
-            </select>
-          </div>
-          <div style="margin-top:10px">
-            <button class="save-cat-btn secondary full-width-action" type="button" id="clearFiltersBtn">پاک‌سازی فیلترها</button>
-          </div>
-        </div>
-      </section>
-
       <section class="glass card section">
         <div class="section-head">
           <h3>تراکنش‌ها</h3>
-          
+          <div class="list-tools">
+            <button class="filter-clear-chip" id="quickClearFilters" type="button" hidden><i class="fa-solid fa-xmark"></i><span>حذف فیلترها</span></button>
+            <button class="filter-open-btn" id="openFilterBtn" type="button" aria-haspopup="dialog" aria-label="فیلتر تراکنش‌ها"><i class="fa-solid fa-sliders"></i><span class="filter-badge" id="filterBadge" hidden></span></button>
+          </div>
         </div>
         <div class="transactions-list" id="transactionsContainer"></div>
       </section>
@@ -5283,18 +5378,7 @@
           </label>
         </div>
 
-        <section class="glass initial-balance-card section" style="margin-top:16px">
-          <div>
-            <h3>موجودی اولیه</h3>
-            <p>اگر از قبل مبلغی داری، اینجا وارد کن. از همین مقدار، جمع درآمدها و هزینه‌ها محاسبه می‌شود.</p>
-          </div>
-          <div class="initial-balance-row">
-            <input class="input" type="number" id="initialBalanceInput" placeholder="مثلاً ۵٬۰۰۰٬۰۰۰">
-            <button class="save-btn secondary" type="button" id="saveInitialBalanceBtn">ثبت</button>
-          </div>
-        </section>
-
-          <!-- ─── Month Archive Picker ─── -->
+                  <!-- ─── Month Archive Picker ─── -->
           <div class="glass archive-picker-card" id="archivePickerCard" style="margin-top:16px">
             <div class="section-head">
               <h3><i class="fa-solid fa-clock-rotate-left"></i> آرشیو ماهانه</h3>
@@ -5371,6 +5455,65 @@
       <i class="fa-solid fa-brain"></i><span>AI</span>
     </button>
   </nav>
+
+    <!-- ══ FILTER MODAL (opened from the filter icon in the transactions list header) ══ -->
+  <div class="modal-overlay" id="filterModal" aria-hidden="true">
+    <div class="glass transaction-modal filter-modal" role="dialog" aria-modal="true" aria-labelledby="filterModalTitle" tabindex="-1">
+      <div class="fm-head">
+        <div>
+          <div class="fm-title" id="filterModalTitle">فیلتر تراکنش‌ها</div>
+          <div class="fm-sub">سرچ، دسته، بازه زمانی و نوع تراکنش</div>
+        </div>
+        <button class="close-btn" type="button" id="closeFilterBtn" aria-label="بستن"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="fm-body">
+          <input class="input" type="search" id="transactionSearchInput" placeholder="جستجو در تراکنش‌ها">
+          <div class="form-grid two fm-sel-grid">
+            <select class="select" id="transactionTypeFilter">
+              <option value="all">همه تراکنش‌ها</option>
+              <option value="expense">فقط هزینه‌ها</option>
+              <option value="income">فقط درآمدها</option>
+            </select>
+            <select class="select" id="transactionCategoryFilter">
+              <option value="all">همه دسته‌بندی‌ها</option>
+            </select>
+          </div>
+          <div class="filter-amount-row">
+            <div>
+              <label class="field-label" style="display:block;margin-bottom:6px">مبلغ از (تومان)</label>
+              <input class="input" type="number" id="filterMinAmount" placeholder="مثلاً ۵۰۰۰۰">
+            </div>
+            <div>
+              <label class="field-label" style="display:block;margin-bottom:6px">مبلغ تا (تومان)</label>
+              <input class="input" type="number" id="filterMaxAmount" placeholder="مثلاً ۵۰۰۰۰۰۰">
+            </div>
+          </div>
+          <div class="form-grid two fm-date-grid">
+            <div>
+              <label class="field-label" style="display:block;margin-bottom:6px">از تاریخ</label>
+              <input class="input" type="date" id="transactionFromDate">
+            </div>
+            <div>
+              <label class="field-label" style="display:block;margin-bottom:6px">تا تاریخ</label>
+              <input class="input" type="date" id="transactionToDate">
+            </div>
+          </div>
+          <div class="filter-sort-row">
+            <select class="select" id="transactionSortBy">
+              <option value="dateDesc">جدیدترین (پیش‌فرض)</option>
+              <option value="dateAsc">قدیمی‌ترین</option>
+              <option value="amountDesc">بیشترین مبلغ</option>
+              <option value="amountAsc">کمترین مبلغ</option>
+            </select>
+          </div>
+          
+      </div>
+      <div class="fm-actions">
+        <button class="fm-apply" type="button" id="applyFiltersBtn"><i class="fa-solid fa-check"></i>اعمال فیلتر</button>
+        <button class="fm-clear" type="button" id="clearFiltersBtn" title="پاک‌سازی فیلترها" aria-label="پاک‌سازی فیلترها"><i class="fa-solid fa-rotate-left"></i><span>پاک‌سازی</span></button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal-overlay" id="transactionModal" aria-hidden="true">
     <div class="glass transaction-modal">
@@ -6828,6 +6971,7 @@ function parseMoneyInput(value) {
 
 
       function renderTransactions() {
+        updateFilterIndicators();
         const sorted = getFilteredTransactions();
         if (!sorted.length) {
           els.transactionsContainer.innerHTML = `
@@ -6894,6 +7038,286 @@ function parseMoneyInput(value) {
           .sort((a, b) => b.amount - a.amount);
       }
 
+      // ══════════════════════════════════════════════════════════════
+      // SHARED — «تراز امروز» (safe-to-spend today).
+      // Single source of truth: used by the analysis tab (مسیر ماه) AND the home hero.
+      // ══════════════════════════════════════════════════════════════
+      function computeTodayBalance(snap) {
+        snap = snap || buildFinancialSnapshot();
+        const budget = Math.max(0, Number(state.initialBalance || 0) + snap.currentIncomeTotal);
+        const md = snap.monthDays;
+        const td = Math.min(snap.daysPassed, md);
+        const perDay = new Array(md + 2).fill(0);
+        snap.currentExpenses.forEach(t => {
+          const jd = getJalaliDateParts(new Date(Number(t.createdAt))).jd;
+          if (jd >= 1 && jd <= md) perDay[jd] += Number(t.amount || 0);
+        });
+        const cum = [0];
+        for (let d = 1; d <= md; d++) cum[d] = cum[d - 1] + perDay[d];
+        const spentBeforeToday = cum[td - 1] || 0;
+        const daysIncToday = md - td + 1;
+        const room = budget - spentBeforeToday - snap.smartForecast.fixedRemaining;
+        const allowance = room > 0 ? room / daysIncToday : 0;
+        const todaySpent = perDay[td] || 0;
+        const leftToday = allowance - todaySpent;
+        const useRatio = allowance > 0 ? todaySpent / allowance : (todaySpent > 0 ? 2 : 0);
+        const safeClass = useRatio >= 1 ? 'c-bad' : useRatio >= .7 ? 'c-warn' : 'c-good';
+        return { budget, md, td, perDay, cum, room, allowance, todaySpent, leftToday, useRatio, safeClass };
+      }
+      function todayBalanceView(tb) {
+        if (tb.allowance <= 0) return { value: '۰', unit: 'تومان', note: 'بودجه‌ی باقی‌مونده صفره؛ امروز خرجی نداشته باش', icon: 'fa-hand' };
+        if (tb.leftToday >= 0) return { value: formatPlainMoney(tb.leftToday), unit: 'تومان', note: 'امروز می‌تونی خرج کنی و هنوز روی مسیر بمونی', icon: 'fa-bolt' };
+        return { value: formatPlainMoney(-tb.leftToday), unit: 'تومان بیشتر از سقف', note: 'سقف امروز رد شده؛ فردا سقف کمی پایین‌تر میاد', icon: 'fa-triangle-exclamation' };
+      }
+
+      // ── counters used by the home insight chips (live month only) ──
+      function computeTodayTxCount() {
+        const s = new Date(); s.setHours(0, 0, 0, 0);
+        const e = new Date(); e.setHours(23, 59, 59, 999);
+        let inc = 0, exp = 0;
+        (state.transactions || []).forEach(t => {
+          const ts = Number(t.createdAt);
+          if (ts >= s.getTime() && ts <= e.getTime()) { if (t.type === 'income') inc++; else exp++; }
+        });
+        return { inc, exp, total: inc + exp };
+      }
+      function computeZeroSpendDays() {
+        const now = getJalaliDateParts(new Date());
+        const n = jalaliDaysInMonth(now.jy, now.jm), last = Math.min(now.jd, n);
+        const exp = new Array(n + 2).fill(0), cnt = new Array(n + 2).fill(0);
+        (state.transactions || []).forEach(t => {
+          const ts = Number(t.createdAt); if (!(ts > 0)) return;
+          const p = getJalaliDateParts(new Date(ts));
+          if (p.jy !== now.jy || p.jm !== now.jm) return;
+          if (t.type !== 'income') exp[p.jd] += Number(t.amount || 0);
+          cnt[p.jd]++;
+        });
+        let first = 0;
+        for (let d = 1; d <= n; d++) if (cnt[d]) { first = d; break; }
+        let zero = 0;
+        if (first) for (let d = first; d <= last; d++) if (exp[d] === 0) zero++;
+        return { zero, tracked: first ? last - first + 1 : 0 };
+      }
+
+      // ── use the space: tiles grow their amount to fill the width (up to data-fit px); the big balance only shrinks if needed ──
+      function fitHeroNumbers() {
+        const bv = document.querySelector('.hero-card .balance-value');
+        if (bv) {
+          bv.style.removeProperty('font-size');
+          for (let i = 0; i < 4; i++) {
+            const avail = bv.clientWidth, need = bv.scrollWidth;
+            if (!(avail > 0) || need <= avail) break;
+            const cur = parseFloat(getComputedStyle(bv).fontSize) || 16;
+            if (cur <= 10) break;
+            bv.style.setProperty('font-size', Math.max(10, cur * (avail / need) * 0.96).toFixed(2) + 'px', 'important');
+          }
+        }
+        // tiles: fit each amount to its width, then keep the three amounts visually balanced:
+        // income & expense share the smaller of their two sizes, and «تراز امروز» never exceeds ~1.15× of that.
+        const fit = el => {
+          let f = Number(el.dataset.fit) || 36;
+          const node = el.querySelector(':scope > span') || el;
+          el.style.setProperty('font-size', f + 'px', 'important');
+          for (let i = 0; i < 4; i++) {
+            const avail = el.clientWidth, w = node.getBoundingClientRect().width;
+            if (!(avail > 0) || w <= avail + 0.5 || f <= 9) break;
+            f = Math.max(9, f * (avail / w) * 0.97);
+            el.style.setProperty('font-size', f.toFixed(2) + 'px', 'important');
+          }
+          return f;
+        };
+        const inc = document.getElementById('incomeAmount'), exp = document.getElementById('expenseAmount'), tod = document.getElementById('heroTodayValue');
+        const fi = inc ? fit(inc) : 0, fe = exp ? fit(exp) : 0;
+        const u = Math.min(fi || 99, fe || 99);
+        if (inc && exp && u < 99) { inc.style.setProperty('font-size', u.toFixed(2) + 'px', 'important'); exp.style.setProperty('font-size', u.toFixed(2) + 'px', 'important'); }
+        const stats = document.querySelector('.hero-card .hero-stats');
+        if (stats && u < 99) stats.style.setProperty('--hs-u', u.toFixed(2) + 'px');
+        if (tod) {
+          const ft = fit(tod);
+          if (u < 99 && ft > u * 1.15) tod.style.setProperty('font-size', (u * 1.15).toFixed(2) + 'px', 'important');
+        }
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // HOME HERO — «تراز امروز» + «سلامت مالی» tiles
+      // ══════════════════════════════════════════════════════════════
+      function renderHeroExtras() {
+        const $ = id => document.getElementById(id);
+        const fa = x => toPersianNumber(String(x));
+        const set = (id, t) => { const e = $(id); if (e) e.textContent = t; };
+
+        // ── تراز امروز ──
+        const T = $('heroToday');
+        if (T) {
+          let cls = 'c-idle', label = 'تراز امروز', icon = 'fa-bolt', valueHTML = '—', tag = '', note = '', spent = '', pct = '', fill = 0;
+          if (state.viewingMonthKey) {
+            const txs = activeTransactions() || [];
+            const total = txs.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount || 0), 0);
+            const m = String(state.viewingMonthKey).split('_');
+            const n = jalaliDaysInMonth(Number(m[0]), Number(m[1])) || 30;
+            label = 'میانگین خرج روزانه'; icon = 'fa-calendar-day';
+            valueHTML = `<span>${formatPlainMoney(total / n)}</span><small>تومان</small>`;
+            note = 'ماه آرشیوی است؛ «تراز امروز» فقط برای ماه جاری محاسبه می‌شود'; spent = `کل هزینه: ${formatMoneyCompact(total)}`;
+          } else {
+            const tb = computeTodayBalance();
+            if (tb.budget <= 0) {
+              note = 'با ثبت درآمد، سقف خرج امروز محاسبه می‌شود';
+            } else {
+              const v = todayBalanceView(tb);
+              cls = tb.safeClass; icon = v.icon;
+              valueHTML = `<span>${v.value}</span><small>${v.unit}</small>`;
+              tag = `سقف ${formatMoneyCompact(tb.allowance)}`;
+              note = v.note;
+              fill = Math.min(100, Math.round(tb.useRatio * 100));
+              spent = `خرج امروز: ${formatMoneyCompact(tb.todaySpent)}`;
+              pct = `${fa(fill)}٪ از سقف`;
+            }
+          }
+          T.classList.remove('c-good', 'c-warn', 'c-bad', 'c-idle'); T.classList.add(cls);
+          const ic = $('heroTodayIcon'); if (ic) ic.className = 'fa-solid ' + icon;
+          set('heroTodayLabel', label); set('heroTodayTag', tag); set('heroTodaySpent', spent); set('heroTodayPct', pct); set('heroTodayNote', note);
+          const vEl = $('heroTodayValue'); if (vEl) vEl.innerHTML = valueHTML;
+          const mt = $('heroTodayMeter'); if (mt) mt.style.width = fill + '%';
+        }
+
+        // ── سلامت مالی (خلاصه؛ جزئیات توی تب تحلیل) ──
+        const H = $('heroHealth');
+        if (H) {
+          const h = calcHealthScore(buildFinancialSnapshot(new Date()));
+          H.classList.remove('c-good', 'c-warn', 'c-bad', 'c-idle');
+          if (!h.hasData || h.total === null) {
+            H.classList.add('c-idle'); H.style.removeProperty('--c');
+            set('heroHealthScore', '--'); set('heroHealthTag', ''); set('heroHealthNote', 'داده‌ی کافی نیست');
+            const mt = $('heroHealthMeter'); if (mt) mt.style.width = '0%';
+          } else {
+            const lbl = healthLabel(h.total);
+            H.style.setProperty('--c', lbl.color);
+            set('heroHealthScore', fa(h.total)); set('heroHealthTag', lbl.text);
+            set('heroHealthNote', h.total >= 70 ? 'وضعیتت سالمه' : h.total >= 50 ? 'نیاز به کمی توجه' : 'هزینه‌ها رو مرور کن');
+            const mt = $('heroHealthMeter'); if (mt) mt.style.width = h.total + '%';
+          }
+        }
+
+        requestAnimationFrame(fitHeroNumbers);
+        if (document.fonts && document.fonts.ready && !window._heroFontFit) { window._heroFontFit = true; document.fonts.ready.then(() => requestAnimationFrame(fitHeroNumbers)); }
+        const hero = document.querySelector('.hero-card');
+        if (hero && !hero._ro && 'ResizeObserver' in window) { hero._ro = new ResizeObserver(() => requestAnimationFrame(fitHeroNumbers)); hero._ro.observe(hero); }
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // SMOOTH NAVIGATION: hero → a specific section of the analysis tab
+      // ══════════════════════════════════════════════════════════════
+      function goToAnalysisSection(sectionId) {
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setActivePage('analytics');
+        // the new page starts at the top, then we glide down to the section
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        const targetTop = () => {
+          const el = document.getElementById(sectionId);
+          return el ? Math.max(0, el.getBoundingClientRect().top + window.scrollY - 18) : null;
+        };
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          const top = targetTop(); if (top === null) return;
+          window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.classList.remove('nav-flash'); void el.offsetWidth; el.classList.add('nav-flash');
+            setTimeout(() => el.classList.remove('nav-flash'), 1800);
+          }
+          // charts can change the page height while rendering → correct the landing spot once
+          setTimeout(() => {
+            const t2 = targetTop();
+            if (t2 !== null && Math.abs(window.scrollY - t2) > 8 && Math.abs(window.scrollY - t2) < 900) window.scrollTo({ top: t2, behavior: reduce ? 'auto' : 'smooth' });
+          }, 1100);
+        }));
+      }
+      let _heroNavWired = false;
+      function wireHeroNav() {
+        if (_heroNavWired) return; _heroNavWired = true;
+        document.addEventListener('click', e => {
+          const t = e.target.closest && e.target.closest('[data-hero-go]');
+          if (t) goToAnalysisSection(t.dataset.heroGo);
+        });
+        document.addEventListener('keydown', e => {
+          if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[data-hero-go]')) {
+            e.preventDefault(); goToAnalysisSection(e.target.dataset.heroGo);
+          }
+        });
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // TRANSACTION FILTER — modal flow (open → edit draft → «اعمال فیلتر»)
+      // ══════════════════════════════════════════════════════════════
+      function countActiveFilters() {
+        const f = state.filters || {};
+        let n = 0;
+        if (String(f.query || '').trim()) n++;
+        if (f.type && f.type !== 'all') n++;
+        if (f.category && f.category !== 'all') n++;
+        if (f.from) n++;
+        if (f.to) n++;
+        if (f.minAmount) n++;
+        if (f.maxAmount) n++;
+        if (f.sortBy && f.sortBy !== 'dateDesc') n++;
+        return n;
+      }
+      function updateFilterIndicators() {
+        const n = countActiveFilters();
+        const badge = document.getElementById('filterBadge'), btn = document.getElementById('openFilterBtn'), chip = document.getElementById('quickClearFilters');
+        if (badge) { badge.hidden = n === 0; badge.textContent = toPersianNumber(String(n)); }
+        if (btn) btn.classList.toggle('has-filters', n > 0);
+        if (chip) chip.hidden = n === 0;
+      }
+      function openFilterModal() {
+        const modal = document.getElementById('filterModal'); if (!modal) return;
+        renderTransactionFilters();               // draft = currently applied filters
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        const dlg = modal.querySelector('.filter-modal'); if (dlg) dlg.focus({ preventScroll: true });
+      }
+      function closeFilterModal() {
+        const modal = document.getElementById('filterModal'); if (!modal) return;
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      function applyFiltersFromModal() {
+        const v = el => (el ? el.value : '');
+        let from = v(els.transactionFromDate), to = v(els.transactionToDate);
+        if (from && to && from > to) { const t = from; from = to; to = t; }   // swapped range → fix silently
+        state.filters = {
+          query: String(v(els.transactionSearchInput) || ''),
+          type: v(els.transactionTypeFilter) || 'all',
+          category: v(els.transactionCategoryFilter) || 'all',
+          from, to,
+          minAmount: v(els.filterMinAmount),
+          maxAmount: v(els.filterMaxAmount),
+          sortBy: v(els.transactionSortBy) || 'dateDesc'
+        };
+        closeFilterModal();
+        renderTransactionFilters();
+        renderTransactions();
+      }
+      let _filterModalWired = false;
+      function wireFilterModal() {
+        const $ = id => document.getElementById(id);
+        const modal = $('filterModal'); if (!modal || _filterModalWired) return;
+        _filterModalWired = true;
+        const on = (id, fn) => { const e = $(id); if (e) e.addEventListener('click', fn); };
+        on('openFilterBtn', openFilterModal);
+        on('closeFilterBtn', closeFilterModal);
+        on('applyFiltersBtn', applyFiltersFromModal);
+        on('clearFiltersBtn', clearFilters);
+        on('quickClearFilters', clearFilters);
+        modal.addEventListener('click', e => { if (e.target === modal) closeFilterModal(); });
+        modal.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); applyFiltersFromModal(); }
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('active')) closeFilterModal(); });
+      }
+      // wire at DOM-ready too (independent of the auth/boot flow); both functions are idempotent
+      document.addEventListener('DOMContentLoaded', () => { wireHeroNav(); wireFilterModal(); });
+      if (document.readyState !== 'loading') { wireHeroNav(); wireFilterModal(); }
+
       function renderSummary() {
         syncProfileToUI();
         const income = getIncomeTotal();
@@ -6902,13 +7326,17 @@ function parseMoneyInput(value) {
         const budgetBase = Math.max(0, Number(state.initialBalance || 0) + income);
         const budgetUsagePct = budgetBase > 0 ? clamp(0, (expense / budgetBase) * 100, 100) : 0;
 
-        els.incomeAmount.textContent = formatMoney(income);
-        els.expenseAmount.textContent = formatMoney(expense);
-        els.balanceAmount.textContent = formatMoney(balance);
+        els.incomeAmount.innerHTML = '<span>' + formatMoney(income).replace(' تومان','') + '</span><small>تومان</small>';
+        els.expenseAmount.innerHTML = '<span>' + formatMoney(expense).replace(' تومان','') + '</span><small>تومان</small>';
+        els.balanceAmount.innerHTML = '<span>' + formatMoney(balance).replace(' تومان','') + '</span><small>تومان</small>';
 
         const net = getNetFlow();
         const netText = net >= 0 ? `خالص: +${formatMoney(net)}` : `خالص: -${formatMoney(Math.abs(net))}`;
-        els.netFlowChip.textContent = netText;
+        // [REMOVED] «خالص» chip (netFlowChip) — duplicated info; guarded so it can be restored.
+        if (els.netFlowChip) {
+          els.netFlowChip.classList.toggle('neg', net < 0);
+          els.netFlowChip.innerHTML = `<i class="fa-solid ${net >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i><span>خالص</span><b dir="ltr">${net >= 0 ? '+' : '−'}${formatMoney(Math.abs(net))}</b>`;
+        }
 
         if (els.initialBalanceInput) els.initialBalanceInput.value = String(state.initialBalance || 0);
         if (els.budgetBaseAmount) els.budgetBaseAmount.textContent = formatMoney(budgetBase);
@@ -6941,6 +7369,8 @@ function parseMoneyInput(value) {
         if (els.budgetUsageRing) {
           // Reset to 0 first, then animate to target
           els.budgetUsageRing.style.setProperty('--usage', '0%');
+          els.budgetUsageRing.style.setProperty('--p', 0);
+          els.budgetUsageRing.dataset.level = budgetUsagePct >= 90 ? 'bad' : budgetUsagePct >= 70 ? 'warn' : 'ok';
           if (els.budgetUsagePercent) els.budgetUsagePercent.textContent = formatPercent(0, 0);
 
           const duration = 900;
@@ -6954,6 +7384,7 @@ function parseMoneyInput(value) {
             const eased = 1 - Math.pow(1 - progress, 3);
             const current = targetPct * eased;
             els.budgetUsageRing.style.setProperty('--usage', `${current}%`);
+            els.budgetUsageRing.style.setProperty('--p', Math.min(100, Math.max(0, current)));
             if (els.budgetUsagePercent) {
               els.budgetUsagePercent.textContent = formatPercent(current, 0);
             }
@@ -6962,6 +7393,7 @@ function parseMoneyInput(value) {
 
           requestAnimationFrame(animateRing);
         }
+        try { renderHeroExtras(); } catch (e) { console.warn('hero extras', e); }
       }
 
 
@@ -7698,28 +8130,12 @@ function parseMoneyInput(value) {
         document.getElementById('mpOrbIcon').className = 'fa-solid ' + icon;
 
         // ── chips ────────────────────────────────────────────
-        const spentBeforeToday = cum[td - 1] || 0;
-        const daysIncToday = md - td + 1;
-        const room = budget - spentBeforeToday - sf.fixedRemaining;
-        const allowance = room > 0 ? room / daysIncToday : 0;
-        const todaySpent = perDay[td] || 0;
-        const leftToday = allowance - todaySpent;
-        const useRatio = allowance > 0 ? todaySpent / allowance : (todaySpent > 0 ? 2 : 0);
-        const safeClass = useRatio >= 1 ? 'c-bad' : useRatio >= .7 ? 'c-warn' : 'c-good';
-
-        let safeValue, safeNote, safeIcon = 'fa-bolt';
-        if (allowance <= 0) {
-          safeValue = `<span>۰</span><small>تومان</small>`;
-          safeNote = 'بودجه‌ی باقی‌مونده صفره؛ امروز خرجی نداشته باش';
-          safeIcon = 'fa-hand';
-        } else if (leftToday >= 0) {
-          safeValue = `<span>${formatPlainMoney(leftToday)}</span><small>تومان</small>`;
-          safeNote = 'امروز می‌تونی خرج کنی و هنوز روی مسیر بمونی';
-        } else {
-          safeValue = `<span>${formatPlainMoney(-leftToday)}</span><small>تومان بیشتر از سقف</small>`;
-          safeNote = 'سقف امروز رد شده؛ فردا سقف کمی پایین‌تر میاد';
-          safeIcon = 'fa-triangle-exclamation';
-        }
+        // «تراز امروز» — single source of truth, shared with the home hero (computeTodayBalance / todayBalanceView).
+        const tb = computeTodayBalance(snap);
+        const { allowance, todaySpent, leftToday, useRatio, safeClass } = tb;
+        const tbv = todayBalanceView(tb);
+        const safeValue = `<span>${tbv.value}</span><small>${tbv.unit}</small>`;
+        const safeNote = tbv.note, safeIcon = tbv.icon;
 
         const deltaClass = delta <= 0 ? 'c-good'
           : status === 'good' ? 'c-warn'
@@ -10058,53 +10474,15 @@ function renderCalendarView() {
         });
 
         els.saveTransactionBtn.addEventListener('click', addTransaction);
-        els.saveInitialBalanceBtn.addEventListener('click', setInitialBalance);
+        if (els.saveInitialBalanceBtn) els.saveInitialBalanceBtn.addEventListener('click', setInitialBalance);
 
-        if (els.transactionSearchInput) {
-          els.transactionSearchInput.addEventListener('input', e => {
-            state.filters.query = String(e.target.value || '');
-            renderTransactions();
-          });
-        }
-        if (els.transactionTypeFilter) {
-          els.transactionTypeFilter.addEventListener('change', e => {
-            state.filters.type = e.target.value || 'all';
-            renderTransactions();
-          });
-        }
-        if (els.transactionCategoryFilter) {
-          els.transactionCategoryFilter.addEventListener('change', e => {
-            state.filters.category = e.target.value || 'all';
-            renderTransactions();
-          });
-        }
-        if (els.transactionFromDate) {
-          els.transactionFromDate.addEventListener('change', e => {
-            state.filters.from = e.target.value || '';
-            renderTransactions();
-          });
-        }
-        if (els.transactionToDate) {
-          els.transactionToDate.addEventListener('change', e => {
-            state.filters.to = e.target.value || '';
-            renderTransactions();
-          });
-        }
-        if (els.clearFiltersBtn) {
-          els.clearFiltersBtn.addEventListener('click', clearFilters);
-        }
+        // filters are now applied from the filter modal (see wireFilterModal / applyFiltersFromModal)
 
         wireAiCatSuggestion();
         wireNewFilterFields();
         wireEditTransactionBtn();
 
-        if (els.filterToggle && els.filterPanel) {
-          els.filterToggle.addEventListener('click', () => {
-            const open = els.filterPanel.classList.toggle('open');
-            els.filterToggle.classList.toggle('active', open);
-            els.filterToggle.setAttribute('aria-expanded', String(open));
-          });
-        }
+        // (old inline filter-panel toggle removed — filters open in a modal now)
 
         if (els.weeklyChart) {
           els.weeklyChart.addEventListener('click', e => {
@@ -10136,7 +10514,7 @@ function renderCalendarView() {
           });
         }
 
-        els.initialBalanceInput.addEventListener('keydown', e => {
+        if (els.initialBalanceInput) els.initialBalanceInput.addEventListener('keydown', e => {
           if (e.key === 'Enter') setInitialBalance();
         });
 
@@ -10408,15 +10786,7 @@ function renderCalendarView() {
         }
       }
 
-      function wireNewFilterFields() {
-        const applyFilter = (key, val) => {
-          state.filters[key] = val;
-          renderTransactions();
-        };
-        if (els.filterMinAmount) els.filterMinAmount.addEventListener('input', () => applyFilter('minAmount', els.filterMinAmount.value));
-        if (els.filterMaxAmount) els.filterMaxAmount.addEventListener('input', () => applyFilter('maxAmount', els.filterMaxAmount.value));
-        if (els.transactionSortBy) els.transactionSortBy.addEventListener('change', () => applyFilter('sortBy', els.transactionSortBy.value));
-      }
+      function wireNewFilterFields() { /* superseded by the filter modal */ }
 
       function wireEditTransactionBtn() {
         document.addEventListener('click', e => {
@@ -10429,7 +10799,8 @@ function renderCalendarView() {
 
       function clearFilters() {
         state.filters = { query:'', type:'all', category:'all', from:'', to:'', minAmount:'', maxAmount:'', sortBy:'dateDesc' };
-        syncFilterUI();
+        renderTransactionFilters();   // (was: syncFilterUI() — an undefined function that crashed «پاک‌سازی»)
+        closeFilterModal();
         renderTransactions();
       }
 
@@ -10546,6 +10917,23 @@ function renderCalendarView() {
         if (!row) return;
         const snap = buildFinancialSnapshot(new Date());
         const chips = [];
+        // چیپ ۱: تعداد تراکنش‌های ثبت‌شده‌ی امروز (جایگزین «هزینه امروز» که توی «تراز امروز» هست)
+        {
+          const fa = x => toPersianNumber(String(x));
+          const tc = computeTodayTxCount();
+          chips.push({ type: tc.total > 0 ? 'good' : 'warn', icon: 'fa-receipt', title: 'تراکنش‌های امروز',
+            sub: tc.total > 0
+              ? fa(tc.total) + ' تراکنش' + ' · ' + (tc.exp ? fa(tc.exp) + ' هزینه' : '') + (tc.exp && tc.inc ? '، ' : '') + (tc.inc ? fa(tc.inc) + ' درآمد' : '')
+              : 'هنوز تراکنشی ثبت نشده' });
+        }
+        // چیپ ۲: تعداد روزهای بدون خرج (جایگزین «بودجه ماه» که تکراری بود)
+        {
+          const fa = x => toPersianNumber(String(x));
+          const zs = computeZeroSpendDays();
+          chips.push({ type: 'good', icon: 'fa-leaf', title: 'روزهای بدون خرج',
+            sub: zs.tracked > 0 ? fa(zs.zero) + ' از ' + fa(zs.tracked) + ' روز · ' + fa(Math.round(zs.zero / zs.tracked * 100)) + '٪ از اول ماه' : 'با ثبت اولین تراکنش شروع می‌شود' });
+        }
+        /* [ARCHIVED] old chips «هزینه امروز» + «بودجه ماه» — restore by uncommenting
         const todayStart = new Date(); todayStart.setHours(0,0,0,0);
         const todayEnd   = new Date(); todayEnd.setHours(23,59,59,999);
         const todaySpend = activeTransactions()
@@ -10562,6 +10950,7 @@ function renderCalendarView() {
           type:budgetPct>=80?'warn':'good', icon:budgetPct>=80?'fa-triangle-exclamation':'fa-wallet',
           title:'بودجه ماه', sub: toPersianNumber(Math.round(budgetPct))+'٪ مصرف · باقیمانده: '+formatMoneyCompact(budgetBase-budgetUsed)
         });
+        */
         if (snap.projectedExpense>0) chips.push({
           type:'good', icon:'fa-chart-line', title:'پیش‌بینی',
           sub: 'پایان ماه: ~'+formatMoneyCompact(snap.projectedExpense)+' تومان'
@@ -10624,6 +11013,8 @@ function renderCalendarView() {
           wireAddEntityModals();
           wireMonthWatcher();
           wireChartResize();
+          wireHeroNav();
+          wireFilterModal();
         }
 
         ensurePageConsistency();
