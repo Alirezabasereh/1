@@ -297,14 +297,14 @@
     
 
     @media screen and (min-width:356px) and (max-width:365px) {
-          .balance-sub,#budgetUsageText,#netFlowChip{
+          .balance-sub,#netFlowChip{
                     font-size: .5rem;
           }
         
       }
     
     @media screen and (min-width:365px) and (max-width:510px) {
-          .balance-sub,#budgetUsageText,#netFlowChip{
+          .balance-sub,#netFlowChip{
                     font-size: .7rem;
           }
         
@@ -1322,18 +1322,7 @@
       color:var(--muted);
       font-size:.82rem;
     }
-    .balance-usage-text{
-      color:var(--muted);
-      font-size:.9rem;
-      text-align:center;
-      line-height:1.6;
-    }
 
-    @media screen and (max-width:432px) {
-          .balance-usage-text{
-            font-size: 0.70rem;
-          }
-    }
     .balance-footer{
       display:grid;
       grid-template-columns:repeat(2, minmax(0,1fr));
@@ -4545,7 +4534,6 @@ body.light-mode .hero-card .balance-value small{-webkit-text-fill-color:var(--mu
 .hero-card .balance-ring-caption{font-size:max(.58rem,calc(var(--ring) * .075));color:var(--muted)}
 @container hx (max-width:400px){.rg-ticks{display:none}.rg-disc{inset:12%}}
 @media (prefers-reduced-motion:reduce){.balance-ring[data-level="bad"] .rg-end .rg-cap{animation:none}}
-.hero-card #budgetUsageText{font-size:max(.62rem,calc(var(--ring) * .075));color:var(--muted);text-align:center;line-height:1.6;overflow-wrap:anywhere}
 /* stat tiles */
 .hero-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;position:relative;z-index:1;align-items:stretch}
 .hero-stat{container-type:inline-size;--c:var(--accent2);padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-width:0;position:relative;overflow:hidden}
@@ -4581,6 +4569,8 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
 @container (max-width:235px){.hs-tag{display:none}.hs-note{display:none}.hero-stat{padding:13px 14px}}
 /* hero layout by the HERO's width */
 @container hx (max-width:820px){.hero-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* 4 tiles in one row from a 961px viewport up (was: only once the hero itself was wider than 820px ≈ 1110px viewport) */
+@media (min-width:961px){.hero-stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 /* compact tiles on narrow heroes: all four tiles stay a balanced 2×2 grid */
 @container hx (max-width:560px){
   .hero-stats{gap:9px}
@@ -4635,6 +4625,57 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
 .home-insights-row .home-insight-chip.warn::before{background:linear-gradient(90deg,transparent,var(--warn))}
 .home-insights-row .home-insight-chip .hic-icon{width:42px;height:42px;border-radius:50%;font-size:1rem}
 .home-insights-row .home-insight-chip .hic-sub{direction:rtl;unicode-bidi:plaintext}
+/* ═══ Jalali date picker + date fields ═══ */
+.jd-field{position:relative;display:flex;align-items:center;gap:8px;min-width:0}
+.jd-btn{display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;text-align:right;cursor:pointer;font:inherit;font-weight:600;color:var(--text)}
+.jd-btn > i:first-child{color:var(--accent2);flex:0 0 auto}
+.jd-btn .jd-text{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jd-field:not(.has-value) .jd-text{color:var(--muted);font-weight:400}
+.jd-caret{font-size:.7rem;color:var(--muted);flex:0 0 auto}
+.jd-btn:focus-visible{border-color:var(--accent2)}
+.jd-clear,.jd-today-chip{flex:0 0 auto;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);border-radius:12px;cursor:pointer;font:inherit}
+.jd-clear{width:36px;height:36px;display:grid;place-items:center;font-size:.8rem}
+.jd-today-chip{padding:9px 12px;font-size:.78rem;font-weight:700;color:var(--accent2);white-space:nowrap}
+.jd-clear[hidden],.jd-today-chip[hidden]{display:none}
+body.light-mode .jd-clear,body.light-mode .jd-today-chip,body.light-mode .jd-nav,body.light-mode .jd-selects select,body.light-mode .jd-foot button{background:rgba(15,23,42,.05)}
+.jd-overlay{position:fixed;inset:0;z-index:1000001;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.jd-dialog{width:min(100%,340px);padding:16px;border-radius:26px;background-color:rgb(28 26 42 / 96%);animation:modalIn .25s cubic-bezier(.22,.68,0,1.15)}
+body.light-mode .jd-dialog{background-color:rgba(255,255,255,.98)}
+.jd-head{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.jd-nav{flex:0 0 auto;width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);display:grid;place-items:center;cursor:pointer;font-size:.8rem}
+.jd-nav:disabled{opacity:.3;cursor:not-allowed}
+.jd-selects{flex:1 1 auto;display:flex;gap:6px;min-width:0}
+.jd-selects select{flex:1 1 0;min-width:0;padding:8px 6px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font:inherit;font-size:.85rem;font-weight:700;text-align:center;text-align-last:center}
+.jd-selects select option{background:#1c1a2a;color:#fff}
+body.light-mode .jd-selects select option{background:#fff;color:#0f172a}
+.jd-week,.jd-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.jd-week span{text-align:center;font-size:.72rem;color:var(--muted);padding:4px 0}
+.jd-day{aspect-ratio:1;display:grid;place-items:center;padding:0;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--text);font:inherit;font-size:.9rem;cursor:pointer}
+.jd-day:hover:not(:disabled):not(.selected){background:rgba(127,127,127,.18)}
+.jd-day.today{border-color:var(--accent2)}
+.jd-day.selected{background:linear-gradient(135deg,var(--accent1),var(--accent3));color:#fff;border-color:transparent;font-weight:800}
+.jd-day:disabled{opacity:.28;cursor:not-allowed}
+.jd-day.blank{visibility:hidden;pointer-events:none}
+.jd-foot{display:flex;gap:8px;margin-top:12px}
+.jd-foot button{flex:1;padding:10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.jd-foot button:disabled{opacity:.35;cursor:not-allowed}
+.jd-foot .jd-foot-primary{background:linear-gradient(135deg,var(--accent1),var(--accent3));color:#fff;border-color:transparent}
+.tx-date-field .jd-field{margin-top:2px}
+
+/* ═══ «بدون اقساط وام» toggle + grayed-out installment row ═══ */
+.loan-toggle-row{display:flex;justify-content:flex-start;margin:-4px 0 12px}
+.loan-toggle{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;-webkit-user-select:none;font-size:.78rem;color:var(--muted);-webkit-tap-highlight-color:transparent}
+.loan-toggle input{position:absolute;opacity:0;width:0;height:0}
+.loan-toggle-track{position:relative;flex:0 0 auto;width:34px;height:20px;border-radius:99px;background:rgba(127,127,127,.32);transition:background .2s}
+.loan-toggle-track::after{content:'';position:absolute;top:2px;inset-inline-start:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.loan-toggle input:checked + .loan-toggle-track{background:linear-gradient(135deg,var(--accent1),var(--accent3))}
+.loan-toggle input:checked + .loan-toggle-track::after{transform:translateX(-14px)}
+.loan-toggle input:checked ~ .loan-toggle-text{color:var(--text)}
+.loan-toggle input:focus-visible + .loan-toggle-track{outline:2px solid var(--accent2);outline-offset:2px}
+.legend-item.is-excluded,.home-breakdown-item.is-excluded,.donut-legend-item.is-excluded{opacity:.45;filter:grayscale(1)}
+.donut-legend-item.is-excluded{cursor:default;pointer-events:none}
+.legend-item.is-excluded .legend-name,.home-breakdown-item.is-excluded .home-breakdown-name,.donut-legend-item.is-excluded .donut-legend-name{text-decoration:line-through;text-decoration-thickness:1px}
+
 </style>
 </head>
 <body>
@@ -4732,7 +4773,6 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
                 <div class="balance-ring-caption">مصرف بودجه</div>
               </div>
             </div>
-            <div class="balance-usage-text" id="budgetUsageText">۰ از ۰ تومان</div>
           </div>
         </div>
         <div class="hero-stats">
@@ -4772,6 +4812,13 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
             <h3>خلاصه تقسیم هزینه‌ها</h3>
             
                     <span>نمودار و درصد</span>
+          </div>
+          <div class="loan-toggle-row">
+            <label class="loan-toggle">
+              <input type="checkbox" data-loan-toggle>
+              <span class="loan-toggle-track"></span>
+              <span class="loan-toggle-text">بدون اقساط وام</span>
+            </label>
           </div>
           <div class="home-breakdown">
             <div class="home-breakdown-legend" id="homeExpenseLegend"></div>
@@ -4819,6 +4866,13 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
           <div class="section-head">
             <h3>تقسیم هزینه‌ها</h3>
             <span>درصد و مبلغ</span>
+          </div>
+          <div class="loan-toggle-row">
+            <label class="loan-toggle">
+              <input type="checkbox" data-loan-toggle>
+              <span class="loan-toggle-track"></span>
+              <span class="loan-toggle-text">بدون اقساط وام</span>
+            </label>
           </div>
           <div class="pie-wrap">
             <div class="pie-chart" id="pieChart">
@@ -5130,6 +5184,13 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
           <div class="section-head">
             <h3>تفکیک تراکنش‌ها</h3>
             <span>کلیک روی هر بخش برای جزئیات</span>
+          </div>
+          <div class="loan-toggle-row">
+            <label class="loan-toggle">
+              <input type="checkbox" data-loan-toggle>
+              <span class="loan-toggle-track"></span>
+              <span class="loan-toggle-text">بدون اقساط وام</span>
+            </label>
           </div>
           <div class="donut-wrap">
             <canvas id="donutCanvas"></canvas>
@@ -5491,11 +5552,19 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
           <div class="form-grid two fm-date-grid">
             <div>
               <label class="field-label" style="display:block;margin-bottom:6px">از تاریخ</label>
-              <input class="input" type="date" id="transactionFromDate">
+              <div class="jd-field" data-jd-input="transactionFromDate" data-jd-clearable="1" data-jd-placeholder="انتخاب تاریخ" data-jd-title="از تاریخ">
+                <button type="button" class="input jd-btn" data-jd-open><i class="fa-regular fa-calendar"></i><span class="jd-text">انتخاب تاریخ</span><i class="fa-solid fa-chevron-down jd-caret"></i></button>
+                <button type="button" class="jd-clear" data-jd-clear aria-label="حذف تاریخ" hidden><i class="fa-solid fa-xmark"></i></button>
+                <input type="hidden" id="transactionFromDate">
+              </div>
             </div>
             <div>
               <label class="field-label" style="display:block;margin-bottom:6px">تا تاریخ</label>
-              <input class="input" type="date" id="transactionToDate">
+              <div class="jd-field" data-jd-input="transactionToDate" data-jd-clearable="1" data-jd-placeholder="انتخاب تاریخ" data-jd-title="تا تاریخ">
+                <button type="button" class="input jd-btn" data-jd-open><i class="fa-regular fa-calendar"></i><span class="jd-text">انتخاب تاریخ</span><i class="fa-solid fa-chevron-down jd-caret"></i></button>
+                <button type="button" class="jd-clear" data-jd-clear aria-label="حذف تاریخ" hidden><i class="fa-solid fa-xmark"></i></button>
+                <input type="hidden" id="transactionToDate">
+              </div>
             </div>
           </div>
           <div class="filter-sort-row">
@@ -5558,6 +5627,15 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
 
       
 
+      <div class="field tx-date-field">
+        <label>تاریخ تراکنش</label>
+        <div class="jd-field" id="transactionDateField" data-jd-input="transactionDate" data-jd-range="month-to-today" data-jd-today-tag="1" data-jd-title="تاریخ تراکنش">
+          <button type="button" class="input jd-btn" data-jd-open><i class="fa-regular fa-calendar"></i><span class="jd-text">امروز</span><i class="fa-solid fa-chevron-down jd-caret"></i></button>
+          <button type="button" class="jd-today-chip" data-jd-today hidden>امروز</button>
+          <input type="hidden" id="transactionDate">
+        </div>
+      </div>
+
       <button class="save-btn" type="button" id="saveTransactionBtn">ذخیره تراکنش</button>
     </div>
   </div>
@@ -5588,7 +5666,8 @@ body.light-mode .hero-stat{background:rgba(15,23,42,.035)}
         theme: 'finora_theme',
         profile: 'finora_profile',
         monthlyArchive: 'finora_monthly_archive',
-        lastSeenMonth: 'finora_last_seen_month'
+        lastSeenMonth: 'finora_last_seen_month',
+        excludeLoans: 'finora_exclude_loans'
       };
 
       // ─── helpers for Jalali month key e.g. "1403_06" ───
@@ -5913,7 +5992,9 @@ const presetAvatars = [
           maxAmount: '',
           sortBy: 'dateDesc'
         },
-        editingTransactionId: null
+        editingTransactionId: null,
+        // «بدون اقساط وام» switch of the expense-breakdown sections (home + analytics)
+        excludeLoans: (() => { try { return localStorage.getItem(STORAGE_KEYS.excludeLoans) === '1'; } catch (e) { return false; } })()
       };
 
       // ─── Returns transactions for whatever month is being viewed ───
@@ -5984,7 +6065,6 @@ const presetAvatars = [
         balanceAmount: document.getElementById('balanceAmount'),
         budgetUsageRing: document.getElementById('budgetUsageRing'),
         budgetUsagePercent: document.getElementById('budgetUsagePercent'),
-        budgetUsageText: document.getElementById('budgetUsageText'),
         budgetBaseAmount: document.getElementById('budgetBaseAmount'),
         budgetSpentAmount: document.getElementById('budgetSpentAmount'),
         budgetUsageBar: document.getElementById('budgetUsageBar'),
@@ -6849,6 +6929,8 @@ function parseMoneyInput(value) {
       }
 
       function openModal() {
+        // new transaction → date always starts on today (edit mode pre-fills the tx's own date before calling us)
+        if (!state.editingTransactionId) jdSetFieldValue('transactionDate', jdTodayIso()); else jdRefreshAll();
         els.transactionModal.classList.add('active');
         els.transactionModal.setAttribute('aria-hidden', 'false');
         renderTransactionCategories();
@@ -6925,6 +7007,7 @@ function parseMoneyInput(value) {
         if (els.transactionSearchInput) els.transactionSearchInput.value = state.filters.query || '';
         if (els.transactionFromDate) els.transactionFromDate.value = state.filters.from || '';
         if (els.transactionToDate) els.transactionToDate.value = state.filters.to || '';
+        jdRefreshAll();
         if (els.filterMinAmount) els.filterMinAmount.value = state.filters.minAmount || '';
         if (els.filterMaxAmount) els.filterMaxAmount.value = state.filters.maxAmount || '';
         if (els.transactionSortBy) els.transactionSortBy.value = state.filters.sortBy || 'dateDesc';
@@ -7030,12 +7113,23 @@ function parseMoneyInput(value) {
         const expenseTotals = new Map();
         state.categories.filter(c => c.type === 'expense').forEach(cat => expenseTotals.set(cat.key, 0));
         activeTransactions().filter(t => t.type === 'expense').forEach(t => {
-          expenseTotals.set(t.category, (expenseTotals.get(t.category) || 0) + Number(t.amount || 0));
+          // loan installments always roll up into the «اقساط وام» row (even when linked by loanId only)
+          const key = t.loanId ? 'loanes' : t.category;
+          expenseTotals.set(key, (expenseTotals.get(key) || 0) + Number(t.amount || 0));
         });
         return Array.from(expenseTotals.entries())
-          .map(([key, amount]) => ({ key, amount, name: categoryLabel(key), color: categoryColor(key), emoji: categoryEmoji(key) }))
+          .map(([key, amount]) => ({ key, amount, name: categoryLabel(key), color: categoryColor(key), emoji: categoryEmoji(key), excluded: !!state.excludeLoans && key === 'loanes' }))
           .filter(item => item.amount > 0)
           .sort((a, b) => b.amount - a.amount);
+      }
+
+      // Splits breakdown entries into those that count and the grayed-out ones
+      // (loan installments while «بدون اقساط وام» is on). `total` / percentages
+      // are computed from `active` only.
+      function splitExpenseEntries(entries) {
+        const active = entries.filter(e => !e.excluded);
+        const excluded = entries.filter(e => e.excluded);
+        return { active, excluded, total: active.reduce((sum, e) => sum + e.amount, 0) };
       }
 
       // ══════════════════════════════════════════════════════════════
@@ -7342,9 +7436,6 @@ function parseMoneyInput(value) {
         if (els.budgetBaseAmount) els.budgetBaseAmount.textContent = formatMoney(budgetBase);
         if (els.budgetSpentAmount) els.budgetSpentAmount.textContent = formatMoney(expense);
         if (els.budgetUsagePercent) els.budgetUsagePercent.textContent = formatPercent(budgetUsagePct, 0);
-        if (els.budgetUsageText) {
-          els.budgetUsageText.textContent = `${formatMoney(expense)} از ${formatMoney(budgetBase)}`;
-        }
         if (els.budgetUsageBar) {
           // Force reset to 0, then wait one frame so browser paints it, then animate
           els.budgetUsageBar.style.transition = 'none';
@@ -7400,12 +7491,21 @@ function parseMoneyInput(value) {
       function renderHomeExpenseBreakdown() {
         if (!els.homeExpensePieChart || !els.homeExpenseLegend || !els.homeExpensePieTotal) return;
 
-        const entries = getExpenseBreakdownEntries();
-        const total = entries.reduce((sum, item) => sum + item.amount, 0);
+        syncLoanToggles();
+        const { active: entries, excluded: excludedEntries, total } = splitExpenseEntries(getExpenseBreakdownEntries());
         els.homeExpensePieTotal.textContent = formatMoney(total);
+        const excludedRows = excludedEntries.map(item => `
+            <div class="home-breakdown-item is-excluded">
+              <div class="home-breakdown-left">
+                <span class="home-breakdown-dot" style="background:${item.color}"></span>
+                <div class="home-breakdown-name">${item.emoji} ${item.name}</div>
+              </div>
+              <div class="home-breakdown-meta">خارج از محاسبه</div>
+            </div>`).join('');
 
         if (!total) {
           els.homeExpensePieChart.style.background = 'conic-gradient(from 180deg, rgba(255,255,255,.10) 0deg 360deg)';
+          if (excludedRows) { els.homeExpenseLegend.innerHTML = excludedRows; return; }
           els.homeExpenseLegend.innerHTML = `
             <div class="empty-state" style="grid-column:1/-1;padding: 18px 8px">
               <i class="fa-solid fa-chart-pie"></i>
@@ -7439,24 +7539,15 @@ function parseMoneyInput(value) {
         });
 
         els.homeExpensePieChart.style.background = `conic-gradient(from 180deg, ${gradientParts.join(', ')})`;
-        els.homeExpenseLegend.innerHTML = legendItems.join('');
+        els.homeExpenseLegend.innerHTML = legendItems.join('') + excludedRows;
       }
 
       function renderAnalytics() {
-        const expenseTotals = new Map();
-        state.categories.filter(c => c.type === 'expense').forEach(cat => expenseTotals.set(cat.key, 0));
-        // باید مثل خانه از activeTransactions() استفاده کند تا در حالت مشاهده‌ی آرشیو،
-        // تقسیم هزینه‌ها متعلق به همان ماه آرشیو باشد نه ماه جاری.
-        activeTransactions().filter(t => t.type === 'expense').forEach(t => {
-          expenseTotals.set(t.category, (expenseTotals.get(t.category) || 0) + Number(t.amount || 0));
-        });
-
-        const entries = Array.from(expenseTotals.entries())
-          .map(([key, amount]) => ({ key, amount, name: categoryLabel(key), color: categoryColor(key), emoji: categoryEmoji(key) }))
-          .filter(item => item.amount > 0)
-          .sort((a, b) => b.amount - a.amount);
-
-        const total = entries.reduce((sum, item) => sum + item.amount, 0);
+        syncLoanToggles();
+        // Same source as the home summary: with «بدون اقساط وام» on, the installment row is grayed out
+        // and every percentage / the total are computed without it. (activeTransactions() keeps this
+        // consistent with the archive month being viewed.)
+        const { active: entries, excluded: excludedEntries, total } = splitExpenseEntries(getExpenseBreakdownEntries());
         els.pieTotal.textContent = formatMoney(total);
 
         if (!total) {
@@ -7494,8 +7585,21 @@ function parseMoneyInput(value) {
           els.analyticsLegend.innerHTML = legendItems.join('');
         }
 
+        if (excludedEntries.length) {
+          const exLegend = excludedEntries.map(item => `
+            <div class="legend-item is-excluded">
+              <span class="legend-dot" style="background:${item.color}"></span>
+              <div>
+                <div class="legend-name">${item.emoji} ${item.name}</div>
+                <div class="legend-meta">خارج از محاسبه</div>
+              </div>
+              <div class="legend-meta">${formatMoney(item.amount)}</div>
+            </div>`).join('');
+          els.analyticsLegend.innerHTML = (total ? els.analyticsLegend.innerHTML : '') + exLegend;
+        }
+
         const top = entries[0];
-        const expense = getExpenseTotal();
+        const expense = state.excludeLoans ? total : getExpenseTotal();
         const income = getIncomeTotal();
         const balance = getBalance();
         const savingsRate = income > 0 ? Math.max(0, ((balance - Number(state.initialBalance || 0)) / income) * 100) : 0;
@@ -7506,7 +7610,7 @@ function parseMoneyInput(value) {
             <h3>تحلیل هوشمند</h3>
             <p>
               ${expense
-                ? `بیشترین هزینه شما در دسته <strong>${top ? `${top.emoji} ${top.name}` : 'نامشخص'}</strong> بوده و مجموع هزینه‌ها به <strong>${formatMoney(expense)}</strong> رسیده است.`
+                ? `بیشترین هزینه شما در دسته <strong>${top ? `${top.emoji} ${top.name}` : 'نامشخص'}</strong> بوده و مجموع هزینه‌ها${state.excludeLoans ? ' (بدون اقساط وام)' : ''} به <strong>${formatMoney(expense)}</strong> رسیده است.`
                 : 'هنوز داده‌ای برای تحلیل وجود ندارد.'}
               ${income ? `<br>نرخ نگه‌داشت سرمایه نسبت به درآمد فعلی حدود <strong>${formatPercent(savingsRate, 1)}</strong> است.` : ''}
             </p>
@@ -8789,11 +8893,14 @@ function parseMoneyInput(value) {
         const ctx = canvas.getContext('2d');
         ctx.scale(DPR, DPR);
 
-        const entries = getExpenseBreakdownEntries()
-          .filter(e => e.amount > 0)
-          .sort((a, b) => b.amount - a.amount);
-
-        const total = entries.reduce((s, e) => s + e.amount, 0);
+        const { active: entries, excluded: excludedEntries, total } = splitExpenseEntries(getExpenseBreakdownEntries());
+        const excludedLegend = excludedEntries.map(e => `
+          <div class="donut-legend-item is-excluded">
+            <span class="donut-legend-dot" style="background:${e.color}"></span>
+            <span class="donut-legend-name">${e.name || e.key}</span>
+            <span class="donut-legend-pct">—</span>
+            <span class="donut-legend-amt">${formatMoneyCompact(e.amount)}</span>
+          </div>`).join('');
 
         if (!entries.length || total === 0) {
           ctx.clearRect(0, 0, SIZE, SIZE);
@@ -8804,7 +8911,7 @@ function parseMoneyInput(value) {
           ctx.stroke();
           if (centerVal) centerVal.textContent = '—';
           if (centerLbl) centerLbl.textContent = 'بدون داده';
-          legendEl.innerHTML = '<p class="muted" style="font-size:.84rem;text-align:center;padding:8px 0">هنوز هزینه‌ای ثبت نشده.</p>';
+          legendEl.innerHTML = excludedLegend || '<p class="muted" style="font-size:.84rem;text-align:center;padding:8px 0">هنوز هزینه‌ای ثبت نشده.</p>';
           return;
         }
 
@@ -8866,7 +8973,7 @@ function parseMoneyInput(value) {
             <span class="donut-legend-pct">${toPersianNumber(Math.round(sl.pct*100))}٪</span>
             <span class="donut-legend-amt">${formatMoneyCompact(sl.amount)}</span>
           </div>`
-        ).join('');
+        ).join('') + excludedLegend;
 
         // hover highlight on canvas
         function getSliceAt(mx, my) {
@@ -10112,6 +10219,200 @@ function renderCalendarView() {
         renderArchivePicker();
       }
 
+      // ══════════════════════════════════════════════════════════════
+      // Jalali (Shamsi) date picker.
+      // UI is fully Shamsi; every stored/compared value stays a Gregorian
+      // ISO string "YYYY-MM-DD" (local time), so the filter logic and the
+      // transaction timestamps keep working exactly as before.
+      // ══════════════════════════════════════════════════════════════
+      function jdPad(n) { return String(n).padStart(2, '0'); }
+      function jdIso(gy, gm, gd) { return gy + '-' + jdPad(gm) + '-' + jdPad(gd); }
+      function jdParse(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '')); return m ? [+m[1], +m[2], +m[3]] : null; }
+      function jdTodayIso() { const d = new Date(); return jdIso(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+      function jdIsoFromTs(ts) { const d = new Date(Number(ts)); return jdIso(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+      function jdToJ(iso) { const p = jdParse(iso); return p ? toJalali(p[0], p[1], p[2]) : null; }
+      function jdFromJ(jy, jm, jd) { const g = fromJalali(jy, jm, jd); return jdIso(g[0], g[1], g[2]); }
+      function jdDaysIn(jy, jm) {
+        if (jm <= 6) return 31;
+        if (jm <= 11) return 30;
+        // Esfand: day 30 only exists in leap years — verify with a round trip
+        const g = fromJalali(jy, 12, 30), back = toJalali(g[0], g[1], g[2]);
+        return (back[0] === jy && back[1] === 12 && back[2] === 30) ? 30 : 29;
+      }
+      function jdLabel(iso) {
+        const j = jdToJ(iso);
+        return j ? `${toPersianNumber(j[2])} ${jalaliMonthNames[j[1] - 1]} ${toPersianNumber(j[0])}` : '';
+      }
+      function jdCurrentMonthStartIso() {
+        const { jy, jm } = getJalaliDateParts(new Date());
+        return jdFromJ(jy, jm, 1);
+      }
+      // chosen day + the clock time of `timeSource` (default: right now)
+      function jdTsFromIso(iso, timeSource) {
+        const p = jdParse(iso), t = new Date(timeSource == null ? Date.now() : Number(timeSource));
+        return new Date(p[0], p[1] - 1, p[2], t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds()).getTime();
+      }
+
+      const JD = { el: null, opts: null, vy: 0, vm: 1 };
+      function jdKey(e) { if (e.key === 'Escape') { e.stopPropagation(); jdClose(); } }
+      function jdClose() {
+        if (JD.el) { JD.el.remove(); JD.el = null; }
+        document.removeEventListener('keydown', jdKey, true);
+      }
+      function jdClamp() {
+        const ym = (y, m) => y * 12 + (m - 1);
+        let cur = ym(JD.vy, JD.vm);
+        if (JD.opts.min) { const j = jdToJ(JD.opts.min); cur = Math.max(cur, ym(j[0], j[1])); }
+        if (JD.opts.max) { const j = jdToJ(JD.opts.max); cur = Math.min(cur, ym(j[0], j[1])); }
+        JD.vy = Math.floor(cur / 12); JD.vm = (cur % 12) + 1;
+      }
+      function jdOpen(opts) {
+        jdClose();
+        const today = jdTodayIso();
+        let seed = jdParse(opts.value) ? opts.value : today;
+        if (opts.max && seed > opts.max) seed = opts.max;
+        if (opts.min && seed < opts.min) seed = opts.min;
+        const j = jdToJ(seed);
+        JD.opts = opts; JD.vy = j[0]; JD.vm = j[1];
+        const el = document.createElement('div');
+        el.className = 'jd-overlay';
+        el.addEventListener('click', e => {
+          if (e.target === el) { jdClose(); return; }
+          const b = e.target.closest('[data-jd-act]');
+          if (!b || b.disabled) return;
+          const act = b.dataset.jdAct;
+          if (act === 'prev') { JD.vm--; if (JD.vm < 1) { JD.vm = 12; JD.vy--; } jdClamp(); jdRender(); }
+          else if (act === 'next') { JD.vm++; if (JD.vm > 12) { JD.vm = 1; JD.vy++; } jdClamp(); jdRender(); }
+          else if (act === 'close') jdClose();
+          else if (act === 'clear') { const f = JD.opts.onClear; jdClose(); if (f) f(); }
+          else if (act === 'day' || act === 'today') {
+            const iso = act === 'today' ? jdTodayIso() : b.dataset.iso;
+            const f = JD.opts.onPick; jdClose(); if (f) f(iso);
+          }
+        });
+        el.addEventListener('change', e => {
+          const s = e.target.closest('[data-jd-sel]');
+          if (!s) return;
+          if (s.dataset.jdSel === 'm') JD.vm = +s.value; else JD.vy = +s.value;
+          jdClamp(); jdRender();
+        });
+        document.body.appendChild(el);
+        JD.el = el;
+        document.addEventListener('keydown', jdKey, true);
+        jdRender();
+      }
+      function jdRender() {
+        if (!JD.el) return;
+        const { opts, vy, vm } = JD;
+        const min = opts.min || '', max = opts.max || '';
+        const today = jdTodayIso(), sel = opts.value || '';
+        const ym = (y, m) => y * 12 + (m - 1);
+        const minJ = min ? jdToJ(min) : null, maxJ = max ? jdToJ(max) : null, nowJ = jdToJ(today);
+        const canPrev = !minJ || ym(vy, vm) > ym(minJ[0], minJ[1]);
+        const canNext = !maxJ || ym(vy, vm) < ym(maxJ[0], maxJ[1]);
+        let y0 = minJ ? minJ[0] : nowJ[0] - 8, y1 = maxJ ? maxJ[0] : nowJ[0] + 1;
+        y0 = Math.min(y0, vy); y1 = Math.max(y1, vy);
+        const monthOpts = jalaliMonthNames.map((name, i) => {
+          const m = i + 1;
+          const dis = (minJ && ym(vy, m) < ym(minJ[0], minJ[1])) || (maxJ && ym(vy, m) > ym(maxJ[0], maxJ[1]));
+          return `<option value="${m}"${m === vm ? ' selected' : ''}${dis ? ' disabled' : ''}>${name}</option>`;
+        }).join('');
+        let yearOpts = '';
+        for (let y = y1; y >= y0; y--) yearOpts += `<option value="${y}"${y === vy ? ' selected' : ''}>${toPersianNumber(y)}</option>`;
+        const first = fromJalali(vy, vm, 1);
+        const lead = (new Date(first[0], first[1] - 1, first[2]).getDay() + 1) % 7;   // Saturday-first week
+        const n = jdDaysIn(vy, vm);
+        let cells = '';
+        for (let i = 0; i < lead; i++) cells += '<span class="jd-day blank"></span>';
+        for (let d = 1; d <= n; d++) {
+          const iso = jdFromJ(vy, vm, d);
+          const dis = (min && iso < min) || (max && iso > max);
+          cells += `<button type="button" class="jd-day${iso === today ? ' today' : ''}${iso === sel ? ' selected' : ''}" data-jd-act="day" data-iso="${iso}"${dis ? ' disabled' : ''}>${toPersianNumber(d)}</button>`;
+        }
+        const todayOk = !(min && today < min) && !(max && today > max);
+        const week = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'].map(w => `<span>${w}</span>`).join('');
+        JD.el.innerHTML = `
+          <div class="glass jd-dialog" role="dialog" aria-modal="true" aria-label="${opts.title || 'انتخاب تاریخ'}">
+            <div class="jd-head">
+              <button type="button" class="jd-nav" data-jd-act="prev" aria-label="ماه قبل"${canPrev ? '' : ' disabled'}><i class="fa-solid fa-chevron-right"></i></button>
+              <div class="jd-selects">
+                <select data-jd-sel="m" aria-label="ماه">${monthOpts}</select>
+                <select data-jd-sel="y" aria-label="سال">${yearOpts}</select>
+              </div>
+              <button type="button" class="jd-nav" data-jd-act="next" aria-label="ماه بعد"${canNext ? '' : ' disabled'}><i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+            <div class="jd-week">${week}</div>
+            <div class="jd-grid">${cells}</div>
+            <div class="jd-foot">
+              <button type="button" class="jd-foot-primary" data-jd-act="today"${todayOk ? '' : ' disabled'}>امروز</button>
+              ${opts.clearable ? '<button type="button" data-jd-act="clear">حذف تاریخ</button>' : ''}
+              <button type="button" data-jd-act="close">بستن</button>
+            </div>
+          </div>`;
+      }
+
+      // ── date fields (button + hidden ISO input) ──
+      function jdFieldInput(field) { return document.getElementById(field.dataset.jdInput); }
+      function jdFieldRange(field) {
+        return field.dataset.jdRange === 'month-to-today'
+          ? { min: jdCurrentMonthStartIso(), max: jdTodayIso() }
+          : {};
+      }
+      function jdRefreshField(field) {
+        const input = jdFieldInput(field); if (!input) return;
+        const iso = input.value || '', has = !!jdParse(iso), isToday = iso === jdTodayIso();
+        field.classList.toggle('has-value', has);
+        const txt = field.querySelector('.jd-text');
+        if (txt) {
+          let s = has ? jdLabel(iso) : (field.dataset.jdPlaceholder || 'انتخاب تاریخ');
+          if (has && field.dataset.jdTodayTag && isToday) s = 'امروز، ' + s;
+          txt.textContent = s;
+        }
+        const clr = field.querySelector('[data-jd-clear]'); if (clr) clr.hidden = !has;
+        const chip = field.querySelector('[data-jd-today]'); if (chip) chip.hidden = !(has && !isToday);
+      }
+      function jdRefreshAll() { document.querySelectorAll('.jd-field').forEach(jdRefreshField); }
+      function jdSetFieldValue(inputId, iso) {
+        const input = document.getElementById(inputId);
+        if (input) input.value = iso || '';
+        const field = document.querySelector('.jd-field[data-jd-input="' + inputId + '"]');
+        if (field) jdRefreshField(field);
+      }
+      document.addEventListener('click', e => {
+        const open = e.target.closest('[data-jd-open]');
+        if (open) {
+          const field = open.closest('.jd-field'), input = field && jdFieldInput(field);
+          if (!field || !input) return;
+          const r = jdFieldRange(field), id = field.dataset.jdInput;
+          jdOpen({
+            value: input.value, min: r.min, max: r.max, clearable: !!field.dataset.jdClearable,
+            title: field.dataset.jdTitle || 'انتخاب تاریخ',
+            onPick: iso => jdSetFieldValue(id, iso),
+            onClear: () => jdSetFieldValue(id, '')
+          });
+          return;
+        }
+        const clr = e.target.closest('[data-jd-clear]');
+        if (clr) { jdSetFieldValue(clr.closest('.jd-field').dataset.jdInput, ''); return; }
+        const tdy = e.target.closest('[data-jd-today]');
+        if (tdy) jdSetFieldValue(tdy.closest('.jd-field').dataset.jdInput, jdTodayIso());
+      });
+
+      // ── «بدون اقساط وام» toggle for the expense-breakdown sections ──
+      function syncLoanToggles() {
+        document.querySelectorAll('[data-loan-toggle]').forEach(i => { i.checked = !!state.excludeLoans; });
+      }
+      function setExcludeLoans(on) {
+        state.excludeLoans = !!on;
+        safeStorageSet(STORAGE_KEYS.excludeLoans, state.excludeLoans ? '1' : '0');
+        renderHomeExpenseBreakdown();
+        renderAnalytics();
+      }
+      document.addEventListener('change', e => {
+        const t = e.target.closest && e.target.closest('[data-loan-toggle]');
+        if (t) setExcludeLoans(t.checked);
+      });
+
       function addTransaction() {
         const amount = parseMoneyInput(els.transactionAmount.value);
         if (!amount || amount <= 0) {
@@ -10121,31 +10422,52 @@ function renderCalendarView() {
 
         const validCategories = categoriesForCurrentType();
         const chosen = validCategories.find(c => c.key === state.transactionCategory) || validCategories[0] || state.categories[0];
+        // Chosen date (Shamsi picker, stored as Gregorian ISO). Default = today.
+        // Only days of the CURRENT Shamsi month up to today are allowed: older months live in the
+        // monthly archive and future days would distort today's balance / pace.
+        const todayIso = jdTodayIso(), monthStartIso = jdCurrentMonthStartIso();
+        const dateEl = document.getElementById('transactionDate');
+        let dateIso = jdParse(dateEl && dateEl.value) ? dateEl.value : todayIso;
         if (state.editingTransactionId) {
-          // Edit mode: update existing, keep original createdAt
+          // Edit mode: keep the original timestamp unless the user actually picked another day
           const idx = state.transactions.findIndex(t => t.id === state.editingTransactionId);
           if (idx !== -1) {
+            const prev = state.transactions[idx];
+            const dateChanged = jdIsoFromTs(prev.createdAt) !== dateIso;
+            if (dateChanged && (dateIso < monthStartIso || dateIso > todayIso)) {
+              alert('تاریخ تراکنش باید بین اول ماه جاری و امروز باشد.');
+              return;
+            }
             state.transactions[idx] = {
-              ...state.transactions[idx],
+              ...prev,
               amount,
               note: String(els.transactionNote.value || '').trim(),
               category: chosen ? chosen.key : fallbackCategoryKey(state.transactionType),
-              type: state.transactionType
-              // createdAt intentionally NOT updated
+              type: state.transactionType,
+              // new day + the transaction's original clock time
+              createdAt: dateChanged ? jdTsFromIso(dateIso, prev.createdAt) : prev.createdAt
             };
           }
           state.editingTransactionId = null;
         } else {
+          if (dateIso > todayIso) dateIso = todayIso;
+          if (dateIso < monthStartIso) {
+            alert('تاریخ تراکنش باید در ماه جاری باشد.');
+            return;
+          }
           const transaction = {
             id: uid(),
             amount,
             note: String(els.transactionNote.value || '').trim(),
             category: chosen ? chosen.key : fallbackCategoryKey(state.transactionType),
             type: state.transactionType,
-            createdAt: Date.now()
+            // today → exact "now"; a past day → that day stamped with the current clock time
+            createdAt: dateIso === todayIso ? Date.now() : jdTsFromIso(dateIso)
           };
           state.transactions.unshift(transaction);
         }
+        // keep the stored list newest-first by real date, so a back-dated entry lands in its right place
+        state.transactions.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
         persistTransactions();
         resetTransactionForm();
         renderAll();
@@ -10155,6 +10477,7 @@ function renderCalendarView() {
       function resetTransactionForm() {
         els.transactionAmount.value = '';
         els.transactionNote.value = '';
+        jdSetFieldValue('transactionDate', jdTodayIso());
         state.transactionType = 'expense';
         state.transactionCategory = fallbackCategoryKey('expense');
         state.editingTransactionId = null;
@@ -10336,6 +10659,7 @@ function renderCalendarView() {
         // Fill fields
         els.transactionAmount.value = t.amount;
         els.transactionNote.value = t.note || '';
+        jdSetFieldValue('transactionDate', jdIsoFromTs(t.createdAt));
         // Set category
         state.transactionCategory = t.category;
         renderTransactionCategories();
@@ -10378,6 +10702,7 @@ function renderCalendarView() {
         removeAllAppStorage();
 
         state.theme = 'dark';
+        state.excludeLoans = false;
         state.initialBalance = 0;
         state.transactions = [];
         state.categories = defaultCategories.map(normalizeCategoryObject);
