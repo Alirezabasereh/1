@@ -731,12 +731,6 @@
       display:grid;
       gap:12px;
     }
-    .goal-top{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:flex-start;
-    }
     .goal-title{font-weight:800}
     .goal-sub{font-size:.88rem;color:var(--muted);margin-top:4px}
     .goal-actions{
@@ -3685,24 +3679,6 @@
     }
 
     /* ── Goal deadline & prediction ── */
-    .goal-deadline-chip{
-      display:inline-flex;align-items:center;gap:5px;
-      font-size:.8rem;color:var(--muted);
-      background:rgba(255,255,255,.06);
-      border-radius:8px;padding:4px 9px;
-      border:1px solid rgba(255,255,255,.07);
-    }
-    .goal-prediction{
-      font-size:.8rem;
-      color:var(--accent2);
-      display:flex;align-items:center;gap:5px;
-      margin-top:4px;
-    }
-    .goal-top-meta{
-      display:flex;flex-direction:column;gap:4px;
-      align-items:center;text-align:center;
-      flex:1;
-    }
 
     /* ── filter amount range ── */
     .filter-amount-row{
@@ -4138,7 +4114,8 @@
          the top with dead space below it */
       .management-card:has(#goalsContainer){ display:flex; flex-direction:column; }
       .goals-grid{
-        grid-template-columns:repeat(2,1fr);
+        /* 2 columns when there is room, 1 when the card would get cramped */
+        grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
         flex:1 1 auto;
         align-content:center;
       }
@@ -4676,6 +4653,27 @@ body.light-mode .jd-selects select option{background:#fff;color:#0f172a}
 .donut-legend-item.is-excluded{cursor:default;pointer-events:none}
 .legend-item.is-excluded .legend-name,.home-breakdown-item.is-excluded .home-breakdown-name,.donut-legend-item.is-excluded .donut-legend-name{text-decoration:line-through;text-decoration-thickness:1px}
 
+
+/* ═══ Financial goal card (redesign) ═══ */
+.goal-card .goal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.goal-head-main{min-width:0;flex:1 1 auto;display:grid;gap:5px}
+.goal-head .goal-title{font-size:1.05rem;line-height:1.5;overflow-wrap:anywhere}
+.goal-amounts{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:.84rem;color:var(--muted)}
+.goal-amounts strong{color:var(--text);font-size:.95rem;font-weight:800}
+.goal-card .delete-btn{flex:0 0 auto;display:grid;place-items:center}
+.goal-chips{display:flex;flex-wrap:wrap;gap:8px}
+.goal-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:6px 10px;border-radius:10px;font-size:.78rem;line-height:1.5;color:var(--muted);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07)}
+.goal-chip i{flex:0 0 auto;font-size:.8rem}
+.goal-chip em{font-style:normal;opacity:.85;padding-inline-start:7px;border-inline-start:1px solid currentColor}
+.goal-chip-deadline.is-soon{color:var(--warn);background:rgba(255,184,77,.08);border-color:rgba(255,184,77,.25)}
+.goal-chip-deadline.is-late{color:var(--bad);background:rgba(255,93,125,.08);border-color:rgba(255,93,125,.25)}
+.goal-chip-eta{color:var(--accent2);background:rgba(0,210,255,.08);border-color:rgba(0,210,255,.16)}
+body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23,42,.08)}
+.goal-card .goal-footer{flex-wrap:wrap;gap:4px 10px;font-size:.84rem}
+.goal-card .goal-footer strong{color:var(--text)}
+.goal-card .goal-footer span{white-space:nowrap}
+.goal-card .goal-actions .input{min-width:0;padding:11px 12px;font-size:.9rem}
+.goal-card .goal-actions .add-btn{padding:11px 16px}
 </style>
 </head>
 <body>
@@ -5342,7 +5340,11 @@ body.light-mode .jd-selects select option{background:#fff;color:#0f172a}
         </div>
         <div class="field">
           <label for="newGoalDeadline">تاریخ هدف (اختیاری)</label>
-          <input class="input" type="date" id="newGoalDeadline">
+          <div class="jd-field" data-jd-input="newGoalDeadline" data-jd-clearable="1" data-jd-range="today-onward" data-jd-years-ahead="15" data-jd-placeholder="انتخاب تاریخ" data-jd-title="تاریخ هدف">
+            <button type="button" class="input jd-btn" data-jd-open><i class="fa-regular fa-calendar"></i><span class="jd-text">انتخاب تاریخ</span><i class="fa-solid fa-chevron-down jd-caret"></i></button>
+            <button type="button" class="jd-clear" data-jd-clear aria-label="حذف تاریخ" hidden><i class="fa-solid fa-xmark"></i></button>
+            <input type="hidden" id="newGoalDeadline">
+          </div>
         </div>
         <button class="save-goal-btn secondary full-width-action" type="button" id="addGoalBtn" style="margin-top:4px">افزودن هدف</button>
       </div>
@@ -6701,6 +6703,10 @@ function parseMoneyInput(value) {
             title: String(raw.title).trim(),
             target,
             saved: parseMoneyInput(raw.saved),
+            // deadline (Gregorian ISO day from the Shamsi picker) and createdAt used to be dropped here,
+            // so goal dates vanished after a reload / cloud sync
+            deadline: /^\d{4}-\d{2}-\d{2}$/.test(String(raw.deadline || '')) ? String(raw.deadline) : '',
+            createdAt: Number(raw.createdAt) || 0,
             color: /^#[0-9a-fA-F]{6}$/.test(raw.color || '') ? raw.color : '#6a5cff'
           });
         }
@@ -9167,47 +9173,43 @@ function parseMoneyInput(value) {
           const completed = pct >= 100;
           const remaining = goal.target - goal.saved;
 
-          // Deadline section
+          // Deadline chip — goal.deadline is a Gregorian ISO day ("YYYY-MM-DD") coming from the Shamsi picker.
+          // It is parsed as a local calendar day (new Date("YYYY-MM-DD") would be UTC and can slip a day).
           let deadlineHtml = '';
-          if (goal.deadline) {
-            const dl = new Date(goal.deadline);
-            const diffMs = dl.getTime() - now.getTime();
-            const diffDays = Math.ceil(diffMs / 86400000);
-            const [jy, jm, jd] = toJalali(dl.getFullYear(), dl.getMonth() + 1, dl.getDate());
-            const JMONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-            const dlStr = `${toPersianNumber(jd)} ${JMONTHS[jm - 1]} ${toPersianNumber(jy)}`;
-            const dlColor = diffDays < 30 ? 'var(--warn)' : 'var(--muted)';
-            deadlineHtml = `<span class="goal-deadline-chip" style="color:${dlColor}"><i class="fa-solid fa-calendar-day"></i> ${dlStr}${diffDays < 0 ? ' (گذشت)' : ''}</span>`;
+          const dlParts = jdParse(goal.deadline);
+          if (dlParts) {
+            const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+            const diffDays = Math.round((new Date(dlParts[0], dlParts[1] - 1, dlParts[2]).getTime() - today0.getTime()) / 86400000);
+            const cls = completed ? '' : (diffDays < 0 ? ' is-late' : (diffDays < 30 ? ' is-soon' : ''));
+            const left = diffDays > 0 ? `${toPersianNumber(diffDays)} روز مانده` : (diffDays === 0 ? 'امروز' : 'گذشته');
+            deadlineHtml = `<span class="goal-chip goal-chip-deadline${cls}"><i class="fa-solid fa-calendar-day"></i><span>${jdLabel(goal.deadline)}</span>${completed ? '' : `<em>${left}</em>`}</span>`;
           }
 
-          // Prediction section
+          // Prediction chip (one text block — it used to be split into separate flex columns)
           let predictionHtml = '';
-          if (!completed && remaining > 0) {
-            if (monthlySurplus > 0) {
-              const monthsNeeded = Math.ceil(remaining / monthlySurplus);
-              predictionHtml = `<div class="goal-prediction"><i class="fa-solid fa-clock-rotate-left"></i> با این روند <strong>${toPersianNumber(monthsNeeded)} ماه دیگه</strong> بهش می‌رسی</div>`;
-            }
+          if (!completed && remaining > 0 && monthlySurplus > 0) {
+            const monthsNeeded = Math.ceil(remaining / monthlySurplus);
+            const yrs = Math.floor(monthsNeeded / 12), mos = monthsNeeded % 12;
+            const eta = yrs ? `${toPersianNumber(yrs)} سال${mos ? ` و ${toPersianNumber(mos)} ماه` : ''}` : `${toPersianNumber(monthsNeeded)} ماه`;
+            predictionHtml = `<span class="goal-chip goal-chip-eta"><i class="fa-solid fa-clock-rotate-left"></i><span>با این روند ${eta} دیگه بهش می‌رسی</span></span>`;
           }
 
           return `
             <article class="glass goal-card ${completed ? 'goal-card-complete' : ''}">
-              <div class="goal-top">
-                <div>
+              <div class="goal-head">
+                <div class="goal-head-main">
                   <div class="goal-title">${escapeHtml(goal.title)}</div>
-                  <div class="goal-sub">${formatMoney(goal.saved)} / ${formatMoney(goal.target)}</div>
+                  <div class="goal-amounts"><strong>${formatMoney(goal.saved)}</strong><span>از ${formatMoney(goal.target)}</span></div>
                 </div>
-                <div class="goal-top-meta">
-                  ${deadlineHtml}
-                  ${predictionHtml}
-                </div>
-                <button type="button" class="delete-btn" data-delete-goal="${goal.id}">
+                <button type="button" class="delete-btn" data-delete-goal="${goal.id}" aria-label="حذف هدف">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
+              ${(deadlineHtml || predictionHtml) ? `<div class="goal-chips">${deadlineHtml}${predictionHtml}</div>` : ''}
               <div class="progress"><span style="width:${pct}%;background:#18e6a6"></span></div>
               <div class="goal-footer">
-                <span>${formatPercent(pct, 1)} تکمیل شده</span>
-                <span>${completed ? '' : `${formatMoney(remaining)} باقی مانده`}</span>
+                <span><strong>${formatPercent(pct, 1)}</strong> تکمیل</span>
+                <span>${completed ? '' : `${formatMoney(remaining)} باقی‌مانده`}</span>
               </div>
               ${completed ? '<div class="goal-done-badge"><i class="fa-solid fa-circle-check"></i> هدف تکمیل شد</div>' : `
               <div class="goal-actions">
@@ -10310,7 +10312,7 @@ function renderCalendarView() {
         const minJ = min ? jdToJ(min) : null, maxJ = max ? jdToJ(max) : null, nowJ = jdToJ(today);
         const canPrev = !minJ || ym(vy, vm) > ym(minJ[0], minJ[1]);
         const canNext = !maxJ || ym(vy, vm) < ym(maxJ[0], maxJ[1]);
-        let y0 = minJ ? minJ[0] : nowJ[0] - 8, y1 = maxJ ? maxJ[0] : nowJ[0] + 1;
+        let y0 = minJ ? minJ[0] : nowJ[0] - 8, y1 = maxJ ? maxJ[0] : nowJ[0] + (opts.yearsAhead || 1);
         y0 = Math.min(y0, vy); y1 = Math.max(y1, vy);
         const monthOpts = jalaliMonthNames.map((name, i) => {
           const m = i + 1;
@@ -10354,9 +10356,9 @@ function renderCalendarView() {
       // ── date fields (button + hidden ISO input) ──
       function jdFieldInput(field) { return document.getElementById(field.dataset.jdInput); }
       function jdFieldRange(field) {
-        return field.dataset.jdRange === 'month-to-today'
-          ? { min: jdCurrentMonthStartIso(), max: jdTodayIso() }
-          : {};
+        if (field.dataset.jdRange === 'month-to-today') return { min: jdCurrentMonthStartIso(), max: jdTodayIso() };
+        if (field.dataset.jdRange === 'today-onward') return { min: jdTodayIso() };
+        return {};
       }
       function jdRefreshField(field) {
         const input = jdFieldInput(field); if (!input) return;
@@ -10386,7 +10388,7 @@ function renderCalendarView() {
           const r = jdFieldRange(field), id = field.dataset.jdInput;
           jdOpen({
             value: input.value, min: r.min, max: r.max, clearable: !!field.dataset.jdClearable,
-            title: field.dataset.jdTitle || 'انتخاب تاریخ',
+            title: field.dataset.jdTitle || 'انتخاب تاریخ', yearsAhead: Number(field.dataset.jdYearsAhead) || 1,
             onPick: iso => jdSetFieldValue(id, iso),
             onClear: () => jdSetFieldValue(id, '')
           });
@@ -10628,6 +10630,7 @@ function renderCalendarView() {
         els.newGoalTitle.value = '';
         els.newGoalTarget.value = '';
         if (els.newGoalDeadline) els.newGoalDeadline.value = '';
+        jdRefreshAll();
       }
 
       function addToGoal(goalId, amount) {
