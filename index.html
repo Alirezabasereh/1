@@ -4689,9 +4689,6 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
 body.light-mode .acct-chip{border-color:rgba(15,23,42,.12);background:rgba(15,23,42,.04)}
 body.light-mode .acct-chip.acct-add{background:transparent}
 .hero-card .balance-label i.balance-emoji{font-style:normal;font-size:1rem}
-.hero-acct-back{margin-inline-start:4px;padding:4px 10px;border-radius:999px;border:none;background:rgba(255,255,255,.08);color:var(--accent2);font:inherit;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap}
-.hero-acct-back[hidden]{display:none}
-body.light-mode .hero-acct-back{background:rgba(15,23,42,.06)}
 
 #accountsSection .section-head{flex-wrap:wrap}
 #accountsSection .section-add-btn{min-width:0}
@@ -4821,7 +4818,7 @@ body.light-mode .acct-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(-
       <section class="glass balance-card hero-card section">
         <div class="hero-main">
           <div class="hero-copy">
-            <div class="balance-label"><i class="fa-solid fa-wallet" id="balanceLabelIcon"></i><span id="balanceLabelText">موجودی کل</span><button type="button" class="hero-acct-back" id="heroAcctBack" hidden>بازگشت به کل</button></div>
+            <div class="balance-label"><i class="fa-solid fa-wallet" id="balanceLabelIcon"></i><span id="balanceLabelText">موجودی کل</span></div>
             <div class="balance-value" id="balanceAmount">۰ تومان</div>
           </div>
           <div class="hero-ring-wrap">
@@ -10650,7 +10647,6 @@ function renderCalendarView() {
         const row = document.getElementById('heroAccounts');
         const labelText = document.getElementById('balanceLabelText');
         const icon = document.getElementById('balanceLabelIcon');
-        const back = document.getElementById('heroAcctBack');
         const amountEl = document.getElementById('balanceAmount');
         if (!row || !labelText || !icon || !amountEl) return;
         const archived = isViewingArchive();
@@ -10675,13 +10671,11 @@ function renderCalendarView() {
           icon.style.background = (a ? a.color : FREE_ACCOUNT_COLOR) + '33';
           amountEl.innerHTML = '<span>' + moneyNum(val) + '</span><small>تومان</small>';
           amountEl.classList.toggle('is-negative', val < 0);
-          if (back) back.hidden = false;
         } else {
           labelText.textContent = 'موجودی کل';
           icon.className = 'fa-solid fa-wallet'; icon.textContent = ''; icon.style.background = '';
           amountEl.innerHTML = '<span>' + moneyNum(getBalance()) + '</span><small>تومان</small>';
           amountEl.classList.remove('is-negative');
-          if (back) back.hidden = true;
         }
       }
       function clearHeroAccount() {
@@ -10885,7 +10879,6 @@ function renderCalendarView() {
         const t = e.target;
         const hero = t.closest('[data-hero-acct]');
         if (hero) { state.heroAccountId = state.heroAccountId === hero.dataset.heroAcct ? null : hero.dataset.heroAcct; renderHeroAccounts(); return; }
-        if (t.closest('#heroAcctBack')) { clearHeroAccount(); return; }
         if (t.closest('#heroAddAccountBtn') || t.closest('#openAddAccountBtn')) { openAccountModal(); return; }
         if (t.closest('#openTransferBtn')) { openTransferModal(); return; }
         if (t.closest('#closeAccountModalBtn') || t.id === 'accountModal') { closeAccountModal(); return; }
