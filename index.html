@@ -4674,6 +4674,71 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
 .goal-card .goal-footer span{white-space:nowrap}
 .goal-card .goal-actions .input{min-width:0;padding:11px 12px;font-size:.9rem}
 .goal-card .goal-actions .add-btn{padding:11px 16px}
+
+/* ═══ Accounts / cards ═══ */
+.hero-accounts{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin:-4px -2px -2px;scrollbar-width:none;position:relative;z-index:1}
+.hero-accounts::-webkit-scrollbar{display:none}
+.hero-accounts[hidden]{display:none}
+.acct-chip{--c:#6a5cff;flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:5px;padding-inline-end:12px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--text);font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,transform .12s;-webkit-tap-highlight-color:transparent}
+.acct-chip:active{transform:scale(.96)}
+.acct-ico{flex:0 0 auto;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.95rem;line-height:1;background:rgba(255,255,255,.1);background:color-mix(in srgb,var(--c) 28%,transparent)}
+.acct-name{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-chip[aria-pressed="true"]{border-color:var(--c);background:rgba(255,255,255,.1);background:color-mix(in srgb,var(--c) 18%,transparent);box-shadow:0 0 0 1px var(--c) inset}
+.acct-chip.acct-add{border-style:dashed;color:var(--muted);background:transparent}
+.acct-chip.acct-add .acct-ico{font-size:.75rem}
+body.light-mode .acct-chip{border-color:rgba(15,23,42,.12);background:rgba(15,23,42,.04)}
+body.light-mode .acct-chip.acct-add{background:transparent}
+.hero-card .balance-label i.balance-emoji{font-style:normal;font-size:1rem}
+.hero-acct-back{margin-inline-start:4px;padding:4px 10px;border-radius:999px;border:none;background:rgba(255,255,255,.08);color:var(--accent2);font:inherit;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.hero-acct-back[hidden]{display:none}
+body.light-mode .hero-acct-back{background:rgba(15,23,42,.06)}
+
+#accountsSection .section-head{flex-wrap:wrap}
+#accountsSection .section-add-btn{min-width:0}
+.section-actions{display:flex;align-items:center;gap:8px}
+.section-add-btn.ghost{background:rgba(255,255,255,.08);box-shadow:none;color:var(--text)}
+body.light-mode .section-add-btn.ghost{background:rgba(15,23,42,.06)}
+.budget-page-grid > .management-card:has(#accountsContainer){order:0;grid-column:1 / -1}
+.acct-list{display:grid;gap:10px}
+.acct-row{--c:#6a5cff;display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04)}
+body.light-mode .acct-row{border-color:rgba(15,23,42,.08);background:rgba(15,23,42,.03)}
+.acct-row .acct-ico{width:40px;height:40px;font-size:1.15rem}
+.acct-row.is-free{border-style:dashed}
+.acct-info{min-width:0;flex:1 1 auto;display:grid;gap:2px}
+.acct-title{font-weight:800;font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-sub{font-size:.76rem;color:var(--muted)}
+.acct-bal{flex:0 0 auto;font-weight:800;font-size:.9rem;white-space:nowrap}
+.acct-bal.neg{color:var(--bad)}
+.acct-actions{display:flex;gap:6px;flex:0 0 auto}
+.acct-total{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 0;color:var(--muted);font-size:.85rem}
+.acct-total b{color:var(--text);font-size:.95rem}
+.acct-transfers{margin-top:14px;display:grid;gap:8px}
+.acct-transfers[hidden]{display:none}
+.acct-transfers-title{font-size:.8rem;color:var(--muted);font-weight:700}
+.acct-transfer{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04)}
+body.light-mode .acct-transfer{background:rgba(15,23,42,.03)}
+.acct-transfer-main{font-size:.85rem;font-weight:700}
+.acct-transfer-main i{font-size:.7rem;color:var(--muted);margin:0 4px}
+.acct-transfer-meta{grid-column:1;font-size:.74rem;color:var(--muted)}
+.acct-transfer .delete-btn{grid-column:2;grid-row:1 / span 2}
+
+.acct-icons,.acct-swatches{display:flex;flex-wrap:wrap;gap:8px}
+.acct-icon-opt{width:42px;height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:1.2rem;cursor:pointer}
+.acct-icon-opt.active{border-color:var(--accent2);background:rgba(0,210,255,.12)}
+.acct-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;background:var(--c);cursor:pointer;padding:0}
+.acct-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--c)}
+body.light-mode .acct-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--c)}
+.acct-mode{display:grid;gap:10px;margin-bottom:14px}
+.acct-mode-btn{text-align:right;display:grid;gap:4px;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text);font:inherit;cursor:pointer}
+.acct-mode-btn b{font-size:.9rem}
+.acct-mode-btn span{font-size:.76rem;color:var(--muted);line-height:1.7}
+.acct-mode-btn.active{border-color:var(--accent2);background:rgba(0,210,255,.08)}
+#accountOpeningBlock[hidden]{display:none}
+
+.acct-pick{display:flex;flex-wrap:wrap;gap:8px}
+.acct-pick-hint{margin-top:8px;font-size:.78rem;color:var(--muted)}
+.acct-pick-hint.warn{color:var(--warn)}
+.tx-acct{--c:#94a3b8;display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;padding:1px 8px;border-radius:99px;font-size:.7rem;font-weight:700;color:var(--c);background:rgba(255,255,255,.08);background:color-mix(in srgb,var(--c) 14%,transparent)}
 </style>
 </head>
 <body>
@@ -4756,7 +4821,7 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
       <section class="glass balance-card hero-card section">
         <div class="hero-main">
           <div class="hero-copy">
-            <div class="balance-label"><i class="fa-solid fa-wallet"></i>موجودی کل</div>
+            <div class="balance-label"><i class="fa-solid fa-wallet" id="balanceLabelIcon"></i><span id="balanceLabelText">موجودی کل</span><button type="button" class="hero-acct-back" id="heroAcctBack" hidden>بازگشت به کل</button></div>
             <div class="balance-value" id="balanceAmount">۰ تومان</div>
           </div>
           <div class="hero-ring-wrap">
@@ -4773,6 +4838,7 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
             </div>
           </div>
         </div>
+        <div class="hero-accounts" id="heroAccounts" aria-label="حساب‌ها و کارت‌ها"></div>
         <div class="hero-stats">
           <div class="hero-stat income">
             <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-arrow-trend-up"></i></span><span class="hs-label">درآمد</span></div>
@@ -5226,6 +5292,25 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
       </div>
 
       <div class="budget-page-grid">
+        <section class="glass management-card" id="accountsSection">
+          <div class="section-head">
+            <div>
+              <h3>حساب‌ها و کارت‌ها</h3>
+              <span>موجودی کل = مجموع حساب‌ها + موجودی بدون حساب</span>
+            </div>
+            <div class="section-actions">
+              <button class="section-add-btn ghost" type="button" id="openTransferBtn" aria-label="انتقال بین حساب‌ها">
+                <i class="fa-solid fa-right-left"></i><span>انتقال</span>
+              </button>
+              <button class="section-add-btn" type="button" id="openAddAccountBtn" aria-label="افزودن حساب جدید">
+                <i class="fa-solid fa-plus"></i><span>حساب جدید</span>
+              </button>
+            </div>
+          </div>
+          <div id="accountsContainer"></div>
+          <div class="acct-transfers" id="accountTransfersBox" hidden></div>
+        </section>
+
         <section class="glass management-card">
           <div class="section-head">
             <div>
@@ -5316,6 +5401,59 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
           </div>
         </div>
         <button class="save-cat-btn full-width-action" type="button" id="addCategoryBtn" style="margin-top:4px">افزودن دسته</button>
+      </div>
+    </div>
+
+    <!-- ══ ACCOUNT MODAL ══ -->
+    <div class="modal-overlay" id="accountModal" aria-hidden="true">
+      <div class="glass transaction-modal" style="border-radius:32px 32px 0 0;padding:10px 20px 28px;max-width:520px;width:100%">
+        <div class="modal-drag-handle"></div>
+        <div class="modal-head">
+          <div>
+            <div class="modal-title" id="accountModalTitle">حساب / کارت جدید</div>
+            <div class="modal-subtitle" id="accountModalSubtitle">مثلاً یک حساب برای هر بانک</div>
+          </div>
+          <button class="close-btn" type="button" id="closeAccountModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="field">
+          <label for="accountName">نام کارت / بانک</label>
+          <input class="input" type="text" id="accountName" placeholder="مثلاً ملی، سامان، تجارت..." maxlength="24" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="accountLast4">۴ رقم آخر کارت (اختیاری)</label>
+          <input class="input" type="text" id="accountLast4" inputmode="numeric" maxlength="4" placeholder="۱۲۳۴" autocomplete="off">
+        </div>
+        <div class="field"><label>آیکون</label><div class="acct-icons" id="accountIcons"></div></div>
+        <div class="field"><label>رنگ</label><div class="acct-swatches" id="accountColors"></div></div>
+        <div id="accountOpeningBlock">
+          <div class="field">
+            <label for="accountOpening">موجودی این کارت (تومان)</label>
+            <input class="input" type="number" id="accountOpening" placeholder="۰" inputmode="numeric">
+          </div>
+          <div class="acct-mode" role="radiogroup" aria-label="منشأ موجودی">
+            <button type="button" class="acct-mode-btn active" data-acct-mode="allocate"><b>از موجودی فعلی‌ام است</b><span id="acctModeAllocHint"></span></button>
+            <button type="button" class="acct-mode-btn" data-acct-mode="new"><b>پول جدید است</b><span>به موجودی کل اضافه می‌شود و یک تراکنش درآمد با توضیح «موجودی کارت …» ثبت می‌شود.</span></button>
+          </div>
+        </div>
+        <button class="save-cat-btn full-width-action" type="button" id="saveAccountBtn" style="margin-top:4px">افزودن حساب</button>
+      </div>
+    </div>
+
+    <!-- ══ TRANSFER MODAL ══ -->
+    <div class="modal-overlay" id="transferModal" aria-hidden="true">
+      <div class="glass transaction-modal" style="border-radius:32px 32px 0 0;padding:10px 20px 28px;max-width:520px;width:100%">
+        <div class="modal-drag-handle"></div>
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">انتقال بین حساب‌ها</div>
+            <div class="modal-subtitle">موجودی کل تغییری نمی‌کند</div>
+          </div>
+          <button class="close-btn" type="button" id="closeTransferModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="field"><label for="transferFrom">از</label><select class="select" id="transferFrom"></select></div>
+        <div class="field"><label for="transferTo">به</label><select class="select" id="transferTo"></select></div>
+        <div class="field"><label for="transferAmount">مبلغ (تومان)</label><input class="input" type="number" id="transferAmount" placeholder="۰" inputmode="numeric"></div>
+        <button class="save-cat-btn full-width-action" type="button" id="saveTransferBtn" style="margin-top:4px">ثبت انتقال</button>
       </div>
     </div>
 
@@ -5629,6 +5767,12 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
 
       
 
+      <div class="field tx-account-field" id="txAccountField" hidden>
+        <label id="txAccountLabel">از کدام حساب کم شود؟</label>
+        <div class="acct-pick" id="txAccountChips"></div>
+        <div class="acct-pick-hint" id="txAccountHint"></div>
+      </div>
+
       <div class="field tx-date-field">
         <label>تاریخ تراکنش</label>
         <div class="jd-field" id="transactionDateField" data-jd-input="transactionDate" data-jd-range="month-to-today" data-jd-today-tag="1" data-jd-title="تاریخ تراکنش">
@@ -5669,7 +5813,10 @@ body.light-mode .goal-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23
         profile: 'finora_profile',
         monthlyArchive: 'finora_monthly_archive',
         lastSeenMonth: 'finora_last_seen_month',
-        excludeLoans: 'finora_exclude_loans'
+        excludeLoans: 'finora_exclude_loans',
+        accounts: 'finora_accounts',
+        accountTransfers: 'finora_account_transfers',
+        lastAccount: 'finora_last_account'
       };
 
       // ─── helpers for Jalali month key e.g. "1403_06" ───
@@ -5973,6 +6120,11 @@ const presetAvatars = [
         categories: [],
         goals: [],
         loans: [],
+        accounts: [],
+        accountTransfers: [],
+        heroAccountId: null,        // account chip selected in the hero (null = total balance)
+        transactionAccount: '',     // account picked in the add-transaction modal ('' = none)
+        lastAccountId: (() => { try { return localStorage.getItem(STORAGE_KEYS.lastAccount) || ''; } catch (e) { return ''; } })(),
         profile: {
           name: 'کاربر',
           avatar: defaultProfileAvatar,
@@ -6680,14 +6832,17 @@ function parseMoneyInput(value) {
           const amount = parseMoneyInput(raw.amount);
           if (!Number.isFinite(amount) || amount <= 0) continue;
           const category = categoryByKey(raw.category) ? raw.category : (type === 'income' ? fallbackIncome : fallbackExpense);
-          result.push({
+          const tx = {
             id: String(raw.id || uid()),
             amount,
             note: String(raw.note || '').trim(),
             category,
             type,
             createdAt: Number.isFinite(Number(raw.createdAt)) ? Number(raw.createdAt) : Date.now()
-          });
+          };
+          if (raw.accountId) tx.accountId = String(raw.accountId);
+          if (raw.loanId) tx.loanId = String(raw.loanId);   // was dropped on every reload before
+          result.push(tx);
         }
         return result;
       }
@@ -6738,6 +6893,8 @@ function parseMoneyInput(value) {
         state.transactions = migrateTransactions(transactions);
         let goals = safeJSON(localStorage.getItem(STORAGE_KEYS.goals));
         state.goals = migrateGoals(goals);
+        state.accounts = migrateAccounts(safeJSON(localStorage.getItem(STORAGE_KEYS.accounts)));
+        state.accountTransfers = migrateAccountTransfers(safeJSON(localStorage.getItem(STORAGE_KEYS.accountTransfers)));
         const savedLoans = safeJSON(localStorage.getItem(STORAGE_KEYS.loans));
         if (Array.isArray(savedLoans)) state.loans = savedLoans;
         let profile = safeJSON(localStorage.getItem(STORAGE_KEYS.profile));
@@ -6921,6 +7078,7 @@ function parseMoneyInput(value) {
             renderBudgets();
             renderCategoryManager();
             renderGoals();
+            renderAccounts();
             break;
           case 'ai':
             renderAI();
@@ -6936,7 +7094,8 @@ function parseMoneyInput(value) {
 
       function openModal() {
         // new transaction → date always starts on today (edit mode pre-fills the tx's own date before calling us)
-        if (!state.editingTransactionId) jdSetFieldValue('transactionDate', jdTodayIso()); else jdRefreshAll();
+        if (!state.editingTransactionId) { jdSetFieldValue('transactionDate', jdTodayIso()); state.transactionAccount = defaultTxAccount(); } else jdRefreshAll();
+        renderTxAccountField();
         els.transactionModal.classList.add('active');
         els.transactionModal.setAttribute('aria-hidden', 'false');
         renderTransactionCategories();
@@ -6960,6 +7119,7 @@ function parseMoneyInput(value) {
         }
         syncTypeButtons();
         renderTransactionCategories();
+        renderTxAccountField();
       }
 
       function categoriesForCurrentType() {
@@ -7085,7 +7245,7 @@ function parseMoneyInput(value) {
                 <div class="transaction-body">
                   <div class="transaction-title">${title}</div>
                   <div class="transaction-note">${escapeHtml(t.note || 'بدون توضیح')}</div>
-                  <div class="transaction-date"><i class="fa-regular fa-clock"></i> ${formatTransactionDate(t.createdAt)}</div>
+                  <div class="transaction-date"><i class="fa-regular fa-clock"></i> ${formatTransactionDate(t.createdAt)}${(() => { const a = accountById(t.accountId); return a ? `<span class="tx-acct" style="--c:${a.color}">${a.icon} ${escapeHtml(a.name)}</span>` : ''; })()}</div>
                 </div>
               </div>
               <div class="transaction-right">
@@ -7429,6 +7589,7 @@ function parseMoneyInput(value) {
         els.incomeAmount.innerHTML = '<span>' + formatMoney(income).replace(' تومان','') + '</span><small>تومان</small>';
         els.expenseAmount.innerHTML = '<span>' + formatMoney(expense).replace(' تومان','') + '</span><small>تومان</small>';
         els.balanceAmount.innerHTML = '<span>' + formatMoney(balance).replace(' تومان','') + '</span><small>تومان</small>';
+        renderHeroAccounts();   // overrides label + value when an account chip is selected
 
         const net = getNetFlow();
         const netText = net >= 0 ? `خالص: +${formatMoney(net)}` : `خالص: -${formatMoney(Math.abs(net))}`;
@@ -10214,6 +10375,7 @@ function renderCalendarView() {
         renderBudgets();
         renderCategoryManager();
         renderGoals();
+        renderAccounts();
         renderLoans();
         renderHomeExpenseBreakdown();
         renderHomeInsights();
@@ -10415,6 +10577,347 @@ function renderCalendarView() {
         if (t) setExcludeLoans(t.checked);
       });
 
+      // ══════════════════════════════════════════════════════════════
+      // ACCOUNTS (cards / bank accounts)
+      //  • total balance stays what it was: initial balance + all transactions
+      //  • an account balance = its opening allocation + its own transactions
+      //    (income +, expense −, all months, archive included) ± transfers
+      //  • "free" balance (بدون حساب) = total − sum of accounts, so total is always
+      //    sum(accounts) + free and nothing is ever counted twice
+      // ══════════════════════════════════════════════════════════════
+      const ACCOUNT_ICONS = ['🏦', '💳', '💰', '👛', '🪙', '🏧', '💵', '🏠'];
+      const ACCOUNT_COLORS = ['#6a5cff', '#00d2ff', '#18e6a6', '#ffb84d', '#ff5d7d', '#ff7ac6', '#a78bfa', '#94a3b8'];
+      const FREE_ACCOUNT_COLOR = '#94a3b8';
+
+      function migrateAccounts(list) {
+        if (!Array.isArray(list)) return [];
+        const seen = new Set();
+        return list.map(raw => {
+          if (!raw || typeof raw !== 'object') return null;
+          const name = String(raw.name || '').trim();
+          if (!name) return null;
+          let id = String(raw.id || ''); if (!id || seen.has(id)) id = uid(); seen.add(id);
+          return {
+            id, name,
+            icon: String(raw.icon || '').trim() || ACCOUNT_ICONS[0],
+            color: /^#[0-9a-fA-F]{6}$/.test(raw.color || '') ? raw.color : ACCOUNT_COLORS[0],
+            last4: String(raw.last4 || '').replace(/\D/g, '').slice(0, 4),
+            opening: Math.max(0, Number(raw.opening) || 0),
+            createdAt: Number(raw.createdAt) || 0
+          };
+        }).filter(Boolean);
+      }
+      function migrateAccountTransfers(list) {
+        if (!Array.isArray(list)) return [];
+        return list.map(raw => {
+          if (!raw || typeof raw !== 'object') return null;
+          const amount = Number(raw.amount) || 0, from = String(raw.from || ''), to = String(raw.to || '');
+          if (amount <= 0 || from === to) return null;
+          return { id: String(raw.id || uid()), from, to, amount, createdAt: Number(raw.createdAt) || 0 };
+        }).filter(Boolean);
+      }
+      function persistAccounts() { safeStorageSet(STORAGE_KEYS.accounts, JSON.stringify(state.accounts)); }
+      function persistAccountTransfers() { safeStorageSet(STORAGE_KEYS.accountTransfers, JSON.stringify(state.accountTransfers)); }
+      function accountById(id) { return id ? (state.accounts.find(a => a.id === id) || null) : null; }
+      function accountBalanceLabel(a) { return /^(کارت|حساب|بانک)/.test(a.name) ? `موجودی ${a.name}` : `موجودی کارت ${a.name}`; }
+      function moneyNum(n) { return formatMoney(n).replace(' تومان', ''); }
+
+      // today's real total, independent of which archive month is being viewed
+      function getLiveBalance() {
+        const net = state.transactions.reduce((s, t) => s + (t.type === 'income' ? 1 : -1) * Number(t.amount || 0), 0);
+        return Number(state.initialBalance || 0) + net;
+      }
+      function getAccountBalances() {
+        const map = new Map(state.accounts.map(a => [a.id, Number(a.opening) || 0]));
+        allTransactionsCombined().forEach(t => {
+          if (!t.accountId || !map.has(t.accountId)) return;
+          map.set(t.accountId, map.get(t.accountId) + (t.type === 'income' ? 1 : -1) * Number(t.amount || 0));
+        });
+        state.accountTransfers.forEach(tr => {
+          if (tr.from && map.has(tr.from)) map.set(tr.from, map.get(tr.from) - tr.amount);
+          if (tr.to && map.has(tr.to)) map.set(tr.to, map.get(tr.to) + tr.amount);
+        });
+        let sum = 0; map.forEach(v => { sum += v; });
+        const total = getLiveBalance();
+        return { map, free: total - sum, total };
+      }
+
+      // ── hero: account chips + balance switching ──
+      function acctChipHtml(attr, id, icon, name, color, pressed) {
+        return `<button type="button" class="acct-chip" ${attr}="${id}" style="--c:${color}" aria-pressed="${pressed}"><span class="acct-ico">${icon}</span><span class="acct-name">${escapeHtml(name)}</span></button>`;
+      }
+      function renderHeroAccounts() {
+        const row = document.getElementById('heroAccounts');
+        const labelText = document.getElementById('balanceLabelText');
+        const icon = document.getElementById('balanceLabelIcon');
+        const back = document.getElementById('heroAcctBack');
+        const amountEl = document.getElementById('balanceAmount');
+        if (!row || !labelText || !icon || !amountEl) return;
+        const archived = isViewingArchive();
+        if (archived) state.heroAccountId = null;
+        const { map, free } = getAccountBalances();
+        let sel = state.heroAccountId;
+        if (sel === 'free' ? !state.accounts.length : (sel && !map.has(sel))) sel = state.heroAccountId = null;
+
+        row.hidden = archived;
+        let html = state.accounts.map(a => acctChipHtml('data-hero-acct', a.id, a.icon, a.name, a.color, sel === a.id)).join('');
+        if (state.accounts.length && (Math.round(free) !== 0 || sel === 'free')) {
+          html += acctChipHtml('data-hero-acct', 'free', '👛', 'بدون حساب', FREE_ACCOUNT_COLOR, sel === 'free');
+        }
+        html += `<button type="button" class="acct-chip acct-add" id="heroAddAccountBtn"><span class="acct-ico"><i class="fa-solid fa-plus"></i></span><span class="acct-name">${state.accounts.length ? 'کارت جدید' : 'افزودن کارت / حساب'}</span></button>`;
+        row.innerHTML = html;
+
+        if (sel) {
+          const a = sel === 'free' ? null : accountById(sel);
+          const val = sel === 'free' ? free : map.get(sel);
+          labelText.textContent = a ? accountBalanceLabel(a) : 'موجودی بدون حساب';
+          icon.className = 'balance-emoji'; icon.textContent = a ? a.icon : '👛';
+          icon.style.background = (a ? a.color : FREE_ACCOUNT_COLOR) + '33';
+          amountEl.innerHTML = '<span>' + moneyNum(val) + '</span><small>تومان</small>';
+          amountEl.classList.toggle('is-negative', val < 0);
+          if (back) back.hidden = false;
+        } else {
+          labelText.textContent = 'موجودی کل';
+          icon.className = 'fa-solid fa-wallet'; icon.textContent = ''; icon.style.background = '';
+          amountEl.innerHTML = '<span>' + moneyNum(getBalance()) + '</span><small>تومان</small>';
+          amountEl.classList.remove('is-negative');
+          if (back) back.hidden = true;
+        }
+      }
+      function clearHeroAccount() {
+        if (!state.heroAccountId) return;
+        state.heroAccountId = null; renderHeroAccounts();
+      }
+
+      // ── budget tab: manager card ──
+      function acctNameOf(id) { return id ? (accountById(id) ? accountById(id).name : 'حساب حذف‌شده') : 'بدون حساب'; }
+      function acctIconOf(id) { return id ? (accountById(id) ? accountById(id).icon : '❔') : '👛'; }
+      function renderAccounts() {
+        const box = document.getElementById('accountsContainer');
+        if (box) {
+          if (!state.accounts.length) {
+            box.innerHTML = `<div class="empty-state" style="padding:18px 12px"><i class="fa-solid fa-credit-card"></i><h4>هنوز حسابی تعریف نکردی</h4><p>برای هر کارت یا بانک یک حساب بساز تا موجودی هرکدوم رو جدا ببینی؛ موجودی کل همون مجموعشونه.</p></div>`;
+          } else {
+            const { map, free, total } = getAccountBalances();
+            const rows = state.accounts.map(a => {
+              const bal = map.get(a.id) || 0;
+              return `
+              <div class="acct-row" style="--c:${a.color}">
+                <span class="acct-ico">${a.icon}</span>
+                <div class="acct-info">
+                  <div class="acct-title">${escapeHtml(a.name)}</div>
+                  ${a.last4 ? `<div class="acct-sub">•••• ${toPersianNumber(a.last4)}</div>` : ''}
+                </div>
+                <div class="acct-bal ${bal < 0 ? 'neg' : ''}">${formatMoney(bal)}</div>
+                <div class="acct-actions">
+                  <button class="edit-btn" type="button" data-acct-edit="${a.id}" aria-label="ویرایش حساب"><i class="fa-solid fa-pen-to-square"></i></button>
+                  <button class="delete-btn" type="button" data-acct-del="${a.id}" aria-label="حذف حساب"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>`;
+            }).join('');
+            const freeRow = `
+              <div class="acct-row is-free" style="--c:${FREE_ACCOUNT_COLOR}">
+                <span class="acct-ico">👛</span>
+                <div class="acct-info"><div class="acct-title">بدون حساب</div><div class="acct-sub">به هیچ کارتی اختصاص داده نشده</div></div>
+                <div class="acct-bal ${free < 0 ? 'neg' : ''}">${formatMoney(free)}</div>
+              </div>`;
+            box.innerHTML = `<div class="acct-list">${rows}${freeRow}<div class="acct-total"><span>موجودی کل</span><b>${formatMoney(total)}</b></div></div>`;
+          }
+        }
+        renderTransfersList();
+        renderHeroAccounts();
+      }
+      function renderTransfersList() {
+        const box = document.getElementById('accountTransfersBox');
+        if (!box) return;
+        const list = [...state.accountTransfers].sort((a, b) => b.createdAt - a.createdAt).slice(0, 5);
+        box.hidden = !list.length;
+        box.innerHTML = list.length ? `<div class="acct-transfers-title">آخرین انتقال‌ها</div>` + list.map(tr => `
+          <div class="acct-transfer">
+            <div class="acct-transfer-main">${acctIconOf(tr.from)} ${escapeHtml(acctNameOf(tr.from))} <i class="fa-solid fa-arrow-left"></i> ${acctIconOf(tr.to)} ${escapeHtml(acctNameOf(tr.to))}</div>
+            <div class="acct-transfer-meta">${formatMoney(tr.amount)} · ${formatTransactionDate(tr.createdAt)}</div>
+            <button class="delete-btn" type="button" data-transfer-del="${tr.id}" aria-label="حذف انتقال"><i class="fa-solid fa-trash"></i></button>
+          </div>`).join('') : '';
+      }
+
+      // ── account modal (create / edit) ──
+      const ACCT = { editingId: null, icon: ACCOUNT_ICONS[0], color: ACCOUNT_COLORS[0], mode: 'allocate' };
+      function acctModalToggle(id, on) {
+        const m = document.getElementById(id); if (!m) return;
+        m.classList.toggle('active', on); m.setAttribute('aria-hidden', on ? 'false' : 'true');
+      }
+      function renderAccountPickers() {
+        const ic = document.getElementById('accountIcons'), co = document.getElementById('accountColors');
+        if (ic) ic.innerHTML = ACCOUNT_ICONS.map(i => `<button type="button" class="acct-icon-opt${i === ACCT.icon ? ' active' : ''}" data-acct-icon="${i}">${i}</button>`).join('');
+        if (co) co.innerHTML = ACCOUNT_COLORS.map(c => `<button type="button" class="acct-swatch${c === ACCT.color ? ' active' : ''}" data-acct-color="${c}" style="--c:${c}" aria-label="رنگ"></button>`).join('');
+      }
+      function updateAccountModeUI() {
+        document.querySelectorAll('[data-acct-mode]').forEach(b => b.classList.toggle('active', b.dataset.acctMode === ACCT.mode));
+        const hint = document.getElementById('acctModeAllocHint');
+        if (hint) {
+          const free = getAccountBalances().free;
+          hint.textContent = free > 0
+            ? `از موجودی بدون حساب (${formatMoney(free)}) برداشته می‌شود؛ موجودی کل تغییری نمی‌کند.`
+            : 'موجودی بدون حساب‌ات صفره، پس این گزینه فعلاً جا نداره.';
+        }
+      }
+      function openAccountModal(editId) {
+        const a = editId ? accountById(editId) : null;
+        ACCT.editingId = a ? a.id : null;
+        ACCT.icon = a ? a.icon : ACCOUNT_ICONS[state.accounts.length % ACCOUNT_ICONS.length];
+        ACCT.color = a ? a.color : ACCOUNT_COLORS[state.accounts.length % ACCOUNT_COLORS.length];
+        ACCT.mode = getAccountBalances().free > 0 ? 'allocate' : 'new';
+        const $ = id => document.getElementById(id);
+        $('accountName').value = a ? a.name : '';
+        $('accountLast4').value = a ? a.last4 : '';
+        $('accountOpening').value = '';
+        $('accountOpeningBlock').hidden = !!a;
+        $('accountModalTitle').textContent = a ? 'ویرایش حساب' : 'حساب / کارت جدید';
+        $('accountModalSubtitle').textContent = a ? 'نام، آیکون و رنگ رو عوض کن' : 'مثلاً یک حساب برای هر بانک';
+        $('saveAccountBtn').textContent = a ? 'ذخیره تغییرات' : 'افزودن حساب';
+        renderAccountPickers(); updateAccountModeUI();
+        acctModalToggle('accountModal', true);
+        setTimeout(() => { try { $('accountName').focus({ preventScroll: true }); } catch (e) {} }, 60);
+      }
+      function closeAccountModal() { acctModalToggle('accountModal', false); }
+      function saveAccount() {
+        const $ = id => document.getElementById(id);
+        const name = String($('accountName').value || '').trim();
+        const last4 = String($('accountLast4').value || '').replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\D/g, '').slice(0, 4);
+        if (!name) { alert('نام کارت یا بانک رو بنویس.'); return; }
+        if (state.accounts.some(a => a.id !== ACCT.editingId && a.name.toLowerCase() === name.toLowerCase())) {
+          alert('یه حساب با همین نام وجود داره.'); return;
+        }
+        if (ACCT.editingId) {
+          const a = accountById(ACCT.editingId);
+          if (a) { a.name = name; a.last4 = last4; a.icon = ACCT.icon; a.color = ACCT.color; }
+          persistAccounts(); closeAccountModal(); renderAll(); return;
+        }
+        const amount = parseMoneyInput($('accountOpening').value);
+        if (amount > 0 && ACCT.mode === 'allocate') {
+          const free = getAccountBalances().free;
+          if (amount > free) {
+            alert(`این مبلغ از موجودی بدون حساب (${formatMoney(Math.max(0, free))}) بیشتره. اگه این پول جدیده، گزینه «پول جدید است» رو بزن.`);
+            return;
+          }
+        }
+        const acc = { id: uid(), name, icon: ACCT.icon, color: ACCT.color, last4, opening: 0, createdAt: Date.now() };
+        if (amount > 0 && ACCT.mode === 'allocate') acc.opening = amount;     // just a split of the existing total
+        state.accounts.push(acc);
+        persistAccounts();
+        if (amount > 0 && ACCT.mode === 'new') {                               // brand-new money → a real income transaction
+          state.transactions.unshift({
+            id: uid(), amount, note: `موجودی کارت ${name}`,
+            category: fallbackCategoryKey('income'), type: 'income',
+            accountId: acc.id, createdAt: Date.now()
+          });
+          state.transactions.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+          persistTransactions();
+        }
+        closeAccountModal(); renderAll();
+      }
+      function deleteAccount(id) {
+        const a = accountById(id); if (!a) return;
+        const bal = getAccountBalances().map.get(id) || 0;
+        if (!window.confirm(`حساب «${a.name}» حذف بشه؟\nموجودیش (${formatMoney(bal)}) به «بدون حساب» برمی‌گرده و تراکنش‌ها سر جاشون می‌مونن.`)) return;
+        state.accounts = state.accounts.filter(x => x.id !== id);
+        if (state.heroAccountId === id) state.heroAccountId = null;
+        if (state.lastAccountId === id) { state.lastAccountId = ''; safeStorageSet(STORAGE_KEYS.lastAccount, ''); }
+        persistAccounts(); renderAll();
+      }
+
+      // ── transfer modal ──
+      function openTransferModal() {
+        if (!state.accounts.length) { alert('اول یه حساب بساز.'); return; }
+        const { map, free } = getAccountBalances();
+        const opts = [`<option value="">👛 بدون حساب — ${formatMoney(free)}</option>`]
+          .concat(state.accounts.map(a => `<option value="${a.id}">${a.icon} ${escapeHtml(a.name)} — ${formatMoney(map.get(a.id) || 0)}</option>`)).join('');
+        const from = document.getElementById('transferFrom'), to = document.getElementById('transferTo');
+        from.innerHTML = opts; to.innerHTML = opts;
+        const firstFunded = state.accounts.find(a => (map.get(a.id) || 0) > 0);
+        from.value = firstFunded ? firstFunded.id : '';
+        const other = [''].concat(state.accounts.map(a => a.id)).find(v => v !== from.value);
+        to.value = other === undefined ? '' : other;
+        document.getElementById('transferAmount').value = '';
+        acctModalToggle('transferModal', true);
+      }
+      function saveTransfer() {
+        const from = document.getElementById('transferFrom').value, to = document.getElementById('transferTo').value;
+        const amount = parseMoneyInput(document.getElementById('transferAmount').value);
+        if (from === to) { alert('مبدأ و مقصد باید فرق داشته باشن.'); return; }
+        if (!(amount > 0)) { alert('مبلغ انتقال رو وارد کن.'); return; }
+        const { map, free } = getAccountBalances();
+        const available = from ? (map.get(from) || 0) : free;
+        if (amount > available) { alert(`موجودی مبدأ (${formatMoney(Math.max(0, available))}) برای این مبلغ کافی نیست.`); return; }
+        state.accountTransfers.unshift({ id: uid(), from, to, amount, createdAt: Date.now() });
+        persistAccountTransfers();
+        acctModalToggle('transferModal', false); renderAll();
+      }
+
+      // ── transaction modal: «از کدام حساب؟» ──
+      function updateTxAccountHint() {
+        const hint = document.getElementById('txAccountHint'); if (!hint) return;
+        const { map, free } = getAccountBalances();
+        const id = state.transactionAccount;
+        const a = accountById(id);
+        const bal = a ? (map.get(id) || 0) : free;
+        let text = `${a ? accountBalanceLabel(a) : 'موجودی بدون حساب'}: ${formatMoney(bal)}`;
+        let warn = false;
+        const amt = parseMoneyInput(els.transactionAmount && els.transactionAmount.value);
+        if (state.transactionType === 'expense' && !state.editingTransactionId && amt > bal) { text += ' — این مبلغ از موجودی بیشتره'; warn = true; }
+        hint.textContent = text; hint.classList.toggle('warn', warn);
+      }
+      function renderTxAccountField() {
+        const field = document.getElementById('txAccountField'); if (!field) return;
+        field.hidden = !state.accounts.length;
+        if (!state.accounts.length) { state.transactionAccount = ''; return; }
+        if (state.transactionAccount && !accountById(state.transactionAccount)) state.transactionAccount = '';
+        document.getElementById('txAccountLabel').textContent = state.transactionType === 'income' ? 'به کدام حساب اضافه شود؟' : 'از کدام حساب کم شود؟';
+        document.getElementById('txAccountChips').innerHTML =
+          acctChipHtml('data-tx-acct', '', '👛', 'بدون حساب', FREE_ACCOUNT_COLOR, !state.transactionAccount) +
+          state.accounts.map(a => acctChipHtml('data-tx-acct', a.id, a.icon, a.name, a.color, state.transactionAccount === a.id)).join('');
+        updateTxAccountHint();
+      }
+      function defaultTxAccount() { return accountById(state.lastAccountId) ? state.lastAccountId : ''; }
+
+      // ── one delegated click handler for everything above ──
+      document.addEventListener('click', e => {
+        const t = e.target;
+        const hero = t.closest('[data-hero-acct]');
+        if (hero) { state.heroAccountId = state.heroAccountId === hero.dataset.heroAcct ? null : hero.dataset.heroAcct; renderHeroAccounts(); return; }
+        if (t.closest('#heroAcctBack')) { clearHeroAccount(); return; }
+        if (t.closest('#heroAddAccountBtn') || t.closest('#openAddAccountBtn')) { openAccountModal(); return; }
+        if (t.closest('#openTransferBtn')) { openTransferModal(); return; }
+        if (t.closest('#closeAccountModalBtn') || t.id === 'accountModal') { closeAccountModal(); return; }
+        if (t.closest('#closeTransferModalBtn') || t.id === 'transferModal') { acctModalToggle('transferModal', false); return; }
+        if (t.closest('#saveAccountBtn')) { saveAccount(); return; }
+        if (t.closest('#saveTransferBtn')) { saveTransfer(); return; }
+        const io = t.closest('[data-acct-icon]'); if (io) { ACCT.icon = io.dataset.acctIcon; renderAccountPickers(); return; }
+        const co = t.closest('[data-acct-color]'); if (co) { ACCT.color = co.dataset.acctColor; renderAccountPickers(); return; }
+        const md = t.closest('[data-acct-mode]'); if (md) { ACCT.mode = md.dataset.acctMode; updateAccountModeUI(); return; }
+        const ed = t.closest('[data-acct-edit]'); if (ed) { openAccountModal(ed.dataset.acctEdit); return; }
+        const dl = t.closest('[data-acct-del]'); if (dl) { deleteAccount(dl.dataset.acctDel); return; }
+        const td = t.closest('[data-transfer-del]');
+        if (td) {
+          state.accountTransfers = state.accountTransfers.filter(x => x.id !== td.dataset.transferDel);
+          persistAccountTransfers(); renderAll(); return;
+        }
+        const tx = t.closest('[data-tx-acct]');
+        if (tx) { state.transactionAccount = tx.dataset.txAcct; renderTxAccountField(); return; }
+        // click anywhere else → the hero goes back to the total balance
+        if (state.heroAccountId && !t.closest('#heroAccounts')) clearHeroAccount();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        const am = document.getElementById('accountModal'), tm = document.getElementById('transferModal');
+        if (am && am.classList.contains('active')) { closeAccountModal(); return; }
+        if (tm && tm.classList.contains('active')) { acctModalToggle('transferModal', false); return; }
+        clearHeroAccount();
+      });
+      document.addEventListener('input', e => {
+        if (e.target && e.target.id === 'transactionAmount') updateTxAccountHint();
+      });
+
       function addTransaction() {
         const amount = parseMoneyInput(els.transactionAmount.value);
         if (!amount || amount <= 0) {
@@ -10428,6 +10931,7 @@ function renderCalendarView() {
         // Only days of the CURRENT Shamsi month up to today are allowed: older months live in the
         // monthly archive and future days would distort today's balance / pace.
         const todayIso = jdTodayIso(), monthStartIso = jdCurrentMonthStartIso();
+        const accId = accountById(state.transactionAccount) ? state.transactionAccount : '';
         const dateEl = document.getElementById('transactionDate');
         let dateIso = jdParse(dateEl && dateEl.value) ? dateEl.value : todayIso;
         if (state.editingTransactionId) {
@@ -10449,6 +10953,7 @@ function renderCalendarView() {
               // new day + the transaction's original clock time
               createdAt: dateChanged ? jdTsFromIso(dateIso, prev.createdAt) : prev.createdAt
             };
+            if (accId) state.transactions[idx].accountId = accId; else delete state.transactions[idx].accountId;
           }
           state.editingTransactionId = null;
         } else {
@@ -10456,6 +10961,9 @@ function renderCalendarView() {
           if (dateIso < monthStartIso) {
             alert('تاریخ تراکنش باید در ماه جاری باشد.');
             return;
+          }
+          if (state.transactionType === 'expense' && accId && amount > (getAccountBalances().map.get(accId) || 0)) {
+            if (!window.confirm('موجودی این حساب از مبلغ تراکنش کمتره. با این حال ثبت بشه؟')) return;
           }
           const transaction = {
             id: uid(),
@@ -10466,8 +10974,10 @@ function renderCalendarView() {
             // today → exact "now"; a past day → that day stamped with the current clock time
             createdAt: dateIso === todayIso ? Date.now() : jdTsFromIso(dateIso)
           };
+          if (accId) transaction.accountId = accId;
           state.transactions.unshift(transaction);
         }
+        if (!state.editingTransactionId || accId) { state.lastAccountId = accId; safeStorageSet(STORAGE_KEYS.lastAccount, accId); }
         // keep the stored list newest-first by real date, so a back-dated entry lands in its right place
         state.transactions.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
         persistTransactions();
@@ -10480,6 +10990,7 @@ function renderCalendarView() {
         els.transactionAmount.value = '';
         els.transactionNote.value = '';
         jdSetFieldValue('transactionDate', jdTodayIso());
+        state.transactionAccount = defaultTxAccount();
         state.transactionType = 'expense';
         state.transactionCategory = fallbackCategoryKey('expense');
         state.editingTransactionId = null;
@@ -10663,6 +11174,7 @@ function renderCalendarView() {
         els.transactionAmount.value = t.amount;
         els.transactionNote.value = t.note || '';
         jdSetFieldValue('transactionDate', jdIsoFromTs(t.createdAt));
+        state.transactionAccount = accountById(t.accountId) ? t.accountId : '';
         // Set category
         state.transactionCategory = t.category;
         renderTransactionCategories();
@@ -10710,6 +11222,11 @@ function renderCalendarView() {
         state.transactions = [];
         state.categories = defaultCategories.map(normalizeCategoryObject);
         state.goals = [];
+        state.accounts = [];
+        state.accountTransfers = [];
+        state.heroAccountId = null;
+        state.lastAccountId = '';
+        state.transactionAccount = '';
         state.profile = normalizeProfile(null);
         state.currentPage = 'home';
         state.transactionType = 'expense';
@@ -10724,6 +11241,8 @@ function renderCalendarView() {
         persistCategories();
         persistTransactions();
         persistGoals();
+        persistAccounts();
+        persistAccountTransfers();
         persistInitialBalance();
         persistProfile();
         persistTheme();
@@ -11184,6 +11703,7 @@ function renderCalendarView() {
         const payload = {
           version:2, exportedAt:Date.now(),
           profile:state.profile, categories:state.categories, goals:state.goals,
+          accounts:state.accounts, accountTransfers:state.accountTransfers,
           initialBalance:state.initialBalance, transactions:state.transactions,
           monthlyArchive:loadMonthlyArchive()
         };
@@ -11206,10 +11726,12 @@ function renderCalendarView() {
             if (Array.isArray(raw.categories)) state.categories = raw.categories.map(normalizeCategoryObject).filter(Boolean);
             if (Array.isArray(raw.transactions)) state.transactions = migrateTransactions(raw.transactions);
             if (Array.isArray(raw.goals)) state.goals = migrateGoals(raw.goals);
+            if (Array.isArray(raw.accounts)) state.accounts = migrateAccounts(raw.accounts);
+            if (Array.isArray(raw.accountTransfers)) state.accountTransfers = migrateAccountTransfers(raw.accountTransfers);
             if (raw.initialBalance !== undefined) state.initialBalance = parseMoneyInput(raw.initialBalance);
             if (raw.profile && typeof raw.profile === 'object') state.profile = normalizeProfile(raw.profile);
             if (raw.monthlyArchive && typeof raw.monthlyArchive === 'object') saveMonthlyArchive(raw.monthlyArchive);
-            persistTransactions(); persistCategories(); persistGoals(); persistInitialBalance(); persistProfile();
+            persistTransactions(); persistCategories(); persistGoals(); persistAccounts(); persistAccountTransfers(); persistInitialBalance(); persistProfile();
             state.viewingMonthKey = null; renderAll(); renderArchivePicker();
             alert('پشتیبان با موفقیت بازیابی شد.');
           } catch(err) { alert('خطا: '+err.message); }
@@ -11394,6 +11916,8 @@ function renderCalendarView() {
       'finora_transactions',
       'finora_categories',
       'finora_goals',
+      'finora_accounts',
+      'finora_account_transfers',
       'finora_loans',
       'finora_initial_balance',
       'finora_theme',
