@@ -9,19 +9,27 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Finora">
   <meta name="theme-color" content="#070b17">
-  <!-- The app owns its theme (in-app toggle only). Declaring the color scheme explicitly stops the
-       browser / OS "auto dark" (force-dark) from darkening the page a second time. -->
-  <meta name="color-scheme" content="dark">
+  <!-- Theme = follow the phone by default; an explicit in-app choice that differs from the phone
+       overrides it. Declaring the color scheme tells the browser / PWA shell this page handles dark
+       mode itself, so it must not darken it a second time (Chrome "auto dark", Samsung Internet...). -->
+  <meta name="color-scheme" content="light dark">
   <meta name="darkreader-lock">
   <script>
-    // apply the saved in-app theme before first paint (no dependency on the phone's theme)
+    // resolve the theme before first paint: saved mode (system | light | dark) + the phone's current scheme
     (function () {
       try {
-        if (localStorage.getItem('finora_theme') === 'light') {
-          document.documentElement.classList.add('theme-light');
-          document.querySelector('meta[name="color-scheme"]').setAttribute('content', 'only light');
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#eef2ff');
+        var mode = localStorage.getItem('finora_theme_mode');
+        if (mode !== 'light' && mode !== 'dark' && mode !== 'system') {
+          mode = localStorage.getItem('finora_theme') === 'light' ? 'light' : 'system';   // migration
         }
+        var sysDark = !window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var light = mode === 'light' || (mode === 'system' && !sysDark);
+        var scheme = mode === 'system' ? 'light dark' : (light ? 'only light' : 'dark');
+        var de = document.documentElement;
+        if (light) de.classList.add('theme-light');
+        de.style.colorScheme = scheme;
+        document.querySelector('meta[name="color-scheme"]').setAttribute('content', scheme);
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', light ? '#eef2ff' : '#070b17');
       } catch (e) {}
     })();
   </script>
@@ -36,7 +44,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     html{color-scheme:dark}
-    html.theme-light{color-scheme:only light}
     :root{
       --bg0:#070b17;
       --bg1:#0b1022;
@@ -5825,6 +5832,7 @@ body.light-mode .acct-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(-
         loans: 'finora_loans',
         initialBalance: 'finora_initial_balance',
         theme: 'finora_theme',
+        themeMode: 'finora_theme_mode',
         profile: 'finora_profile',
         monthlyArchive: 'finora_monthly_archive',
         lastSeenMonth: 'finora_last_seen_month',
@@ -6130,6 +6138,7 @@ const presetAvatars = [
       const state = {
         currentPage: 'home',
         theme: 'dark',
+        themeMode: 'system',   // 'system' = follow the phone · 'light' / 'dark' = explicit in-app override
         initialBalance: 0,
         transactions: [],
         categories: [],
@@ -6884,8 +6893,9 @@ function parseMoneyInput(value) {
       }
 
       function loadState() {
-        const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
-        state.theme = savedTheme === 'light' ? 'light' : 'dark';
+        state.themeMode = loadThemeMode();
+        state.theme = resolveTheme();
+        if (!localStorage.getItem(STORAGE_KEYS.themeMode)) persistThemeMode();   // freeze the migration result
         state.initialBalance = parseMoneyInput(localStorage.getItem(STORAGE_KEYS.initialBalance) || 0);
 
         const savedCategories = safeJSON(localStorage.getItem(STORAGE_KEYS.categories));
@@ -6975,7 +6985,9 @@ function parseMoneyInput(value) {
       }
 
       function persistTheme() {
-        safeStorageSet(STORAGE_KEYS.theme, state.theme);
+        // legacy key (cloud-synced): only an explicit light choice is stored as 'light', so the phone's own
+        // theme on one device can never leak into another device as if it were a user choice
+        safeStorageSet(STORAGE_KEYS.theme, state.themeMode === 'light' ? 'light' : 'dark');
       }
 
       function persistProfile() {
@@ -11227,7 +11239,9 @@ function renderCalendarView() {
         // user out unexpectedly right after a simple data reset.
         removeAllAppStorage();
 
-        state.theme = 'dark';
+        state.themeMode = 'system';
+        state.theme = resolveTheme();
+        persistThemeMode();
         state.excludeLoans = false;
         state.initialBalance = 0;
         state.transactions = [];
@@ -11276,11 +11290,28 @@ function renderCalendarView() {
         hardResetData();
       }
 
+      function systemPrefersDark() {
+        try { return !window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { return true; }
+      }
+      function loadThemeMode() {
+        const m = localStorage.getItem(STORAGE_KEYS.themeMode);
+        if (m === 'light' || m === 'dark' || m === 'system') return m;
+        // migration: the old key always held a value (default dark), so only an explicit "light" is a real choice
+        return localStorage.getItem(STORAGE_KEYS.theme) === 'light' ? 'light' : 'system';
+      }
+      function resolveTheme() {
+        if (state.themeMode === 'light' || state.themeMode === 'dark') return state.themeMode;
+        return systemPrefersDark() ? 'dark' : 'light';
+      }
+      function persistThemeMode() { safeStorageSet(STORAGE_KEYS.themeMode, state.themeMode); }
       function applyThemeMeta(light) {
-        document.documentElement.classList.toggle('theme-light', light);
+        const scheme = state.themeMode === 'system' ? 'light dark' : (light ? 'only light' : 'dark');
+        const de = document.documentElement;
+        de.classList.toggle('theme-light', light);
+        de.style.colorScheme = scheme;
         const cs = document.querySelector('meta[name="color-scheme"]');
         const tc = document.querySelector('meta[name="theme-color"]');
-        if (cs) cs.setAttribute('content', light ? 'only light' : 'dark');
+        if (cs) cs.setAttribute('content', scheme);
         if (tc) tc.setAttribute('content', light ? '#eef2ff' : '#070b17');
       }
 
@@ -11299,10 +11330,23 @@ function renderCalendarView() {
         const light = !document.body.classList.contains('light-mode');
         document.body.classList.toggle('light-mode', light);
         state.theme = light ? 'light' : 'dark';
+        // picking the theme the phone already uses = "follow the phone" again;
+        // picking the opposite one is an explicit override that sticks
+        state.themeMode = state.theme === (systemPrefersDark() ? 'dark' : 'light') ? 'system' : state.theme;
+        persistThemeMode();
         persistTheme();
         setupTheme();
         
       }
+
+      try {
+        const _schemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+        const _onScheme = () => {
+          if (state.themeMode !== 'system') return;
+          state.theme = resolveTheme(); persistTheme(); setupTheme();
+        };
+        if (_schemeMq.addEventListener) _schemeMq.addEventListener('change', _onScheme); else if (_schemeMq.addListener) _schemeMq.addListener(_onScheme);
+      } catch (e) {}
 
       function setupEventHandlers() {
         els.navItems.forEach(btn => {
