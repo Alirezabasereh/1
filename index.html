@@ -9,6 +9,22 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Finora">
   <meta name="theme-color" content="#070b17">
+  <!-- The app owns its theme (in-app toggle only). Declaring the color scheme explicitly stops the
+       browser / OS "auto dark" (force-dark) from darkening the page a second time. -->
+  <meta name="color-scheme" content="dark">
+  <meta name="darkreader-lock">
+  <script>
+    // apply the saved in-app theme before first paint (no dependency on the phone's theme)
+    (function () {
+      try {
+        if (localStorage.getItem('finora_theme') === 'light') {
+          document.documentElement.classList.add('theme-light');
+          document.querySelector('meta[name="color-scheme"]').setAttribute('content', 'only light');
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#eef2ff');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -19,6 +35,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    html{color-scheme:dark}
+    html.theme-light{color-scheme:only light}
     :root{
       --bg0:#070b17;
       --bg1:#0b1022;
@@ -4464,7 +4482,7 @@
 #homePage .hero-card{container:hx / inline-size;padding:20px;min-height:0;display:grid;gap:18px;
   background:radial-gradient(120% 140% at 100% 0%,rgba(106,92,255,.28),transparent 55%),radial-gradient(90% 100% at 0% 100%,rgba(0,210,255,.14),transparent 60%),var(--card)}
 #homePage .hero-card::after{inset:auto auto -70px -50px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,60,172,.20),transparent 68%)}
-#homePage.active-page > .hero-card{grid-column:1 / -1;}
+#homePage.active-page > .hero-card{grid-column:1 / -1;margin-bottom:0}
 .hero-main{--ring:clamp(92px,27cqw,190px);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:clamp(10px,3cqw,28px);position:relative;z-index:1;min-width:0}
 .hero-copy{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(8px,1.6cqw,14px);min-width:0;flex:1 1 0}
 .hero-card .balance-label{display:flex;align-items:center;gap:8px;margin:0;font-size:.95rem;font-weight:600}
@@ -11258,7 +11276,16 @@ function renderCalendarView() {
         hardResetData();
       }
 
+      function applyThemeMeta(light) {
+        document.documentElement.classList.toggle('theme-light', light);
+        const cs = document.querySelector('meta[name="color-scheme"]');
+        const tc = document.querySelector('meta[name="theme-color"]');
+        if (cs) cs.setAttribute('content', light ? 'only light' : 'dark');
+        if (tc) tc.setAttribute('content', light ? '#eef2ff' : '#070b17');
+      }
+
       function setupTheme() {
+        applyThemeMeta(state.theme === 'light');
         document.body.classList.toggle('light-mode', state.theme === 'light');
         if (els.themeToggle) els.themeToggle.checked = state.theme === 'light';
         if (els.profileThemeToggle) {
