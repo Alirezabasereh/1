@@ -3352,6 +3352,16 @@
       margin-bottom:16px;
     }
     .loan-title-row{ display:flex; flex-direction:column; gap:6px; }
+    .loan-pay-next-btn.is-paid-month{
+      background:rgba(24,230,166,.12) !important; color:var(--good);
+      box-shadow:inset 0 0 0 1px rgba(24,230,166,.32);
+    }
+    .loan-pay-next-btn.is-paid-month:hover{
+      background:rgba(24,230,166,.20) !important; transform:none;
+      box-shadow:inset 0 0 0 1px rgba(24,230,166,.55), 0 8px 20px rgba(24,230,166,.22);
+    }
+    .loan-pay-next-btn.is-paid-month:active{ transform:scale(.97); }
+    .loan-edit-hint{ margin-top:6px; font-size:.72rem; color:var(--muted); line-height:1.6; }
     .loan-title{ font-size:1.05rem; font-weight:900; line-height:1.2; }
     .loan-status-badge{
       display:inline-flex; align-items:center; gap:5px;
@@ -4381,7 +4391,7 @@
 #homePage .hero-card{container:hx / inline-size;padding:20px;min-height:0;display:grid;gap:18px;
   background:radial-gradient(120% 140% at 100% 0%,rgba(106,92,255,.28),transparent 55%),radial-gradient(90% 100% at 0% 100%,rgba(0,210,255,.14),transparent 60%),var(--card)}
 #homePage .hero-card::after{inset:auto auto -70px -50px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,60,172,.20),transparent 68%)}
-#homePage.active-page > .hero-card{grid-column:1 / -1;}
+#homePage.active-page > .hero-card{grid-column:1 / -1;margin-bottom:0}
 .hero-main{--ring:clamp(92px,27cqw,190px);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:clamp(10px,3cqw,28px);position:relative;z-index:1;min-width:0}
 .hero-copy{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(8px,1.6cqw,14px);min-width:0;flex:1 1 0}
 .hero-card .balance-label{display:flex;align-items:center;gap:8px;margin:0;font-size:.95rem;font-weight:600}
@@ -4829,6 +4839,8 @@ body.light-mode [style*="color:#00d2ff"]{color:var(--accent2) !important}
 
 body.light-mode .acct-switch-row{background:var(--l-surface);border-color:var(--l-line)}
 body.light-mode .acct-tag{background:rgba(10,136,173,.10)}
+body.light-mode .loan-pay-next-btn.is-paid-month{background:rgba(14,159,110,.10) !important;box-shadow:inset 0 0 0 1px rgba(14,159,110,.32)}
+body.light-mode .loan-pay-next-btn.is-paid-month:hover{background:rgba(14,159,110,.18) !important;box-shadow:inset 0 0 0 1px rgba(14,159,110,.5), 0 8px 20px rgba(14,159,110,.20)}
 body.light-mode .loan-due-badge{background:rgba(10,136,173,.10);border-color:rgba(10,136,173,.26)}
 
 /* ── tracks / meters ── */
@@ -9181,6 +9193,9 @@ function parseMoneyInput(value) {
         // archived months
         Object.entries(archive).forEach(([key, entry]) => {
           const [jy, jm] = key.split('_').map(Number);
+          // the running month is also kept in the archive as a live snapshot — it is already listed above
+          // (with «جاری»), and becomes a normal row (without the label) once the month is over
+          if (jy === cy && jm === cm) return;
           const expense = (entry.transactions||[]).filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount||0),0);
           rows.push({ label: jalaliMonthNames[jm-1]+' '+toPersianNumber(jy), expense, isCurrent: false });
         });
@@ -10250,6 +10265,7 @@ function renderCalendarView() {
             : 0;
           const isDone     = pct >= 100;
 
+          const monthPays = isDone ? 0 : loanMonthPayments(loan);
           const card = document.createElement('article');
           card.className = `loan-card ${isDone ? 'loan-done' : ''}`;
           card.dataset.loanId = loan.id;
@@ -10322,18 +10338,19 @@ function renderCalendarView() {
               <div class="loan-action-row">
                 <div class="loan-installment-counter">
                   <button class="loan-count-btn" type="button"
-                    data-loan-dec="${loan.id}" ${loan.paidInstallments <= 0 ? 'disabled' : ''}>−</button>
+                    data-loan-dec="${loan.id}" aria-label="کم کردن یک قسط از شمارنده" title="اصلاح دستی تعداد" ${loan.paidInstallments <= 0 ? 'disabled' : ''}>−</button>
                   <span class="loan-count-display">
                     ${toPersianNumber(loan.paidInstallments)} / ${toPersianNumber(loan.totalInstallments)}
                   </span>
                   <button class="loan-count-btn" type="button"
-                    data-loan-inc="${loan.id}" ${loan.paidInstallments >= loan.totalInstallments ? 'disabled' : ''}>+</button>
+                    data-loan-inc="${loan.id}" aria-label="اضافه کردن یک قسط به شمارنده" title="اصلاح دستی تعداد" ${loan.paidInstallments >= loan.totalInstallments ? 'disabled' : ''}>+</button>
                 </div>
                 <div></div>
-                <button class="loan-pay-next-btn" type="button"
+                <button class="loan-pay-next-btn${monthPays > 0 ? ' is-paid-month' : ''}" type="button"
                   data-loan-pay="${loan.id}"
+                  ${monthPays > 0 ? 'title="برای ثبت قسط دیگری دوباره بزن"' : ''}
                   style="background:${accent.fill}">
-                  <i class="fa-solid fa-check" style="margin-left:5px"></i>ثبت پرداخت بعدی
+                  <i class="fa-solid fa-check" style="margin-left:5px"></i>${monthPays > 0 ? 'این ماه ثبت شد' : 'ثبت پرداخت بعدی'}
                 </button>
               </div>
             `}
@@ -10408,16 +10425,29 @@ function renderCalendarView() {
         persistTransactions();
       }
 
+      // How many installment payments of this loan are already in this Jalali month's transactions.
+      // Read live from the ledger (no flag to keep in sync) — also matches payments recorded before
+      // loanId existed via their note.
+      function loanMonthPayments(loan) {
+        const key = getJalaliMonthKey(new Date());
+        return state.transactions.filter(t => {
+          if (!t || t.type !== 'expense' || getJalaliMonthKey(t.createdAt) !== key) return false;
+          if (t.loanId) return t.loanId === loan.id;
+          const m = typeof t.note === 'string' && t.note.match(/^قسط وام: (.+)$/);
+          return !!m && m[1] === loan.title;
+        }).length;
+      }
+
+      // Model: the counter (paidInstallments) and the ledger are separate on purpose.
+      //  • «ثبت پرداخت بعدی»  → counter +1 AND a real transaction (charged to the loan's default account)
+      //  • +  /  −            → manual correction of the counter only; never creates or deletes a transaction
+      //  • deleting a loan transaction from the list → counter −1 (see deleteTransaction)
       function loanAction(type, loanId) {
         const loan = state.loans.find(l => l.id === loanId);
         if (!loan) return;
         let transactionAdded = false;
         if (type === 'inc') {
-          if (loan.paidInstallments < loan.totalInstallments) {
-            loan.paidInstallments++;
-            recordLoanInstallmentTransaction(loan);
-            transactionAdded = true;
-          }
+          if (loan.paidInstallments < loan.totalInstallments) loan.paidInstallments++;   // counter only
         } else if (type === 'dec') {
           if (loan.paidInstallments > 0) {
             loan.paidInstallments--;
@@ -10430,6 +10460,9 @@ function renderCalendarView() {
           // separate flag to keep in sync.
         } else if (type === 'pay') {
           if (loan.paidInstallments < loan.totalInstallments) {
+            // this month's installment is already recorded → a second one needs an explicit OK
+            if (loanMonthPayments(loan) > 0 &&
+                !window.confirm('قسط این ماه قبلاً ثبت شده. قسط دیگری هم برای این ماه ثبت شود؟')) return;
             loan.paidInstallments++;
             recordLoanInstallmentTransaction(loan);
             transactionAdded = true;
@@ -11570,8 +11603,15 @@ function renderCalendarView() {
       }
 
       function deleteTransaction(id) {
+        const removed = state.transactions.find(t => t.id === id);
         state.transactions = state.transactions.filter(t => t.id !== id);
         persistTransactions();
+        // deleting a loan installment payment un-pays that installment, so counter and ledger stay in step
+        // (this also re-enables «ثبت پرداخت بعدی» once no payment is left for the month)
+        if (removed && removed.loanId) {
+          const loan = state.loans.find(l => l.id === removed.loanId);
+          if (loan && Number(loan.paidInstallments) > 0) { loan.paidInstallments = Number(loan.paidInstallments) - 1; persistLoans(); }
+        }
         renderAll();
       }
 
@@ -12775,6 +12815,7 @@ function renderCalendarView() {
         <div class="field">
           <label>قسط‌های پرداخت‌شده</label>
           <input class="input" type="number" id="editLoanPaid" min="0">
+          <div class="loan-edit-hint">فقط تعداد را اصلاح می‌کند؛ تراکنشی ثبت یا حذف نمی‌شود.</div>
         </div>
         <div class="field">
           <label>موعد پرداخت (روز ماه)</label>
