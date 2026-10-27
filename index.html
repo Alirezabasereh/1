@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finora</title>
   <meta name="application-name" content="Finora">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -68,11 +68,7 @@
     html{scroll-behavior:smooth}
     body{
       font-family:'Vazirmatn',sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(106,92,255,.18), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(0,210,255,.12), transparent 22%),
-        radial-gradient(circle at 50% 40%, rgba(255,60,172,.08), transparent 20%),
-        linear-gradient(180deg,var(--bg0),var(--bg1) 35%, #04060c 100%);
+      background-color: rgb(16, 16, 39);
       color:var(--text);
       min-height:100vh;
       overflow-x:hidden;
@@ -781,7 +777,7 @@
       overflow-y:auto;
       scrollbar-width:none;
       -ms-overflow-style:none;
-      background-color: rgb(28, 26, 42);
+      background-color: rgb(16, 16, 39);
       display:flex;
       flex-direction:column;
     }
@@ -3361,7 +3357,6 @@
       box-shadow:inset 0 0 0 1px rgba(24,230,166,.55), 0 8px 20px rgba(24,230,166,.22);
     }
     .loan-pay-next-btn.is-paid-month:active{ transform:scale(.97); }
-    .loan-edit-hint{ margin-top:6px; font-size:.72rem; color:var(--muted); line-height:1.6; }
     .loan-title{ font-size:1.05rem; font-weight:900; line-height:1.2; }
     .loan-status-badge{
       display:inline-flex; align-items:center; gap:5px;
@@ -3392,6 +3387,24 @@
       background:rgba(24,230,166,.14);
       color:var(--good);
       border:1px solid rgba(24,230,166,.22);
+    }
+
+    /* 360–437px: the two header chips (status + due day) stay side by side.
+       Fixed 120px widths need ~246px and only fit from 438px up, so here they
+       size to their content with slightly tighter type and padding. */
+    @media screen and (min-width:360px) and (max-width:437px){
+      .loan-title-row{ min-width:0; flex:1 1 auto; }
+      .loan-badges{ flex-wrap:nowrap; gap:5px; }
+      .loan-status-badge.active,
+      .loan-due-badge{
+        width:auto; flex:0 1 auto; min-width:0;
+        white-space:nowrap;
+        font-size:.68rem; gap:4px; padding:3px 7px;
+      }
+    }
+    @media screen and (min-width:360px) and (max-width:389px){
+      .loan-status-badge.active,
+      .loan-due-badge{ font-size:.64rem; padding:3px 6px; gap:3px; }
     }
 
     /* ── stats row ── */
@@ -4687,6 +4700,15 @@
 .acct-pick-hint.warn{color:var(--warn)}
 .tx-acct{--c:#94a3b8;display:inline-flex;align-items:center;gap:4px;margin-inline-start:8px;padding:1px 8px;border-radius:99px;font-size:.7rem;font-weight:700;color:var(--c);background:rgba(255,255,255,.08);background:color-mix(in srgb,var(--c) 14%,transparent)}
 
+/* narrow phones (≤420px): timestamp and account badge are separate flex items.
+   They share a line when there is room; otherwise the badge drops to its own
+   line instead of wrapping mid-text and overlapping the date. */
+@media screen and (max-width:420px){
+  .transaction-date{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+  .transaction-date .tx-date-text{white-space:nowrap}
+  .transaction-date .tx-acct{margin-inline-start:0;white-space:nowrap;max-width:100%;font-size:.62rem;padding:1px 7px;line-height:1.5}
+}
+
 /* account modal: loan-default switch row */
 .acct-switch-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 14px;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;font-size:inherit;color:var(--text)}
 .acct-switch-text{display:grid;gap:3px;min-width:0}
@@ -5934,7 +5956,7 @@ html body .acct-ico.has-logo{background:#fff;padding:2px;overflow:hidden;box-sha
       <div class="fm-head">
         <div>
           <div class="fm-title" id="filterModalTitle">فیلتر تراکنش‌ها</div>
-          <div class="fm-sub">سرچ، دسته، بازه زمانی و نوع تراکنش</div>
+          <div class="fm-sub">سرچ، دسته، حساب، بازه زمانی و نوع تراکنش</div>
         </div>
         <button class="close-btn" type="button" id="closeFilterBtn" aria-label="بستن"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -5948,6 +5970,11 @@ html body .acct-ico.has-logo{background:#fff;padding:2px;overflow:hidden;box-sha
             </select>
             <select class="select" id="transactionCategoryFilter">
               <option value="all">همه دسته‌بندی‌ها</option>
+            </select>
+          </div>
+          <div id="transactionAccountFilterWrap" hidden>
+            <select class="select" id="transactionAccountFilter">
+              <option value="all">همه حساب‌ها</option>
             </select>
           </div>
           <div class="filter-amount-row">
@@ -6413,6 +6440,7 @@ const presetAvatars = [
           query: '',
           type: 'all',
           category: 'all',
+          account: 'all',
           from: '',
           to: '',
           minAmount: '',
@@ -6507,6 +6535,8 @@ const presetAvatars = [
         transactionSearchInput: document.getElementById('transactionSearchInput'),
         transactionTypeFilter: document.getElementById('transactionTypeFilter'),
         transactionCategoryFilter: document.getElementById('transactionCategoryFilter'),
+        transactionAccountFilter: document.getElementById('transactionAccountFilter'),
+        transactionAccountFilterWrap: document.getElementById('transactionAccountFilterWrap'),
         transactionFromDate: document.getElementById('transactionFromDate'),
         transactionToDate: document.getElementById('transactionToDate'),
         filterMinAmount: document.getElementById('filterMinAmount'),
@@ -7446,6 +7476,19 @@ function parseMoneyInput(value) {
           ].join('');
           els.transactionCategoryFilter.value = current;
         }
+        if (els.transactionAccountFilter) {
+          const accounts = state.accounts || [];
+          const cur = state.filters.account || 'all';
+          if (cur !== 'all' && cur !== 'none' && !accounts.some(a => a.id === cur)) state.filters.account = 'all';
+          const sel = state.filters.account || 'all';
+          els.transactionAccountFilter.innerHTML = [
+            `<option value="all">همه حساب‌ها</option>`,
+            `<option value="none">👛 بدون حساب</option>`,
+            ...accounts.map(a => `<option value="${escapeHtml(a.id)}">${escapeHtml(a.icon || '')} ${escapeHtml(a.name)}</option>`)
+          ].join('');
+          els.transactionAccountFilter.value = sel;
+          if (els.transactionAccountFilterWrap) els.transactionAccountFilterWrap.hidden = accounts.length === 0;
+        }
         if (els.transactionSearchInput) els.transactionSearchInput.value = state.filters.query || '';
         if (els.transactionFromDate) els.transactionFromDate.value = state.filters.from || '';
         if (els.transactionToDate) els.transactionToDate.value = state.filters.to || '';
@@ -7459,6 +7502,7 @@ function parseMoneyInput(value) {
         const query = String(state.filters.query || '').trim().toLowerCase();
         const type = state.filters.type || 'all';
         const category = state.filters.category || 'all';
+        const account = state.filters.account || 'all';
         const fromTs = state.filters.from ? new Date(`${state.filters.from}T00:00:00`).getTime() : null;
         const toTs = state.filters.to ? new Date(`${state.filters.to}T23:59:59.999`).getTime() : null;
         const minAmt = state.filters.minAmount ? parseFloat(state.filters.minAmount) : null;
@@ -7468,6 +7512,8 @@ function parseMoneyInput(value) {
         const filtered = [...activeTransactions()].filter(t => {
           if (type !== 'all' && t.type !== type) return false;
           if (category !== 'all' && t.category !== category) return false;
+          if (account === 'none') { if (t.accountId) return false; }
+          else if (account !== 'all' && t.accountId !== account) return false;
           const createdAt = Number(t.createdAt || 0);
           if (fromTs !== null && createdAt < fromTs) return false;
           if (toTs !== null && createdAt > toTs) return false;
@@ -7521,7 +7567,7 @@ function parseMoneyInput(value) {
                 <div class="transaction-body">
                   <div class="transaction-title">${title}</div>
                   <div class="transaction-note">${escapeHtml(t.note || 'بدون توضیح')}</div>
-                  <div class="transaction-date"><i class="fa-regular fa-clock"></i> ${formatTransactionDate(t.createdAt)}${(() => { const a = accountById(t.accountId); return a ? `<span class="tx-acct" style="--c:${a.color}">${acctBadgeIcon(a)} ${escapeHtml(a.name)}</span>` : ''; })()}</div>
+                  <div class="transaction-date"><span class="tx-date-text"><i class="fa-regular fa-clock"></i> ${formatTransactionDate(t.createdAt)}</span>${(() => { const a = accountById(t.accountId); return a ? `<span class="tx-acct" style="--c:${a.color}">${acctBadgeIcon(a)} ${escapeHtml(a.name)}</span>` : ''; })()}</div>
                 </div>
               </div>
               <div class="transaction-right">
@@ -7790,6 +7836,7 @@ function parseMoneyInput(value) {
         if (String(f.query || '').trim()) n++;
         if (f.type && f.type !== 'all') n++;
         if (f.category && f.category !== 'all') n++;
+        if (f.account && f.account !== 'all') n++;
         if (f.from) n++;
         if (f.to) n++;
         if (f.minAmount) n++;
@@ -7824,6 +7871,7 @@ function parseMoneyInput(value) {
           query: String(v(els.transactionSearchInput) || ''),
           type: v(els.transactionTypeFilter) || 'all',
           category: v(els.transactionCategoryFilter) || 'all',
+          account: v(els.transactionAccountFilter) || 'all',
           from, to,
           minAmount: v(els.filterMinAmount),
           maxAmount: v(els.filterMaxAmount),
@@ -12138,7 +12186,7 @@ function renderCalendarView() {
       }
 
       function clearFilters() {
-        state.filters = { query:'', type:'all', category:'all', from:'', to:'', minAmount:'', maxAmount:'', sortBy:'dateDesc' };
+        state.filters = { query:'', type:'all', category:'all', account:'all', from:'', to:'', minAmount:'', maxAmount:'', sortBy:'dateDesc' };
         renderTransactionFilters();   // (was: syncFilterUI() — an undefined function that crashed «پاک‌سازی»)
         closeFilterModal();
         renderTransactions();
@@ -12815,7 +12863,6 @@ function renderCalendarView() {
         <div class="field">
           <label>قسط‌های پرداخت‌شده</label>
           <input class="input" type="number" id="editLoanPaid" min="0">
-          <div class="loan-edit-hint">فقط تعداد را اصلاح می‌کند؛ تراکنشی ثبت یا حذف نمی‌شود.</div>
         </div>
         <div class="field">
           <label>موعد پرداخت (روز ماه)</label>
