@@ -893,6 +893,30 @@
       padding-inline-end:64px;
       letter-spacing:.5px;
     }
+
+    /* ── Money inputs: thousands separator + words hint ── */
+    .money-words{
+      display:block;
+      margin-top:6px;
+      min-height:1.6em;
+      font-size:.8rem;
+      line-height:1.6;
+      font-weight:600;
+      color:#f8fafc;
+      text-align:start;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    .budget-edit-row[hidden] + .money-words{display:none !important}
+    body.light-mode .money-words{color:var(--accent2)}
+    .money-words.is-hero{text-align:center;font-size:.88rem}
+    .money-words.is-inline{min-height:0;margin-top:4px}
+    .money-words.is-inline:empty{display:none}
+    .goal-actions + .money-words,
+    .budget-edit-row + .money-words{grid-column:1 / -1}
+    input[data-money]{direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+    input[data-money].amount-hero-input{text-align:center}
+    input[data-money]::placeholder{direction:rtl}
     .amount-input-suffix{
       position:absolute;
       inset-inline-end:16px;
@@ -13319,6 +13343,164 @@ function renderCalendarView() {
       xChannelSelector="R" yChannelSelector="G"/>
   </filter>
 </svg>
+
+  <script>
+  /* ═══ Money inputs: ۳ رقم ۳ رقم + نمایش حروفی ═══ */
+  (function(){
+    'use strict';
+    var SELECTOR = [
+      '#transactionAmount','#transferAmount','#accountOpening','#newGoalTarget',
+      '#newLoanInstallment','#editLoanInstallment','#newCategoryLimit',
+      '#filterMinAmount','#filterMaxAmount','[data-budget-input]','[data-goal-amount]'
+    ].join(',');
+    var MAX_DIGITS = 15;
+    var FA = '۰۱۲۳۴۵۶۷۸۹';
+    var SEP = '٬';
+    var nativeValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+
+    var ONES = ['صفر','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه'];
+    var TEENS = ['ده','یازده','دوازده','سیزده','چهارده','پانزده','شانزده','هفده','هجده','نوزده'];
+    var TENS = ['','','بیست','سی','چهل','پنجاه','شصت','هفتاد','هشتاد','نود'];
+    var HUND = ['','صد','دویست','سیصد','چهارصد','پانصد','ششصد','هفتصد','هشتصد','نهصد'];
+    var SCALES = ['','هزار','میلیون','میلیارد','هزار میلیارد'];
+
+    function toEn(str){
+      return String(str == null ? '' : str)
+        .replace(/[۰-۹]/g, function(d){ return FA.indexOf(d); })
+        .replace(/[٠-٩]/g, function(d){ return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); });
+    }
+    function digitsOnly(str){
+      var d = toEn(str).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+      return d.slice(0, MAX_DIGITS);
+    }
+    function group3(d){
+      return d.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function toFa(str){
+      return str.replace(/\d/g, function(d){ return FA[d]; }).replace(/,/g, SEP);
+    }
+    function formatDigits(d){ return d ? toFa(group3(d)) : ''; }
+
+    function threeDigitWords(n){
+      var out = [];
+      var h = Math.floor(n / 100), r = n % 100;
+      if (h) out.push(HUND[h]);
+      if (r) {
+        if (r < 10) out.push(ONES[r]);
+        else if (r < 20) out.push(TEENS[r - 10]);
+        else {
+          var t = Math.floor(r / 10), o = r % 10;
+          out.push(o ? TENS[t] + ' و ' + ONES[o] : TENS[t]);
+        }
+      }
+      return out.join(' و ');
+    }
+    function numberToWords(d){
+      if (!d) return '';
+      if (/^0+$/.test(d)) return 'صفر';
+      var parts = [], i = 0, s = d;
+      while (s.length) {
+        var chunk = parseInt(s.slice(-3), 10);
+        s = s.slice(0, -3);
+        if (chunk) {
+          var w = threeDigitWords(chunk);
+          // «یک هزار» → «هزار»
+          if (i === 1 && chunk === 1) w = '';
+          parts.unshift((w ? w + ' ' : '') + SCALES[i]);
+        }
+        i++;
+      }
+      return parts.map(function(p){ return p.trim(); }).join(' و ');
+    }
+
+    function placeHint(el){
+      var hint = document.createElement('div');
+      hint.className = 'money-words';
+      hint.setAttribute('aria-live', 'polite');
+      var host = el;
+      var parent = el.parentElement;
+      if (parent && parent.classList.contains('amount-input-wrap')) {
+        host = parent;
+        hint.classList.add('is-hero');
+      } else if (parent && (parent.classList.contains('goal-actions') || parent.classList.contains('budget-edit-row'))) {
+        host = parent;
+        hint.classList.add('is-inline');
+      }
+      host.insertAdjacentElement('afterend', hint);
+      return hint;
+    }
+
+    function enhance(el){
+      if (!el || el.__money) return;
+      el.__money = true;
+      var initial = digitsOnly(el.getAttribute('value') || nativeValue.get.call(el));
+      el.setAttribute('data-money', '');
+      el.removeAttribute('min');
+      el.removeAttribute('max');
+      el.type = 'text';
+      el.setAttribute('inputmode', 'numeric');
+      el.setAttribute('autocomplete', 'off');
+      el.setAttribute('dir', 'ltr');
+
+      var raw = '';
+      var hint = placeHint(el);
+
+      function render(){
+        nativeValue.set.call(el, formatDigits(raw));
+        if (raw) {
+          hint.textContent = numberToWords(raw) + ' تومان';
+          hint.classList.add('has-value');
+        } else {
+          hint.textContent = '';
+          hint.classList.remove('has-value');
+        }
+      }
+
+      // Existing code keeps reading/writing el.value as a plain number string
+      Object.defineProperty(el, 'value', {
+        configurable: true,
+        get: function(){ return raw; },
+        set: function(v){ raw = digitsOnly(v); render(); }
+      });
+
+      el.addEventListener('input', function(){
+        var shown = nativeValue.get.call(el);
+        var caret = el.selectionStart == null ? shown.length : el.selectionStart;
+        var digitsBefore = digitsOnly(shown.slice(0, caret)).length;
+        // digitsOnly trims leading zeros / length — recompute against full raw safely
+        var before = toEn(shown.slice(0, caret)).replace(/\D/g, '').length;
+        raw = digitsOnly(shown);
+        render();
+        var formatted = nativeValue.get.call(el);
+        var pos = formatted.length, seen = 0;
+        if (before === 0) pos = 0;
+        else {
+          for (var i = 0; i < formatted.length; i++) {
+            if (/[۰-۹]/.test(formatted[i])) seen++;
+            if (seen >= Math.min(before, raw.length)) { pos = i + 1; break; }
+          }
+        }
+        try { el.setSelectionRange(pos, pos); } catch (e) {}
+      });
+
+      raw = initial;
+      render();
+    }
+
+    function scan(root){
+      if (!root || !root.querySelectorAll) return;
+      if (root.matches && root.matches(SELECTOR)) enhance(root);
+      root.querySelectorAll(SELECTOR).forEach(enhance);
+    }
+
+    scan(document);
+    new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){ if (n.nodeType === 1) scan(n); });
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  })();
+  </script>
 </body>
 
 </html>
