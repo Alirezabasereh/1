@@ -13576,17 +13576,25 @@ function renderCalendarView() {
     function $(id){ return document.getElementById(id); }
     function visible(el){ return !!el && !el.hidden && el.getClientRects().length > 0; }
 
+    function hasGuard(){ return !!(history.state && history.state.finoraGuard); }
+    armed = hasGuard();                    // page reloaded while sitting on the guard entry → already armed
     function arm(){
       try { history.pushState({ finoraGuard: 1 }, '', location.href); armed = true; } catch (e) {}
     }
-    // Chrome ignores history entries added without a user gesture, so arm on the first interaction
-    function firstGesture(){
-      ['pointerdown','touchstart','keydown','click'].forEach(function(t){ window.removeEventListener(t, firstGesture, true); });
-      if (armed) return;
-      try { history.replaceState({ finoraRoot: 1 }, '', location.href); } catch (e) {}
-      arm();
+    // Chrome (Android) marks history entries added WITHOUT a user activation as "skippable" for the back button.
+    // Only touchend / pointerup(touch) / click / keydown count as activation – NOT touchstart/pointerdown.
+    // So: arm on the first real activation, and re-check the guard after every tap.
+    function onActivation(e){
+      if (e && e.isTrusted === false) return;
+      if (!armed) {
+        try { history.replaceState({ finoraRoot: 1 }, '', location.href); } catch (er) {}
+        arm();
+      } else if (!hasGuard() && !leaving) {
+        // the guard was lost (e.g. navigation, reload-restore) → put it back
+        arm();
+      }
     }
-    ['pointerdown','touchstart','keydown','click'].forEach(function(t){ window.addEventListener(t, firstGesture, true); });
+    ['touchend','pointerup','click','keydown'].forEach(function(t){ window.addEventListener(t, onActivation, true); });
 
     function showExit(){ exitEl.hidden = false; var b = $('exitStayBtn'); if (b) b.focus({ preventScroll: true }); }
     function hideExit(){ exitEl.hidden = true; }
