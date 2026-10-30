@@ -914,8 +914,13 @@
     .money-words.is-inline:empty{display:none}
     .goal-actions + .money-words,
     .budget-edit-row + .money-words{grid-column:1 / -1}
-    input[data-money]{direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
-    input[data-money].amount-hero-input{text-align:center}
+    input[data-money]{direction:ltr;text-align:right}
+    input[data-money].amount-hero-input{
+      height:62px;
+      text-align:center;
+      padding-inline:68px;          /* symmetric: number stays centered and never touches «تومان» */
+      text-overflow:clip;
+    }
     input[data-money]::placeholder{direction:rtl}
     .amount-input-suffix{
       position:absolute;
@@ -13445,8 +13450,53 @@ function renderCalendarView() {
       var raw = '';
       var hint = placeHint(el);
 
+      // Hero input: shrink the font just enough that the whole number always fits
+      var isHero = el.classList.contains('amount-hero-input');
+      var probe = null;
+      function textWidthAt(text, cs, px){
+        if (!probe) {
+          probe = document.createElement('span');
+          probe.setAttribute('aria-hidden', 'true');
+          probe.style.cssText = 'position:fixed;left:0;top:0;width:auto;max-width:none;visibility:hidden;white-space:pre;direction:ltr;pointer-events:none;contain:layout style;z-index:-1';
+          document.body.appendChild(probe);
+        }
+        probe.style.fontFamily = cs.fontFamily;
+        probe.style.fontWeight = cs.fontWeight;
+        probe.style.fontStyle = cs.fontStyle;
+        probe.style.fontVariantNumeric = cs.fontVariantNumeric;
+        probe.style.letterSpacing = cs.letterSpacing;
+        probe.style.fontSize = px + 'px';
+        probe.textContent = text;
+        return probe.getBoundingClientRect().width;
+      }
+      function fitHero(){
+        if (!isHero) return;
+        el.style.fontSize = '';
+        var text = nativeValue.get.call(el);
+        if (!text) return;
+        var cs = getComputedStyle(el);
+        var avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 4;
+        if (!(avail > 0)) return;                       // hidden now; ResizeObserver refits when shown
+        var px = parseFloat(cs.fontSize);
+        if (textWidthAt(text, cs, px) <= avail) return;  // fits at full size
+        // shrink proportionally, then verify against real rendering (glyph widths aren't perfectly linear)
+        px = Math.max(8, px * avail / textWidthAt(text, cs, px));
+        for (var i = 0; i < 20 && px > 8 && textWidthAt(text, cs, px) > avail; i++) px *= 0.97;
+        el.style.fontSize = (Math.floor(px * 10) / 10) + 'px';
+      }
+      if (isHero) {
+        var lastW = -1;
+        if (window.ResizeObserver) new ResizeObserver(function(){
+          if (el.clientWidth !== lastW) { lastW = el.clientWidth; fitHero(); }   // width only; ignore height changes
+        }).observe(el);
+        window.addEventListener('resize', fitHero);
+        if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitHero);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHero);
+      }
+
       function render(){
         nativeValue.set.call(el, formatDigits(raw));
+        fitHero();
         if (raw) {
           hint.textContent = numberToWords(raw) + ' تومان';
           hint.classList.add('has-value');
