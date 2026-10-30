@@ -13551,6 +13551,113 @@ function renderCalendarView() {
     }).observe(document.body, { childList: true, subtree: true });
   })();
   </script>
+
+  <!-- exit confirmation (shown when «back» is pressed on the home tab with nothing open) -->
+  <div class="reset-confirm-overlay" id="exitConfirmOverlay" hidden>
+    <div class="glass reset-confirm-card" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">
+      <div class="reset-confirm-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+      <h3 id="exitConfirmTitle">از برنامه خارج می‌شی؟</h3>
+      <p>برای ادامه همین‌جا بمون، یا خروج رو بزن.</p>
+      <div class="reset-confirm-actions">
+        <button class="ghost-btn" type="button" id="exitStayBtn">بمونم</button>
+        <button class="save-btn" type="button" id="exitLeaveBtn">خروج</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ═══ Back button / swipe-back: one step back inside the app, then confirm before leaving ═══
+     Order: date picker → exit dialog → reset dialog → top-most open modal → other tab → home → «خروج؟» */
+  (function(){
+    'use strict';
+    var armed = false, leaving = false, leaveTimer = null;
+    var exitEl = document.getElementById('exitConfirmOverlay');
+
+    function $(id){ return document.getElementById(id); }
+    function visible(el){ return !!el && !el.hidden && el.getClientRects().length > 0; }
+
+    function arm(){
+      try { history.pushState({ finoraGuard: 1 }, '', location.href); armed = true; } catch (e) {}
+    }
+    // Chrome ignores history entries added without a user gesture, so arm on the first interaction
+    function firstGesture(){
+      ['pointerdown','touchstart','keydown','click'].forEach(function(t){ window.removeEventListener(t, firstGesture, true); });
+      if (armed) return;
+      try { history.replaceState({ finoraRoot: 1 }, '', location.href); } catch (e) {}
+      arm();
+    }
+    ['pointerdown','touchstart','keydown','click'].forEach(function(t){ window.addEventListener(t, firstGesture, true); });
+
+    function showExit(){ exitEl.hidden = false; var b = $('exitStayBtn'); if (b) b.focus({ preventScroll: true }); }
+    function hideExit(){ exitEl.hidden = true; }
+
+    function leave(){
+      leaving = true;
+      hideExit();
+      history.back();                                    // guard → root; popstate below goes back once more
+      leaveTimer = setTimeout(function(){ try { window.close(); } catch (e) {} leaving = false; }, 700);
+    }
+
+    $('exitStayBtn').addEventListener('click', hideExit);
+    $('exitLeaveBtn').addEventListener('click', leave);
+    exitEl.addEventListener('click', function(e){ if (e.target === exitEl) hideExit(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !exitEl.hidden) hideExit(); });
+
+    function topModal(){
+      var list = document.querySelectorAll('.modal-overlay.active'), best = null, bz = -1;
+      list.forEach(function(m, i){
+        var z = parseInt(getComputedStyle(m).zIndex, 10); if (isNaN(z)) z = 0;
+        if (z >= bz) { bz = z; best = m; }
+      });
+      return best;
+    }
+
+    // returns true when it closed / changed something inside the app
+    function stepBack(){
+      // 1) date picker
+      if (document.querySelector('.jd-overlay')) {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        if (document.querySelector('.jd-overlay')) { var jo = document.querySelector('.jd-overlay'); jo.parentNode && jo.parentNode.removeChild(jo); }
+        return true;
+      }
+      // 2) exit dialog → stay
+      if (!exitEl.hidden) { hideExit(); return true; }
+      // 3) reset-data confirm
+      var rc = $('resetConfirmOverlay');
+      if (rc && !rc.hidden) { var cancel = $('resetCancelBtn'); if (cancel) cancel.click(); else rc.hidden = true; return true; }
+      // 4) top-most open modal / sheet (runs the app's own close logic)
+      var m = topModal();
+      if (m) {
+        var x = m.querySelector('.close-btn');
+        if (x) x.click(); else m.click();
+        if (m.classList.contains('active')) { m.classList.remove('active'); m.setAttribute('aria-hidden', 'true'); }
+        return true;
+      }
+      // 5) any other tab → home
+      var page = document.querySelector('.page.active-page');
+      var key = page && page.dataset.page;
+      if (key && key !== 'home') {
+        var homeBtn = document.querySelector('[data-nav="home"]');
+        if (homeBtn) { homeBtn.click(); return true; }
+      }
+      return false;
+    }
+
+    window.addEventListener('popstate', function(e){
+      if (leaving) {                                      // user confirmed exit: second step back
+        clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(function(){ try { window.close(); } catch (er) {} leaving = false; }, 700);
+        history.back();
+        return;
+      }
+      if (e.state && e.state.finoraGuard) return;         // moved onto the guard entry – nothing to do
+      if (!armed) return;
+      // we are on the root entry now: handle the press, then put the guard back
+      if (!stepBack()) showExit();
+      arm();
+    });
+  })();
+  </script>
 </body>
 
 </html>
