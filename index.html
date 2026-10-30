@@ -4555,6 +4555,7 @@
 .hs-main > .hs-value{flex:1 1 0;min-width:0}
 .hs-value{display:block;font-weight:900;line-height:1.15;font-size:clamp(1.3rem,11cqw,2.4rem)}
 .hs-value > span,.hs-value > b{display:inline-block;white-space:nowrap;font-weight:900}
+.hero-stat.income > .hs-value,.hero-stat.expense > .hs-value{margin-block:auto}
 .hs-value > small{display:block;font-size:max(.42em,11px);font-weight:500;color:var(--muted);margin-top:3px;line-height:1.4}
 .hero-stat.health .hs-value{display:flex;align-items:baseline;gap:6px;font-size:.8rem}
 .hero-stat.health .hs-value > b{font-size:calc(var(--hs-u,28px) * 1.2);line-height:1}
@@ -4584,6 +4585,24 @@
   .hs-foot{font-size:.66rem}
   .hs-note{display:none}
   .hs-value > small{margin-top:1px}
+}
+/* viewport 360–960px: 2×2 grid → هر چهار چیپ فشرده و هم‌ارتفاع؛ مبلغ‌ها با عرض بزرگ می‌شوند (سقف فونت در fitHeroNumbers: ۲۰px در ۳۶۰، ۳۳px در ۵۰۰) */
+@media (min-width:360px) and (max-width:960px){
+  .hero-stats{grid-auto-rows:1fr;gap:8px}
+  .hero-stat{padding:10px 12px;gap:5px;border-radius:18px}
+  .hero-stat .hs-icon{width:24px;height:24px;border-radius:8px;font-size:.68rem}
+  .hero-stat .hs-head{gap:6px;font-size:.74rem}
+  .hero-stat .hs-tag{font-size:.6rem;padding:2px 7px}
+  .hero-stat .hs-main{padding:0}
+  .hero-stat .hs-value{line-height:1.1}
+  .hero-stat .hs-value > small{margin-top:0}
+  .hero-stat .hs-bottom{gap:4px}
+  .hero-stat .hs-meter{height:5px}
+  .hero-stat .hs-foot{font-size:.62rem;gap:0 6px}
+  .hero-stat .hs-note:not(:empty){display:block;font-size:.64rem;line-height:1.5}
+}
+@container (max-width:199px){
+  @media (min-width:360px) and (max-width:960px){.hero-stat .hs-note:not(:empty){display:none}}
 }
 @media (max-width:860px){#homePage .hero-card{padding:16px;gap:14px}}
 /* smooth-scroll target highlight (analysis tab) */
@@ -5294,11 +5313,11 @@ html body .acct-ico.has-logo{background:#fff;padding:2px;overflow:hidden;box-sha
         <div class="hero-stats">
           <div class="hero-stat income">
             <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-arrow-trend-up"></i></span><span class="hs-label">درآمد</span></div>
-            <div class="hs-value" data-fit="56" id="incomeAmount">۰</div>
+            <div class="hs-value" data-fit="64" id="incomeAmount">۰</div>
           </div>
           <div class="hero-stat expense">
             <div class="hs-head"><span class="hs-icon"><i class="fa-solid fa-arrow-trend-down"></i></span><span class="hs-label">هزینه</span></div>
-            <div class="hs-value" data-fit="56" id="expenseAmount">۰</div>
+            <div class="hs-value" data-fit="64" id="expenseAmount">۰</div>
           </div>
           <!-- تراز امروز: همان داده‌ی «تراز امروز» تب تحلیل (مسیر ماه) — computeTodayBalance() -->
           <div class="hero-stat today c-idle" id="heroToday" role="link" tabindex="0" data-hero-go="monthPaceSection" aria-label="تراز امروز؛ رفتن به مسیر ماه در تب تحلیل">
@@ -7934,6 +7953,12 @@ function parseMoneyInput(value) {
         // income & expense share the smaller of their two sizes, and «تراز امروز» never exceeds ~1.15× of that.
         const fit = el => {
           let f = Number(el.dataset.fit) || 36;
+          // compact 2×2 layout (360–960px viewport): cap the size by the tile's width so amounts grow smoothly as the screen opens up
+          if (window.matchMedia('(min-width:360px) and (max-width:960px)').matches) {
+            // 27px at a 360px viewport, 43px at 500px (16px per 140px of width); never above data-fit (64px); the width-fit loop below still shrinks it if needed
+            const vw = Math.min(960, Math.max(360, window.innerWidth));
+            f = Math.min(f, 27 + (vw - 360) * (16 / 140));
+          }
           const node = el.querySelector(':scope > span') || el;
           el.style.setProperty('font-size', f + 'px', 'important');
           for (let i = 0; i < 4; i++) {
