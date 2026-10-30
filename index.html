@@ -794,6 +794,14 @@
     .pf-btn.soft{background:rgba(106,92,255,.14);border-color:rgba(106,92,255,.26)}
     .pf-btn.danger{background:rgba(255,93,125,.12);border-color:rgba(255,93,125,.24);color:var(--bad)}
     .pf-save{padding:0 20px;border-radius:18px;font-size:.88rem}
+    .pf-pw-form{display:grid;gap:8px;padding:14px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+    .pf-pw-form[hidden]{display:none !important}
+    .pf-pw-form .input{direction:ltr;text-align:left}
+    .pf-pw-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+    .pf-pw-msg{display:none;font-size:.82rem;line-height:1.7}
+    .pf-pw-msg.show{display:block}
+    .pf-pw-msg.err{color:var(--bad)}
+    .pf-pw-msg.ok{color:var(--good)}
     .pf-empty{text-align:center;padding:14px 0;font-size:.9rem}
     @media screen and (max-width:416px){
       .profile-page-grid > .management-card{padding:16px}
@@ -3847,6 +3855,15 @@
     .auth-submit:hover{opacity:.92}
     .auth-submit:active{transform:scale(.98)}
     .auth-submit:disabled{opacity:.55;cursor:not-allowed}
+    .auth-link{
+      display:block;width:100%;margin-top:12px;padding:6px;
+      background:none;border:none;color:var(--accent2);
+      font-family:'Vazirmatn',sans-serif;font-size:.86rem;font-weight:600;
+      cursor:pointer;text-align:center;
+    }
+    .auth-link:hover{text-decoration:underline}
+    .auth-link:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:8px}
+    .auth-hint{font-size:.88rem;line-height:1.8;opacity:.75;margin-bottom:16px}
     .auth-error{
       background:rgba(255,93,125,.12);
       border:1px solid rgba(255,93,125,.25);
@@ -4960,7 +4977,7 @@ body.light-mode input:focus,body.light-mode textarea:focus{border-color:var(--ac
 body.light-mode input::placeholder,body.light-mode textarea::placeholder{color:rgba(15,23,42,.40)}
 body.light-mode .jd-field:not(.has-value) .jd-text{color:rgba(15,23,42,.45)}
 body.light-mode .upload-box{background:var(--l-surface);border-color:var(--l-line-strong)}
-body.light-mode .pf-row,body.light-mode .pf-email{background:var(--l-surface);border-color:var(--l-line)}
+body.light-mode .pf-row,body.light-mode .pf-email,body.light-mode .pf-pw-form{background:var(--l-surface);border-color:var(--l-line)}
 body.light-mode .pf-row-icon{background:rgba(90,73,242,.10);color:var(--accent1)}
 body.light-mode .pf-row.is-danger .pf-row-icon{background:rgba(217,45,82,.10);color:var(--bad)}
 body.light-mode .pf-btn.soft{background:rgba(90,73,242,.10);border-color:rgba(90,73,242,.24)}
@@ -5187,7 +5204,34 @@ html body .acct-ico.has-logo{background:#fff;padding:2px;overflow:hidden;box-sha
           <input type="password" id="loginPassword" placeholder="رمز عبور" autocomplete="current-password">
         </div>
         <button class="auth-submit" id="loginBtn" type="button">ورود به حساب</button>
+        <button class="auth-link" id="forgotBtn" type="button">رمز عبور را فراموش کرده‌اید؟</button>
         <div class="auth-error" id="loginError"></div>
+      </div>
+      <!-- FORGOT PASSWORD -->
+      <div id="formForgot" style="display:none">
+        <p class="auth-hint">ایمیل حساب‌تان را وارد کنید تا لینک تعیین رمز جدید برایتان ارسال شود.</p>
+        <div class="auth-field">
+          <label>ایمیل</label>
+          <input type="email" id="forgotEmail" placeholder="example@email.com" autocomplete="email">
+        </div>
+        <button class="auth-submit" id="forgotSendBtn" type="button">ارسال لینک بازیابی</button>
+        <button class="auth-link" id="forgotBackBtn" type="button">بازگشت به ورود</button>
+        <div class="auth-error" id="forgotError"></div>
+        <div class="auth-success" id="forgotSuccess"></div>
+      </div>
+      <!-- SET NEW PASSWORD (after clicking the email link) -->
+      <div id="formRecover" style="display:none">
+        <p class="auth-hint">رمز عبور جدید خود را وارد کنید.</p>
+        <div class="auth-field">
+          <label>رمز عبور جدید (حداقل ۶ کاراکتر)</label>
+          <input type="password" id="recNewPassword" placeholder="رمز عبور جدید" autocomplete="new-password">
+        </div>
+        <div class="auth-field">
+          <label>تکرار رمز عبور جدید</label>
+          <input type="password" id="recNewPasswordConfirm" placeholder="تکرار رمز عبور" autocomplete="new-password">
+        </div>
+        <button class="auth-submit" id="recoverBtn" type="button">ذخیره رمز جدید</button>
+        <div class="auth-error" id="recoverError"></div>
       </div>
       <!-- REGISTER -->
       <div id="formRegister" style="display:none">
@@ -6063,6 +6107,27 @@ html body .acct-ico.has-logo{background:#fff;padding:2px;overflow:hidden;box-sha
             </div>
           </div>
           <div class="pf-list">
+            <div class="pf-row">
+              <div class="pf-row-icon"><i class="fa-solid fa-key"></i></div>
+              <div class="pf-row-text">
+                <h4>تغییر رمز عبور</h4>
+                <p>رمز ورود به حساب را عوض کن</p>
+              </div>
+              <button class="pf-btn soft" type="button" id="changePwToggleBtn">تغییر</button>
+            </div>
+            <div class="pf-pw-form" id="changePwForm" hidden>
+              <label class="field-label" for="curPw">رمز فعلی</label>
+              <input class="input" type="password" id="curPw" autocomplete="current-password">
+              <label class="field-label" for="newPw">رمز جدید (حداقل ۶ کاراکتر)</label>
+              <input class="input" type="password" id="newPw" autocomplete="new-password">
+              <label class="field-label" for="newPwConfirm">تکرار رمز جدید</label>
+              <input class="input" type="password" id="newPwConfirm" autocomplete="new-password">
+              <div class="pf-pw-actions">
+                <button class="pf-btn soft" type="button" id="changePwCancel">انصراف</button>
+                <button class="pf-btn primary" type="button" id="changePwSave">ذخیره رمز</button>
+              </div>
+              <div class="pf-pw-msg" id="changePwMsg" role="status"></div>
+            </div>
             <div class="pf-row">
               <div class="pf-row-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
               <div class="pf-row-text">
@@ -12691,6 +12756,12 @@ function renderCalendarView() {
     const registerError    = document.getElementById('registerError');
     const registerSuccess  = document.getElementById('registerSuccess');
     const profileUserEmail = document.getElementById('profileUserEmail');
+    const formForgot       = document.getElementById('formForgot');
+    const formRecover      = document.getElementById('formRecover');
+    const forgotError      = document.getElementById('forgotError');
+    const forgotSuccess    = document.getElementById('forgotSuccess');
+    const recoverError     = document.getElementById('recoverError');
+    const authTabsEl       = document.querySelector('.auth-tabs');
 
     /* ══════════════════════════ TAB SWITCH ══════════════════════════ */
     tabLogin.addEventListener('click', () => {
@@ -12708,7 +12779,7 @@ function renderCalendarView() {
       clearMessages();
     });
     function clearMessages() {
-      [loginError, registerError, registerSuccess].forEach(el => el.classList.remove('show'));
+      [loginError, registerError, registerSuccess, forgotError, forgotSuccess, recoverError].forEach(el => el.classList.remove('show'));
     }
     function showFieldError(el, msg) { el.textContent = msg; el.classList.add('show'); }
     function showFieldSuccess(el, msg) { el.textContent = msg; el.classList.add('show'); }
@@ -12766,6 +12837,11 @@ function renderCalendarView() {
     ══════════════════════════════════════════════ */
     const appSplash = document.getElementById('appSplash');
 
+    // true وقتی کاربر از لینک «بازیابی رمز» ایمیل وارد اپ شده و باید رمز جدید بگذارد
+    let recoveryMode = /[#&?]type=recovery/.test(location.hash + location.search);
+    // true وقتی خودمون داریم رمز رو تایید/عوض می‌کنیم → eventهای SIGNED_IN/USER_UPDATED نباید اپ رو reload کنن
+    let silentAuthOp = false;
+
     function setScrollLocked(locked) {
       document.documentElement.style.overflow = locked ? 'hidden' : '';
       document.body.style.overflow = locked ? 'hidden' : '';
@@ -12786,6 +12862,14 @@ function renderCalendarView() {
     }
 
     async function handleSession(session) {
+      if (recoveryMode) {
+        if (session && session.user) {
+          setAuthOverlayVisible(true);
+          showAuthView('recover');
+          return;
+        }
+        recoveryMode = false;
+      }
       if (session && session.user) {
         currentUser = session.user;
         setAuthOverlayVisible(false);
@@ -12833,6 +12917,8 @@ function renderCalendarView() {
 
     sb.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return;
+      if (event === 'PASSWORD_RECOVERY') { recoveryMode = true; handleSession(session); return; }
+      if (silentAuthOp && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) return;
       handleSession(session);
     });
 
@@ -13014,6 +13100,9 @@ function renderCalendarView() {
       if (msg.indexOf('User already registered') !== -1) return 'این ایمیل قبلا ثبت‌نام شده است.';
       if (msg.indexOf('Password should be') !== -1) return 'رمز عبور باید حداقل ۶ کاراکتر باشد.';
       if (msg.indexOf('rate limit') !== -1) return 'تعداد تلاش زیاد است. کمی صبر کنید.';
+      if (msg.indexOf('only request this after') !== -1) return 'برای امنیت، چند ثانیه صبر کنید و دوباره تلاش کنید.';
+      if (msg.indexOf('different from the old password') !== -1) return 'رمز جدید باید با رمز قبلی متفاوت باشد.';
+      if (msg.indexOf('Auth session missing') !== -1) return 'نشست شما منقضی شده؛ دوباره وارد شوید.';
       return msg;
     }
 
@@ -13024,6 +13113,132 @@ function renderCalendarView() {
     document.getElementById('regPasswordConfirm').addEventListener('keydown', e => {
       if (e.key === 'Enter') registerBtn.click();
     });
+
+    /* ══════════════════════════════════════════════
+       PASSWORD: فراموشی / بازیابی / تغییر
+    ══════════════════════════════════════════════ */
+    const authViews = { login: formLogin, register: formRegister, forgot: formForgot, recover: formRecover };
+    function showAuthView(name) {
+      Object.keys(authViews).forEach(k => { authViews[k].style.display = (k === name) ? '' : 'none'; });
+      if (authTabsEl) authTabsEl.style.display = (name === 'forgot' || name === 'recover') ? 'none' : '';
+      tabLogin.classList.toggle('active', name !== 'register');
+      tabRegister.classList.toggle('active', name === 'register');
+      clearMessages();
+    }
+
+    /* ── 1) فراموشی رمز: ارسال لینک به ایمیل ── */
+    const forgotBtn     = document.getElementById('forgotBtn');
+    const forgotBackBtn = document.getElementById('forgotBackBtn');
+    const forgotSendBtn = document.getElementById('forgotSendBtn');
+    const forgotEmail   = document.getElementById('forgotEmail');
+
+    forgotBtn.addEventListener('click', () => {
+      forgotEmail.value = document.getElementById('loginEmail').value.trim();
+      showAuthView('forgot');
+      forgotEmail.focus();
+    });
+    forgotBackBtn.addEventListener('click', () => showAuthView('login'));
+    forgotSendBtn.addEventListener('click', async () => {
+      const email = forgotEmail.value.trim();
+      clearMessages();
+      if (!email) return showFieldError(forgotError, 'ایمیل را وارد کنید.');
+      if (!/^https?:$/.test(location.protocol)) {
+        return showFieldError(forgotError, 'بازیابی رمز فقط وقتی کار می‌کند که اپ روی یک آدرس اینترنتی (http/https) باز شده باشد.');
+      }
+      forgotSendBtn.disabled = true;
+      forgotSendBtn.innerHTML = 'در حال ارسال... <span class="auth-loading"></span>';
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: location.origin + location.pathname
+      });
+      forgotSendBtn.disabled = false;
+      forgotSendBtn.textContent = 'ارسال لینک بازیابی';
+      if (error) showFieldError(forgotError, translateAuthError(error.message));
+      else showFieldSuccess(forgotSuccess, '✅ اگر این ایمیل ثبت‌نام شده باشد، لینک تعیین رمز جدید برایش ارسال شد. پوشه‌ی اسپم را هم بررسی کنید.');
+    });
+    forgotEmail.addEventListener('keydown', e => { if (e.key === 'Enter') forgotSendBtn.click(); });
+
+    /* ── 2) بعد از کلیک روی لینک ایمیل: تعیین رمز جدید ── */
+    const recoverBtn = document.getElementById('recoverBtn');
+    const recNew     = document.getElementById('recNewPassword');
+    const recConfirm = document.getElementById('recNewPasswordConfirm');
+
+    recoverBtn.addEventListener('click', async () => {
+      const pw = recNew.value, pw2 = recConfirm.value;
+      clearMessages();
+      if (!pw) return showFieldError(recoverError, 'رمز جدید را وارد کنید.');
+      if (pw.length < 6) return showFieldError(recoverError, 'رمز عبور باید حداقل ۶ کاراکتر باشد.');
+      if (pw !== pw2) return showFieldError(recoverError, 'رمز عبور و تکرار آن یکسان نیستند.');
+      recoverBtn.disabled = true;
+      recoverBtn.innerHTML = 'در حال ذخیره... <span class="auth-loading"></span>';
+      let error = null;
+      silentAuthOp = true;
+      try { ({ error } = await sb.auth.updateUser({ password: pw })); }
+      finally { silentAuthOp = false; }
+      recoverBtn.disabled = false;
+      recoverBtn.textContent = 'ذخیره رمز جدید';
+      if (error) return showFieldError(recoverError, translateAuthError(error.message));
+      recoveryMode = false;
+      recNew.value = ''; recConfirm.value = '';
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      showAuthView('login');
+      const { data } = await sb.auth.getSession();
+      await handleSession(data.session);
+      showSync('saved', '✅ رمز عبور تغییر کرد');
+    });
+    recConfirm.addEventListener('keydown', e => { if (e.key === 'Enter') recoverBtn.click(); });
+
+    /* ── 3) تغییر رمز از صفحه‌ی پروفایل (کاربر واردشده) ── */
+    const changePwToggleBtn = document.getElementById('changePwToggleBtn');
+    const changePwForm      = document.getElementById('changePwForm');
+    const curPw             = document.getElementById('curPw');
+    const newPw             = document.getElementById('newPw');
+    const newPwConfirm      = document.getElementById('newPwConfirm');
+    const changePwSave      = document.getElementById('changePwSave');
+    const changePwCancel    = document.getElementById('changePwCancel');
+    const changePwMsg       = document.getElementById('changePwMsg');
+
+    function setPwMsg(type, text) {
+      changePwMsg.textContent = text;
+      changePwMsg.className = 'pf-pw-msg show ' + type;
+    }
+    function resetPwForm() {
+      [curPw, newPw, newPwConfirm].forEach(i => { i.value = ''; });
+      changePwMsg.textContent = '';
+      changePwMsg.className = 'pf-pw-msg';
+    }
+    changePwToggleBtn.addEventListener('click', () => {
+      changePwForm.hidden = !changePwForm.hidden;
+      if (changePwForm.hidden) resetPwForm(); else curPw.focus();
+    });
+    changePwCancel.addEventListener('click', () => { changePwForm.hidden = true; resetPwForm(); });
+    changePwSave.addEventListener('click', async () => {
+      if (!currentUser || !currentUser.email) return setPwMsg('err', 'ابتدا وارد حساب شوید.');
+      const cur = curPw.value, next = newPw.value, next2 = newPwConfirm.value;
+      if (!cur || !next) return setPwMsg('err', 'رمز فعلی و رمز جدید را وارد کنید.');
+      if (next.length < 6) return setPwMsg('err', 'رمز جدید باید حداقل ۶ کاراکتر باشد.');
+      if (next !== next2) return setPwMsg('err', 'رمز جدید و تکرار آن یکسان نیستند.');
+      if (next === cur) return setPwMsg('err', 'رمز جدید باید با رمز فعلی فرق داشته باشد.');
+      changePwSave.disabled = true;
+      setPwMsg('ok', 'در حال بررسی...');
+      silentAuthOp = true;
+      try {
+        // اول رمز فعلی رو با یک ورود تستی تایید می‌کنیم
+        const { error: verifyErr } = await sb.auth.signInWithPassword({ email: currentUser.email, password: cur });
+        if (verifyErr) {
+          return setPwMsg('err', verifyErr.message.indexOf('Invalid login') !== -1
+            ? 'رمز فعلی اشتباه است.' : translateAuthError(verifyErr.message));
+        }
+        const { error } = await sb.auth.updateUser({ password: next });
+        if (error) return setPwMsg('err', translateAuthError(error.message));
+        resetPwForm();
+        changePwForm.hidden = true;
+        showSync('saved', '✅ رمز عبور تغییر کرد');
+      } finally {
+        silentAuthOp = false;
+        changePwSave.disabled = false;
+      }
+    });
+    newPwConfirm.addEventListener('keydown', e => { if (e.key === 'Enter') changePwSave.click(); });
 
   })();
   </script>
